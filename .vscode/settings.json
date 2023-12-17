@@ -2,5 +2,6 @@
   "files.associations": {
     "*.txt": "plaintext",
     "chrono": "cpp"
-  }
+  },
+  "C_Cpp.default.compilerPath": "cl.exe"
 }
