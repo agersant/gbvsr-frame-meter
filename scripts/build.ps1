@@ -1,11 +1,14 @@
-MSBuild.exe .\output\MyMods.sln
+MSBuild.exe .\output\MyMods.sln /p:Configuration=Game__Shipping__Win64
 
-$install_path = "C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod"
-if (Test-Path $install_path) {
-	Remove-Item -Path $install_path -Recurse
+$game_path = "C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64"
+$mod_path = "$game_path\Mods\FrameMeterMod"
+if (Test-Path $mod_path) {
+	Remove-Item -Path $mod_path -Recurse
 }
 
-New-Item -Type dir -Force "$install_path" | Out-Null
-New-Item -Type file -Force "$install_path\enabled.txt" | Out-Null
-New-Item -Type dir -Force "$install_path\dlls" | Out-Null
-Copy-Item "output/FrameMeterMod/Game__Debug__Win64/FrameMeterMod.dll" -Destination "$install_path\dlls"
+New-Item -Type dir -Force "$mod_path" | Out-Null
+New-Item -Type file -Force "$mod_path\enabled.txt" | Out-Null
+New-Item -Type dir -Force "$mod_path\dlls" | Out-Null
+Copy-Item "output/FrameMeterMod/Game__Shipping__Win64/FrameMeterMod.dll" -Destination "$mod_path\dlls\main.dll"
+Copy-Item "output/Output/Game__Shipping__Win64/proxy/bin/dwmapi.dll" -Destination "$game_path"
+Copy-Item "output/Output/Game__Shipping__Win64/UE4SS/bin/UE4SS.dll" -Destination "$game_path"

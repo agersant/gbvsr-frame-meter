@@ -1,7 +1,13 @@
-#include <stdio.h>
+#include <DynamicOutput/DynamicOutput.hpp>
 #include <Mod/CppUserModBase.hpp>
+#include <Unreal/UObjectGlobals.hpp>
+#include <Unreal/UObject.hpp>
+#include <stdio.h>
 
-class FrameMeterMod : public RC::CppUserModBase
+using namespace RC;
+using namespace RC::Unreal;
+
+class FrameMeterMod : public CppUserModBase
 {
 public:
     FrameMeterMod() : CppUserModBase()
@@ -10,7 +16,8 @@ public:
         ModVersion = STR("1.0");
         ModDescription = STR("Adds a frame meter tool in training mode.");
         ModAuthors = STR("agersant");
-        printf("FrameMeterMod says hello\n");
+
+        Output::send<LogLevel::Normal>(STR("FrameMeterMod says hello\n"));
     }
 
     ~FrameMeterMod() override
@@ -19,6 +26,12 @@ public:
 
     auto on_update() -> void override
     {
+    }
+
+    auto on_unreal_init() -> void override
+    {
+        UObject *Object = UObjectGlobals::StaticFindObject<UObject *>(nullptr, nullptr, STR("/Script/CoreUObject.Object"));
+        Output::send<LogLevel::Verbose>(STR("Object Name: {}\n"), Object->GetFullName());
     }
 };
 
@@ -29,7 +42,7 @@ extern "C"
         return new FrameMeterMod();
     }
 
-    __declspec(dllexport) void uninstall_mod(RC::CppUserModBase *mod)
+    __declspec(dllexport) void uninstall_mod(CppUserModBase *mod)
     {
         delete mod;
     }
