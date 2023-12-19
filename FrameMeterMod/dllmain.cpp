@@ -1,43 +1,11 @@
-#include <DynamicOutput/DynamicOutput.hpp>
 #include <Mod/CppUserModBase.hpp>
-#include <polyhook2/Virtuals/VFuncSwapHook.hpp>
-#include <Unreal/UClass.hpp>
-#include <Unreal/UFunction.hpp>
-#include <Unreal/UObjectGlobals.hpp>
-#include <Unreal/UObject.hpp>
-#include <stdio.h>
 
-using namespace RC;
-using namespace RC::Unreal;
+#include "ui.h"
 
-const uint8_t HUD_VTABLE_INDEX_POST_RENDER = 0x6C0 / 8;
-using HUDPostRender_sig = void (*)(uintptr_t);
-PLH::VFuncMap hud_original_functions;
-Unreal::UFunction *draw_rect = nullptr;
-
-struct FLinearColor
-{
-    float r;
-    float g;
-    float b;
-    float a;
-};
-
-struct DrawRectParams
-{
-    FLinearColor color;
-    float x;
-    float y;
-    float w;
-    float h;
-};
-
-class FrameMeterMod : public CppUserModBase
+class FrameMeterMod : public RC::CppUserModBase
 {
 public:
-    std::unique_ptr<PLH::VFuncSwapHook> hud_hook;
-
-    FrameMeterMod() : CppUserModBase()
+    FrameMeterMod() : RC::CppUserModBase()
     {
         ModName = STR("FrameMeterMod");
         ModVersion = STR("1.0");
@@ -45,65 +13,14 @@ public:
         ModAuthors = STR("agersant");
     }
 
+    void on_unreal_init() override
+    {
+        UI::get_instance()->init();
+    }
+
     ~FrameMeterMod() override
     {
-    }
-
-    auto on_unreal_init() -> void override
-    {
-        install_hud_hook();
-    }
-
-    void install_hud_hook()
-    {
-        UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
-        if (!hud_class)
-        {
-            Output::send<LogLevel::Warning>(STR("HUD not found\n"));
-            return;
-        }
-
-        UObject *default_hud = hud_class->GetClassDefaultObject();
-        if (!default_hud)
-        {
-            Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
-            return;
-        }
-
-        draw_rect = default_hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
-        if (!draw_rect)
-        {
-            Output::send<LogLevel::Warning>(STR("Could not find DrawRect() function\n"));
-            return;
-        }
-
-        hud_hook = std::make_unique<PLH::VFuncSwapHook>(
-            (uintptr_t)default_hud,
-            PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&FrameMeterMod::hud_post_render}}),
-            &hud_original_functions);
-
-        if (!hud_hook->hook())
-        {
-            Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
-            return;
-        }
-
-        Output::send<LogLevel::Normal>(STR("HUD hook installed\n"));
-    }
-
-    static void hud_post_render(uintptr_t hud)
-    {
-        if (draw_rect)
-        {
-            FLinearColor color = {.r = 1.f, .a = 1.f};
-            DrawRectParams rect = {.color = color, .x = 100, .y = 100, .w = 500, .h = 500};
-            ((Unreal::UObject *)hud)->ProcessEvent(draw_rect, &rect);
-        }
-
-        if (hud_original_functions.contains(HUD_VTABLE_INDEX_POST_RENDER))
-        {
-            ((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))(hud);
-        }
+        UI::get_instance()->shutdown();
     }
 };
 
@@ -114,7 +31,7 @@ extern "C"
         return new FrameMeterMod();
     }
 
-    __declspec(dllexport) void uninstall_mod(CppUserModBase *mod)
+    __declspec(dllexport) void uninstall_mod(RC::CppUserModBase *mod)
     {
         delete mod;
     }
