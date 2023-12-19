@@ -2,6 +2,7 @@
 #include <Mod/CppUserModBase.hpp>
 #include <polyhook2/Virtuals/VFuncSwapHook.hpp>
 #include <Unreal/UClass.hpp>
+#include <Unreal/UFunction.hpp>
 #include <Unreal/UObjectGlobals.hpp>
 #include <Unreal/UObject.hpp>
 #include <stdio.h>
@@ -12,6 +13,24 @@ using namespace RC::Unreal;
 const uint8_t HUD_VTABLE_INDEX_POST_RENDER = 0x6C0 / 8;
 using HUDPostRender_sig = void (*)(uintptr_t);
 PLH::VFuncMap hud_original_functions;
+Unreal::UFunction *draw_rect = nullptr;
+
+struct FLinearColor
+{
+    float r;
+    float g;
+    float b;
+    float a;
+};
+
+struct DrawRectParams
+{
+    FLinearColor color;
+    float x;
+    float y;
+    float w;
+    float h;
+};
 
 class FrameMeterMod : public CppUserModBase
 {
@@ -51,6 +70,13 @@ public:
             return;
         }
 
+        draw_rect = default_hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
+        if (!draw_rect)
+        {
+            Output::send<LogLevel::Warning>(STR("Could not find DrawRect() function\n"));
+            return;
+        }
+
         hud_hook = std::make_unique<PLH::VFuncSwapHook>(
             (uintptr_t)default_hud,
             PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&FrameMeterMod::hud_post_render}}),
@@ -61,12 +87,19 @@ public:
             Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
             return;
         }
+
         Output::send<LogLevel::Normal>(STR("HUD hook installed\n"));
     }
 
     static void hud_post_render(uintptr_t hud)
     {
-        Output::send<LogLevel::Normal>(STR("hud_post_render\n"));
+        if (draw_rect)
+        {
+            FLinearColor color = {.r = 1.f, .a = 1.f};
+            DrawRectParams rect = {.color = color, .x = 100, .y = 100, .w = 500, .h = 500};
+            ((Unreal::UObject *)hud)->ProcessEvent(draw_rect, &rect);
+        }
+
         if (hud_original_functions.contains(HUD_VTABLE_INDEX_POST_RENDER))
         {
             ((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))(hud);
