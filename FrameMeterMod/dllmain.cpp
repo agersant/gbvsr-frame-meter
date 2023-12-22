@@ -20,7 +20,6 @@ public:
 
     ~FrameMeterMod() override
     {
-        UI::get_instance()->shutdown();
     }
 };
 

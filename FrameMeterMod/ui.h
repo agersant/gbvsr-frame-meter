@@ -5,9 +5,8 @@
 class UI
 {
 public:
-	bool init();
-	void shutdown();
 	static UI *get_instance();
+	void init();
 
 	UI(UI &other) = delete;
 	void operator=(const UI &) = delete;

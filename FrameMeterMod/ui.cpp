@@ -1,6 +1,7 @@
 #include <DynamicOutput/DynamicOutput.hpp>
 #include <polyhook2/Virtuals/VFuncSwapHook.hpp>
 #include <Unreal/AActor.hpp>
+#include <Unreal/AGameModeBase.hpp>
 #include <Unreal/UClass.hpp>
 #include <Unreal/UObjectGlobals.hpp>
 #include <Unreal/UObject.hpp>
@@ -43,50 +44,47 @@ UI *UI::get_instance()
 	return instance;
 }
 
-bool UI::init()
+void UI::init()
 {
-	UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
-	if (!hud_class)
-	{
-		Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
-		return false;
-	}
+	Hook::RegisterInitGameStatePostCallback(
+		[&](AGameModeBase *GameState)
+		{
+			if (hud_hook != nullptr)
+			{
+				return;
+			}
 
-	UObject *default_hud = hud_class->GetClassDefaultObject();
-	if (!default_hud)
-	{
-		Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
-		return false;
-	}
+			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
+			if (!hud_class)
+			{
+				Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
+				return;
+			}
 
-	draw_rect = default_hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
-	if (!draw_rect)
-	{
-		Output::send<LogLevel::Warning>(STR("Could not find DrawRect() function\n"));
-		return false;
-	}
+			UObject *default_hud = hud_class->GetClassDefaultObject();
+			if (!default_hud)
+			{
+				Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
+				return;
+			}
 
-	hud_hook = std::make_unique<PLH::VFuncSwapHook>(
-		(uintptr_t)default_hud,
-		PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&UI::draw_callback}}),
-		&hud_original_functions);
+			draw_rect = default_hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
+			if (!draw_rect)
+			{
+				Output::send<LogLevel::Warning>(STR("Could not find DrawRect() function\n"));
+				return;
+			}
 
-	if (!hud_hook->hook())
-	{
-		Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
-		return false;
-	}
+			hud_hook = std::make_unique<PLH::VFuncSwapHook>(
+				(uintptr_t)default_hud,
+				PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&UI::draw_callback}}),
+				&hud_original_functions);
 
-	return true;
-}
-
-void UI::shutdown()
-{
-	if (hud_hook)
-	{
-		hud_hook->unHook();
-		hud_hook = nullptr;
-	}
+			if (!hud_hook->hook())
+			{
+				Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
+			}
+		});
 }
 
 void UI::draw_callback(uintptr_t hud)
