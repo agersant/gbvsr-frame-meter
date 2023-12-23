@@ -47,7 +47,7 @@ UI *UI::get_instance()
 void UI::init()
 {
 	Hook::RegisterInitGameStatePostCallback(
-		[&](AGameModeBase *GameState)
+		[&](AGameModeBase *GameMode)
 		{
 			if (hud_hook != nullptr)
 			{
