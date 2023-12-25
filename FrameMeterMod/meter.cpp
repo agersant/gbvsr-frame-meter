@@ -52,7 +52,8 @@ void Meter::update_battle_callback(AREDGameState_Battle *battle, float delta_tim
 
 void Meter::update_battle(AREDGameState_Battle *battle, float delta_time)
 {
-	Output::send<LogLevel::Warning>(STR("UPDATE BATTLE {}\n"), delta_time);
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
+
+	Output::send<LogLevel::Warning>(STR("p1: {}, p2: {}\n"), (void *)battle->engine->player_1.entity, (void *)battle->engine->player_2.entity);
 }

@@ -2,11 +2,47 @@
 
 #include <Unreal/AActor.hpp>
 
+#define FIELD(OFFSET, TYPE, NAME)                                                \
+	void set_##OFFSET(std::add_const_t<std::add_lvalue_reference_t<TYPE>> value) \
+	{                                                                            \
+		*(std::add_pointer_t<TYPE>)((char *)this + OFFSET) = value;              \
+	}                                                                            \
+                                                                                 \
+	void set_##OFFSET(std::add_rvalue_reference_t<TYPE> value)                   \
+	{                                                                            \
+		*(std::add_pointer_t<TYPE>)((char *)this + OFFSET) = std::move(value);   \
+	}                                                                            \
+                                                                                 \
+	std::add_lvalue_reference_t<TYPE> get_##OFFSET() const                       \
+	{                                                                            \
+		return *(std::add_pointer_t<TYPE>)((char *)this + OFFSET);               \
+	}                                                                            \
+	__declspec(property(get = get_##OFFSET, put = set_##OFFSET)) TYPE NAME
+
 class AGameState : public RC::Unreal::AActor
 {
 };
 
 class AREDGameState_Battle : public AGameState
+{
+public:
+	FIELD(0xA10, class ASWEngine *, engine);
+};
+
+class Player
+{
+public:
+	FIELD(0x08, class Entity *, entity);
+};
+
+class ASWEngine
+{
+public:
+	FIELD(0x10, class Player, player_1);
+	FIELD(0x88, class Player, player_2);
+};
+
+class Entity
 {
 };
 
