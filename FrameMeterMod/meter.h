@@ -24,4 +24,7 @@ struct FrameMeter
 public:
 	void update(AREDGameState_Battle *battle);
 	Page current_page;
+
+protected:
+	static CharacterState get_player_state(ASW::Entity *entity);
 };

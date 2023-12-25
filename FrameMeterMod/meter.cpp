@@ -13,7 +13,16 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		current_page.num_frames = 0;
 	}
 
-	current_page.player_1[current_page.num_frames] = CharacterState::IDLE;
-	current_page.player_2[current_page.num_frames] = CharacterState::IDLE;
+	current_page.player_1[current_page.num_frames] = get_player_state(battle->engine->player_1.entity);
+	current_page.player_2[current_page.num_frames] = get_player_state(battle->engine->player_2.entity);
 	current_page.num_frames += 1;
+}
+
+CharacterState FrameMeter::get_player_state(ASW::Entity *entity)
+{
+	if (entity->has_active_hitboxes())
+	{
+		return CharacterState::ACTIVE_HITBOX;
+	}
+	return CharacterState::IDLE;
 }

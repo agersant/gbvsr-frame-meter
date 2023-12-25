@@ -21,6 +21,11 @@ namespace ASW
 
 	class Entity
 	{
+	public:
+		bool has_active_hitboxes();
+
+	protected:
+		FIELD(0x110, int32_t, num_hitboxes);
 	};
 }
 
