@@ -16,3 +16,18 @@
 		return *(std::add_pointer_t<TYPE>)((char *)this + OFFSET);               \
 	}                                                                            \
 	__declspec(property(get = get_##OFFSET, put = set_##OFFSET)) TYPE NAME
+
+#define BIT_FIELD(OFFSET, MASK, NAME)                         \
+	void set_##OFFSET_##MASK(bool value)                      \
+	{                                                         \
+		if (value)                                            \
+			*(int *)((char *)this + OFFSET) |= MASK;          \
+		else                                                  \
+			*(int *)((char *)this + OFFSET) &= ~MASK;         \
+	}                                                         \
+                                                              \
+	bool get_##OFFSET_##MASK() const                          \
+	{                                                         \
+		return (*(int *)((char *)this + OFFSET) & MASK) != 0; \
+	}                                                         \
+	__declspec(property(get = get_##OFFSET_##MASK, put = set_##OFFSET_##MASK)) bool NAME

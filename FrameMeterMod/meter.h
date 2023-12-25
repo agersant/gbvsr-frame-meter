@@ -31,5 +31,6 @@ public:
 
 protected:
 	static CharacterState get_player_state(ASW::Entity *entity);
+	bool in_hitstop;
 	bool pending_reset;
 };

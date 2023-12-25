@@ -13,12 +13,26 @@ void Page::clear()
 
 void FrameMeter::update(AREDGameState_Battle *battle)
 {
-	Output::send<LogLevel::Warning>(STR("p1: {}, p2: {}\n"), (void *)battle->engine->player_1.entity, (void *)battle->engine->player_2.entity);
+	ASW::Entity *player_1 = battle->engine->player_1.entity;
+	ASW::Entity *player_2 = battle->engine->player_2.entity;
 
-	CharacterState p1 = get_player_state(battle->engine->player_1.entity);
-	CharacterState p2 = get_player_state(battle->engine->player_2.entity);
+	if (player_1->hitstop > 0 || player_2->hitstop > 0)
+	{
+		if (in_hitstop)
+		{
+			return;
+		}
+		in_hitstop = true;
+	}
+	else
+	{
+		in_hitstop = false;
+	}
 
-	if (p1 == CharacterState::IDLE && p2 == CharacterState::IDLE)
+	CharacterState state_1 = get_player_state(player_1);
+	CharacterState state_2 = get_player_state(player_2);
+
+	if (state_1 == CharacterState::IDLE && state_1 == CharacterState::IDLE)
 	{
 		pending_reset = true;
 	}
@@ -36,17 +50,29 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 			current_page.clear();
 		}
 
-		current_page.player_1[current_page.num_frames] = p1;
-		current_page.player_2[current_page.num_frames] = p2;
+		current_page.player_1[current_page.num_frames] = state_1;
+		current_page.player_2[current_page.num_frames] = state_2;
 		current_page.num_frames += 1;
 	}
 }
 
 CharacterState FrameMeter::get_player_state(ASW::Entity *entity)
 {
-	if (entity->has_active_hitboxes())
+	if (entity->attacking)
 	{
-		return CharacterState::ACTIVE_HITBOX;
+		if (entity->recovery)
+		{
+			return CharacterState::PUNISH_COUNTER;
+		}
+		else if (entity->active_frames && entity->num_hitboxes > 0)
+		{
+			return CharacterState::ACTIVE_HITBOX;
+		}
+		else
+		{
+			return CharacterState::COUNTER;
+		}
 	}
+
 	return CharacterState::IDLE;
 }

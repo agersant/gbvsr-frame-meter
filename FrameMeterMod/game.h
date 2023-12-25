@@ -22,10 +22,13 @@ namespace ASW
 	class Entity
 	{
 	public:
-		bool has_active_hitboxes();
-
-	protected:
-		FIELD(0x110, int32_t, num_hitboxes);
+		FIELD(0x110, uint32_t, num_hitboxes);
+		FIELD(0x25C, uint32_t, hitstop);
+		FIELD(0x3B8, uint32_t, flags_1);
+		FIELD(0x3C0, uint32_t, flags_2);
+		BIT_FIELD(0x3B8, 0x40000000, recovery);
+		BIT_FIELD(0x3C0, 0x080000, attacking);
+		BIT_FIELD(0x3C0, 0x0100, active_frames);
 	};
 }
 
