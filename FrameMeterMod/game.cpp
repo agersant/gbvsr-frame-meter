@@ -7,24 +7,7 @@ bool ASW::Character::can_act()
 
 bool ASW::Character::is_in_blockstun()
 {
-	switch (action_id)
-	{
-	case ActionID::MidGuardPre:
-	case ActionID::MidGuardLoop:
-	case ActionID::MidGuardEnd:
-	case ActionID::HighGuardPre:
-	case ActionID::HighGuardLoop:
-	case ActionID::HighGuardEnd:
-	case ActionID::CrouchGuardPre:
-	case ActionID::CrouchGuardLoop:
-	case ActionID::CrouchGuardEnd:
-	case ActionID::AirGuardPre:
-	case ActionID::AirGuardLoop:
-	case ActionID::AirGuardEnd:
-		return true;
-	default:
-		return false;
-	}
+	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
 bool ASW::Character::is_in_hitstun()
