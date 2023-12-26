@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <DynamicOutput/DynamicOutput.hpp>
 
 #include "meter.h"
@@ -17,19 +18,6 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	ASW::Character *character_1 = battle->engine->player_1.character;
 	ASW::Character *character_2 = battle->engine->player_2.character;
 
-	if (character_1->hitstop > 0 || character_2->hitstop > 0)
-	{
-		if (in_hitstop)
-		{
-			return;
-		}
-		in_hitstop = true;
-	}
-	else
-	{
-		in_hitstop = false;
-	}
-
 	if (character_1->action_id != 0 || character_2->action_id != 0)
 	{
 		wchar_t action_1[64];
@@ -38,13 +26,20 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		MultiByteToWideChar(CP_UTF8, 0, &character_2->action_name[0], -1, action_2, 64);
 
 		Output::send<LogLevel::Warning>(
-			STR("p1: {} {:x} {}, p2: {} {:x} {}\n"),
-			(void *)character_1,
+			STR("actions {:x} {}, {:x} {}\n"),
 			(uint32_t)character_1->action_id,
 			action_1,
-			(void *)character_2,
 			(uint32_t)character_2->action_id,
-			action_2);
+			action_2
+			);
+	}
+
+	const uint32_t hitstop = (std::max)(character_1->hitstop, character_2->hitstop);
+	const bool skip_frame = hitstop > 0 && hitstop < previous_hitstop;
+	previous_hitstop = hitstop;
+	if (skip_frame)
+	{
+		return;
 	}
 
 	CharacterState state_1 = get_character_state(character_1);

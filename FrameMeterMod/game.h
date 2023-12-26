@@ -14,6 +14,49 @@ namespace ASW
 
 	enum ActionID : uint32_t
 	{
+		// Hitstun
+		NokezoriHighLv1 = 0x12,
+		NokezoriHighLv2,
+		NokezoriHighLv3,
+		NokezoriHighLv4,
+		NokezoriHighLv5,
+		NokezoriLowLv1,
+		NokezoriLowLv2,
+		NokezoriLowLv3,
+		NokezoriLowLv4,
+		NokezoriLowLv5,
+		NokezoriCrouchLv1,
+		NokezoriCrouchLv2,
+		NokezoriCrouchLv3,
+		NokezoriCrouchLv4,
+		NokezoriCrouchLv5,
+
+		// Knockdown
+		BDownUpper = 0x21,
+		BDownUpperEnd,
+		BDownDown,
+		BDownBound,
+		BDownLoop,
+		BDown2Stand,
+		FDownUpper,
+		FDownUpperEnd,
+		FDownDown,
+		FDownBound,
+		FDownLoop,
+		FDown2Stand,
+		VDownUpper,
+		VDownUpperEnd,
+		VDownDown,
+		VDownBound,
+		VDownLoop,
+		Blowoff,
+
+		WallBound= 0x3A,
+		WallBoundDown,
+
+		UkemiLeap = 0x48,
+
+		// Blockstun
 		MidGuardPre = 0x53,
 		MidGuardLoop,
 		MidGuardEnd,
@@ -26,6 +69,10 @@ namespace ASW
 		AirGuardPre,
 		AirGuardLoop,
 		AirGuardEnd,
+
+		LockWait = 0x63, // Throw receive
+
+		ExDamage = 0x76, // Super receive
 	};
 
 	class Player
