@@ -30,7 +30,7 @@ public:
 	void update(AREDGameState_Battle *battle);
 
 protected:
-	static CharacterState get_player_state(ASW::Entity *entity);
+	static CharacterState get_character_state(ASW::Character *character);
 	bool in_hitstop;
 	bool pending_reset;
 };

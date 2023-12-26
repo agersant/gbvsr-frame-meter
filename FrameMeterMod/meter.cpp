@@ -1,6 +1,7 @@
 #include <DynamicOutput/DynamicOutput.hpp>
 
 #include "meter.h"
+#include <windows.h>
 
 using namespace RC;
 
@@ -13,10 +14,10 @@ void Page::clear()
 
 void FrameMeter::update(AREDGameState_Battle *battle)
 {
-	ASW::Entity *player_1 = battle->engine->player_1.entity;
-	ASW::Entity *player_2 = battle->engine->player_2.entity;
+	ASW::Character *character_1 = battle->engine->player_1.character;
+	ASW::Character *character_2 = battle->engine->player_2.character;
 
-	if (player_1->hitstop > 0 || player_2->hitstop > 0)
+	if (character_1->hitstop > 0 || character_2->hitstop > 0)
 	{
 		if (in_hitstop)
 		{
@@ -29,10 +30,27 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		in_hitstop = false;
 	}
 
-	CharacterState state_1 = get_player_state(player_1);
-	CharacterState state_2 = get_player_state(player_2);
+	if (character_1->action_id != 0 || character_2->action_id != 0)
+	{
+		wchar_t action_1[64];
+		wchar_t action_2[64];
+		MultiByteToWideChar(CP_UTF8, 0, &character_1->action_name[0], -1, action_1, 64);
+		MultiByteToWideChar(CP_UTF8, 0, &character_2->action_name[0], -1, action_2, 64);
 
-	if (state_1 == CharacterState::IDLE && state_1 == CharacterState::IDLE)
+		Output::send<LogLevel::Warning>(
+			STR("p1: {} {:x} {}, p2: {} {:x} {}\n"),
+			(void *)character_1,
+			(uint32_t)character_1->action_id,
+			action_1,
+			(void *)character_2,
+			(uint32_t)character_2->action_id,
+			action_2);
+	}
+
+	CharacterState state_1 = get_character_state(character_1);
+	CharacterState state_2 = get_character_state(character_2);
+
+	if (state_1 == CharacterState::IDLE && state_2 == CharacterState::IDLE)
 	{
 		pending_reset = true;
 	}
@@ -56,22 +74,29 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	}
 }
 
-CharacterState FrameMeter::get_player_state(ASW::Entity *entity)
+CharacterState FrameMeter::get_character_state(ASW::Character *character)
 {
-	if (entity->attacking)
+	if (character->can_act())
 	{
-		if (entity->recovery)
+		return CharacterState::IDLE;
+	}
+
+	if (character->is_in_blockstun() || character->is_in_hitstun())
+	{
+		return CharacterState::STUN;
+	}
+
+	if (character->attacking)
+	{
+		if (character->recovery)
 		{
 			return CharacterState::PUNISH_COUNTER;
 		}
-		else if (entity->active_frames && entity->num_hitboxes > 0)
+		else if (character->active_frames && character->num_hitboxes > 0)
 		{
 			return CharacterState::ACTIVE_HITBOX;
 		}
-		else
-		{
-			return CharacterState::COUNTER;
-		}
+		return CharacterState::COUNTER;
 	}
 
 	return CharacterState::IDLE;
