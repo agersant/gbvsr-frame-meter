@@ -1,8 +1,6 @@
-#include <algorithm>
 #include <DynamicOutput/DynamicOutput.hpp>
 
 #include "meter.h"
-#include <windows.h>
 
 using namespace RC;
 
@@ -22,19 +20,28 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	{
 		wchar_t action_1[64];
 		wchar_t action_2[64];
-		MultiByteToWideChar(CP_UTF8, 0, &character_1->action_name[0], -1, action_1, 64);
-		MultiByteToWideChar(CP_UTF8, 0, &character_2->action_name[0], -1, action_2, 64);
+		size_t r;
+		mbstowcs_s(&r, action_1, 64, &character_1->action_name[0], 64);
+		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
 
 		Output::send<LogLevel::Warning>(
-			STR("actions {:x} {}, {:x} {}\n"),
+			STR("{} {:x} {} {:x} {:x} {:x}    ||    {} {:x} {} {:x} {:x} {:x}\n"),
+			(void *)character_1,
 			(uint32_t)character_1->action_id,
 			action_1,
+			character_1->flags_1,
+			character_1->flags_2,
+			character_1->flags_3,
+			(void *)character_2,
 			(uint32_t)character_2->action_id,
-			action_2
-			);
+			action_2,
+			character_2->flags_1,
+			character_2->flags_2,
+			character_2->flags_3);
 	}
 
-	const uint32_t hitstop = (std::max)(character_1->hitstop, character_2->hitstop);
+	// TODO Skip while game is paused
+	const uint32_t hitstop = std::max(character_1->hitstop, character_2->hitstop);
 	const bool skip_frame = hitstop > 0 && hitstop < previous_hitstop;
 	previous_hitstop = hitstop;
 	if (skip_frame)
@@ -71,7 +78,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 CharacterState FrameMeter::get_character_state(ASW::Character *character)
 {
-	if (character->can_act())
+	if (character->can_walk())
 	{
 		return CharacterState::IDLE;
 	}
@@ -91,7 +98,21 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		{
 			return CharacterState::ACTIVE_HITBOX;
 		}
+	}
+
+	if (character->full_invincible)
+	{
+		return CharacterState::FULL_INVINCIBLE;
+	}
+
+	if (character->attacking)
+	{
 		return CharacterState::COUNTER;
+	}
+
+	if (character->is_maneuvering())
+	{
+		return CharacterState::MOVEMENT;
 	}
 
 	return CharacterState::IDLE;

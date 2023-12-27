@@ -6,6 +6,8 @@ static std::map<CharacterState, int32_t> palette = {
 	{CharacterState::ACTIVE_HITBOX, 0xFF0000},
 	{CharacterState::PUNISH_COUNTER, 0x0000FF},
 	{CharacterState::STUN, 0xFFFF00},
+	{CharacterState::MOVEMENT, 0x00FFFF},
+	{CharacterState::FULL_INVINCIBLE, 0xFF00FF},
 };
 
 static constexpr float frame_width = 10.f;

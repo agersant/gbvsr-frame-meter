@@ -27,6 +27,8 @@ static FrameMeter frame_meter = {};
 
 static void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
+	// TODO Early out outside of training
+	
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
 	frame_meter.update(battle);
@@ -39,6 +41,8 @@ static void post_render(uintptr_t hud_ptr)
 		using HUDPostRender_sig = void (*)(uintptr_t);
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud_ptr);
 	}
+
+	// TODO Early out outside of training
 
 	UObject *hud = (UObject *)hud_ptr;
 	UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));

@@ -14,6 +14,15 @@ namespace ASW
 
 	enum ActionID : uint32_t
 	{
+		JumpPre = 0x6,
+		Jump,
+		JumpLanding,
+
+		FDash = 0xC,
+		FDashStop,
+		BDash,
+		BDashStop,
+
 		// Hitstun
 		NokezoriHighLv1 = 0x12,
 		NokezoriHighLv2,
@@ -31,7 +40,7 @@ namespace ASW
 		NokezoriCrouchLv4,
 		NokezoriCrouchLv5,
 
-		// Knockdown
+		// Knockdowns
 		BDownUpper = 0x21,
 		BDownUpperEnd,
 		BDownDown,
@@ -50,10 +59,9 @@ namespace ASW
 		VDownBound,
 		VDownLoop,
 		Blowoff,
-
 		WallBound= 0x3A,
 		WallBoundDown,
-
+		Ukemi = 0x46,
 		UkemiLeap = 0x48,
 
 		// Blockstun
@@ -73,6 +81,9 @@ namespace ASW
 		LockWait = 0x63, // Throw receive
 
 		ExDamage = 0x76, // Super receive
+
+		Dodge = 0x85,
+		EvasiveMove,
 	};
 
 	class Player
@@ -94,8 +105,10 @@ namespace ASW
 		FIELD(0x110, uint32_t, num_hitboxes);
 		FIELD(0x25C, uint32_t, hitstop);
 		FIELD(0x3B8, uint32_t, flags_1);
-		FIELD(0x3C0, uint32_t, flags_2);
+		FIELD(0x3BC, uint32_t, flags_2);
+		FIELD(0x3C0, uint32_t, flags_3);
 		BIT_FIELD(0x3B8, 0x40000000, recovery);
+		BIT_FIELD(0x3BC, 0x20, full_invincible); // TODO INCORRECT!
 		BIT_FIELD(0x3C0, 0x080000, attacking);
 		BIT_FIELD(0x3C0, 0x0100, active_frames);
 		ARRAY_FIELD(0x3EC0, char[20], action_name);
@@ -107,9 +120,10 @@ namespace ASW
 		FIELD(0xD020, EnableFlag, enable_flag);
 		FIELD(0xDA54, ActionID, action_id);
 
-		bool can_act();
+		bool can_walk();
 		bool is_in_blockstun();
 		bool is_in_hitstun();
+		bool is_maneuvering();
 	};
 }
 
