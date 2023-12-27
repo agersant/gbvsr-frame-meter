@@ -63,6 +63,7 @@ namespace ASW
 		WallBoundDown,
 		Ukemi = 0x46,
 		UkemiLeap = 0x48,
+		UkemiLeap2,
 
 		// Blockstun
 		MidGuardPre = 0x53,
@@ -78,7 +79,9 @@ namespace ASW
 		AirGuardLoop,
 		AirGuardEnd,
 
-		LockWait = 0x63, // Throw receive
+		LockWait = 0x63,   // Throw receive
+		Shirimochi = 0x67, // Guard crush
+		ShirimochiCrouch,
 
 		ExDamage = 0x76, // Super receive
 
@@ -122,6 +125,7 @@ namespace ASW
 		FIELD(0xDA54, ActionID, action_id);
 
 		bool can_walk();
+		bool can_attack();
 		bool is_invincible();
 		bool is_in_blockstun();
 		bool is_in_hitstun();

@@ -78,7 +78,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 CharacterState FrameMeter::get_character_state(ASW::Character *character)
 {
-	if (character->can_walk())
+	if (character->can_walk() || (character->can_attack() && character->action_id != ASW::ActionID::Jump))
 	{
 		return CharacterState::IDLE;
 	}
