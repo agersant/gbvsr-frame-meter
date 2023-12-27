@@ -10,7 +10,7 @@ enum CharacterState
 	PUNISH_COUNTER,
 	STUN,
 	MOVEMENT,
-	FULL_INVINCIBLE,
+	INVINCIBLE,
 };
 
 struct Page

@@ -5,6 +5,11 @@ bool ASW::Character::can_walk()
 	return enable_flag & EnableFlag::ForwardWalk;
 }
 
+bool ASW::Character::is_invincible()
+{
+	return full_invincible || dodge_invincible;
+}
+
 bool ASW::Character::is_in_blockstun()
 {
 	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
@@ -14,17 +19,17 @@ bool ASW::Character::is_maneuvering()
 {
 	switch (action_id)
 	{
-		case ActionID::JumpPre:
-		case ActionID::Jump:
-		case ActionID::JumpLanding:
-		case ActionID::FDash:
-		case ActionID::FDashStop:
-		case ActionID::BDash:
-		case ActionID::BDashStop:
-		case ActionID::Dodge:
-		case ActionID::EvasiveMove:
-			return true;
-		default:
+	case ActionID::JumpPre:
+	case ActionID::Jump:
+	case ActionID::JumpLanding:
+	case ActionID::FDash:
+	case ActionID::FDashStop:
+	case ActionID::BDash:
+	case ActionID::BDashStop:
+	case ActionID::Dodge:
+	case ActionID::EvasiveMove:
+		return true;
+	default:
 		return false;
 	}
 }

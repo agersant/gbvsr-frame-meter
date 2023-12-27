@@ -100,9 +100,9 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		}
 	}
 
-	if (character->full_invincible)
+	if (character->is_invincible())
 	{
-		return CharacterState::FULL_INVINCIBLE;
+		return CharacterState::INVINCIBLE;
 	}
 
 	if (character->attacking)

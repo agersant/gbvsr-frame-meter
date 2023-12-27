@@ -59,7 +59,7 @@ namespace ASW
 		VDownBound,
 		VDownLoop,
 		Blowoff,
-		WallBound= 0x3A,
+		WallBound = 0x3A,
 		WallBoundDown,
 		Ukemi = 0x46,
 		UkemiLeap = 0x48,
@@ -108,7 +108,8 @@ namespace ASW
 		FIELD(0x3BC, uint32_t, flags_2);
 		FIELD(0x3C0, uint32_t, flags_3);
 		BIT_FIELD(0x3B8, 0x40000000, recovery);
-		BIT_FIELD(0x3BC, 0x20, full_invincible); // TODO INCORRECT!
+		BIT_FIELD(0x3BC, 0x10, dodge_invincible);
+		BIT_FIELD(0x3BC, 0x20, full_invincible);
 		BIT_FIELD(0x3C0, 0x080000, attacking);
 		BIT_FIELD(0x3C0, 0x0100, active_frames);
 		ARRAY_FIELD(0x3EC0, char[20], action_name);
@@ -121,6 +122,7 @@ namespace ASW
 		FIELD(0xDA54, ActionID, action_id);
 
 		bool can_walk();
+		bool is_invincible();
 		bool is_in_blockstun();
 		bool is_in_hitstun();
 		bool is_maneuvering();
