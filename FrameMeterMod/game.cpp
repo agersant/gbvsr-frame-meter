@@ -46,13 +46,14 @@ bool ASW::Character::is_in_hitstun()
 		return true;
 	}
 
-	if (action_id >= ActionID::BDownUpper && action_id <= ActionID::Blowoff)
+	if (action_id >= ActionID::BDownUpper && action_id <= ActionID::KirimomiUpper)
 	{
 		return true;
 	}
 
 	switch (action_id)
 	{
+	case ActionID::Hizakuzure:
 	case ActionID::Ukemi:
 	case ActionID::UkemiLeap:
 	case ActionID::UkemiLeap2:

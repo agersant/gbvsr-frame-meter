@@ -25,19 +25,19 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
 
 		Output::send<LogLevel::Warning>(
-			STR("{} {:x} {} {:x} {:x} {:x}    ||    {} {:x} {} {:x} {:x} {:x}\n"),
+			STR("{} {:#02x} {:#08x} {:#08x} {:#08x}    ||    {} {:#02x} {:#08x} {:#08x} {:#08x}    {} {}\n"),
 			(void *)character_1,
 			(uint32_t)character_1->action_id,
-			action_1,
 			character_1->flags_1,
 			character_1->flags_2,
 			character_1->flags_3,
 			(void *)character_2,
 			(uint32_t)character_2->action_id,
-			action_2,
 			character_2->flags_1,
 			character_2->flags_2,
-			character_2->flags_3);
+			character_2->flags_3,
+			action_1,
+			action_2);
 	}
 
 	// TODO Skip while game is paused
