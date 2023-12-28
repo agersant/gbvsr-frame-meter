@@ -10,6 +10,21 @@ bool ASW::Character::can_attack()
 	return enable_flag & EnableFlag::NormalAttack;
 }
 
+bool ASW::Character::is_counterable()
+{
+	return attacking && !recovery;
+}
+
+bool ASW::Character::is_in_active_frames()
+{
+	return attacking && active_frames && num_hitboxes > 0;
+}
+
+bool ASW::Character::is_recovering()
+{
+	return attacking && recovery;
+}
+
 bool ASW::Character::is_invincible()
 {
 	return full_invincible || dodge_invincible;

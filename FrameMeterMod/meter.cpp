@@ -41,8 +41,11 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	}
 
 	// TODO Skip while game is paused
+	const bool freeze = character_1->one_sided_freeze || character_2->one_sided_freeze;
+	// TODO breaks when only one character is in hitstop
+	// eg. send Ferry down+special. While it does damage after landing, Ferry normals are missing frames on the meter
 	const uint32_t hitstop = std::max(character_1->hitstop, character_2->hitstop);
-	const bool skip_frame = hitstop > 0 && hitstop < previous_hitstop;
+	const bool skip_frame = freeze || (hitstop > 0 && hitstop < previous_hitstop);
 	previous_hitstop = hitstop;
 	if (skip_frame)
 	{
@@ -88,16 +91,14 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		return CharacterState::STUN;
 	}
 
-	if (character->attacking)
+	if (character->is_recovering())
 	{
-		if (character->recovery)
-		{
-			return CharacterState::PUNISH_COUNTER;
-		}
-		else if (character->active_frames && character->num_hitboxes > 0)
-		{
-			return CharacterState::ACTIVE_HITBOX;
-		}
+		return CharacterState::PUNISH_COUNTER;
+	}
+
+	if (character->is_in_active_frames())
+	{
+		return CharacterState::ACTIVE_HITBOX;
 	}
 
 	if (character->is_invincible())
@@ -105,7 +106,7 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		return CharacterState::INVINCIBLE;
 	}
 
-	if (character->attacking)
+	if (character->is_counterable())
 	{
 		return CharacterState::COUNTER;
 	}
