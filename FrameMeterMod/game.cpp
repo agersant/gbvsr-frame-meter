@@ -32,6 +32,10 @@ bool ASW::Character::is_invincible()
 
 bool ASW::Character::is_in_blockstun()
 {
+	if (guard_connecting)
+	{
+		return true;
+	}
 	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
@@ -56,6 +60,11 @@ bool ASW::Character::is_maneuvering()
 
 bool ASW::Character::is_in_hitstun()
 {
+	if (hit_connecting)
+	{
+		return true;
+	}
+
 	if (action_id >= ActionID::NokezoriHighLv1 && action_id <= ActionID::NokezoriCrouchLv5)
 	{
 		return true;
@@ -74,7 +83,11 @@ bool ASW::Character::is_in_hitstun()
 	case ActionID::UkemiLeap2:
 	case ActionID::WallBound:
 	case ActionID::WallBoundDown:
+	case ActionID::HajikareStand:
+	case ActionID::HajikareCrouch:
+	case ActionID::HajikareAir:
 	case ActionID::LockWait:
+	case ActionID::LockReject:
 	case ActionID::Shirimochi:
 	case ActionID::ShirimochiCrouch:
 	case ActionID::ExDamage:

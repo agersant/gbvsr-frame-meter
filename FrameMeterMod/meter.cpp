@@ -42,11 +42,8 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 	// TODO Skip while game is paused
 	const bool freeze = character_1->one_sided_freeze || character_2->one_sided_freeze;
-	// TODO breaks when only one character is in hitstop
-	// eg. send Ferry down+special. While it does damage after landing, Ferry normals are missing frames on the meter
-	const uint32_t hitstop = std::max(character_1->hitstop, character_2->hitstop);
-	const bool skip_frame = freeze || (hitstop > 0 && hitstop < previous_hitstop);
-	previous_hitstop = hitstop;
+	const uint32_t hitstop = std::min(character_1->hitstop, character_2->hitstop);
+	const bool skip_frame = freeze || hitstop > 0;
 	if (skip_frame)
 	{
 		return;
@@ -81,9 +78,12 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 CharacterState FrameMeter::get_character_state(ASW::Character *character)
 {
-	if (character->can_walk() || (character->can_attack() && character->action_id != ASW::ActionID::Jump))
+	if (!character->hit_connecting && !character->guard_connecting)
 	{
-		return CharacterState::IDLE;
+		if (character->can_walk() || (character->can_attack() && character->action_id != ASW::ActionID::Jump))
+		{
+			return CharacterState::IDLE;
+		}
 	}
 
 	if (character->is_in_blockstun() || character->is_in_hitstun())

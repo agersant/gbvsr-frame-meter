@@ -33,6 +33,5 @@ public:
 
 protected:
 	static CharacterState get_character_state(ASW::Character *character);
-	uint32_t previous_hitstop;
 	bool pending_reset;
 };

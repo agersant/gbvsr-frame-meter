@@ -81,7 +81,13 @@ namespace ASW
 		AirGuardLoop,
 		AirGuardEnd,
 
+		// Triggering parry
+		HajikareStand = 0x5F,
+		HajikareCrouch,
+		HajikareAir,
+
 		LockWait = 0x63,   // Throw receive
+		LockReject = 0x64, // Throw tech
 		Shirimochi = 0x67, // Guard crush
 		ShirimochiCrouch,
 
@@ -114,10 +120,12 @@ namespace ASW
 		FIELD(0x3BC, uint32_t, flags_2);
 		FIELD(0x3C0, uint32_t, flags_3);
 		BIT_FIELD(0x3B8, 0x40000000, recovery);
-		BIT_FIELD(0x3BC, 0x10, dodge_invincible);
-		BIT_FIELD(0x3BC, 0x20, full_invincible);
-		BIT_FIELD(0x3C0, 0x080000, attacking);
-		BIT_FIELD(0x3C0, 0x0100, active_frames);
+		BIT_FIELD(0x3BC, 0x00000010, dodge_invincible);
+		BIT_FIELD(0x3BC, 0x00000020, full_invincible);
+		BIT_FIELD(0x3C0, 0x00080000, attacking);
+		BIT_FIELD(0x3C0, 0x00000100, active_frames);
+		BIT_FIELD(0x3C0, 0x00000002, hit_connecting);
+		BIT_FIELD(0x3C0, 0x10000000, guard_connecting); // Other bits in same byte also good candidates
 		ARRAY_FIELD(0x3EC0, char[20], action_name);
 	};
 
