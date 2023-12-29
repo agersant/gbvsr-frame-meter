@@ -25,13 +25,20 @@ static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 
+static bool is_training_mode()
+{
+	UREDGameCommon *game_instance = (UREDGameCommon *)UObjectGlobals::FindFirstOf(L"REDGameCommon");
+	return game_instance && game_instance->game_mode == GameMode::TRAINING;
+}
+
 static void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
-	// TODO Early out outside of training
-	
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
-	frame_meter.update(battle);
+	if (is_training_mode())
+	{
+		frame_meter.update(battle);
+	}
 }
 
 static void post_render(uintptr_t hud_ptr)
@@ -42,13 +49,14 @@ static void post_render(uintptr_t hud_ptr)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud_ptr);
 	}
 
-	// TODO Early out outside of training
+	if (is_training_mode())
+	{
+		UObject *hud = (UObject *)hud_ptr;
+		UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
 
-	UObject *hud = (UObject *)hud_ptr;
-	UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
-
-	DrawContext draw_context(hud, draw_rect_original);
-	UI::draw(draw_context, frame_meter);
+		DrawContext draw_context(hud, draw_rect_original);
+		UI::draw(draw_context, frame_meter);
+	}
 }
 
 class FrameMeterMod : public RC::CppUserModBase
