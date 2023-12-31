@@ -114,7 +114,7 @@ namespace ASW
 	{
 	public:
 		FIELD(0x110, uint32_t, num_hitboxes);
-		BIT_FIELD(0x1AB, 0x04, one_sided_freeze);
+		BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
 		FIELD(0x25C, uint32_t, hitstop);
 		FIELD(0x3B8, uint32_t, flags_1);
 		FIELD(0x3BC, uint32_t, flags_2);

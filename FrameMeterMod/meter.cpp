@@ -41,9 +41,9 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	}
 
 	// TODO Skip while game is paused
-	const bool freeze = character_1->one_sided_freeze || character_2->one_sided_freeze;
+	const bool cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
 	const uint32_t hitstop = std::min(character_1->hitstop, character_2->hitstop);
-	const bool skip_frame = freeze || hitstop > 0;
+	const bool skip_frame = cinematic_freeze || hitstop > 0;
 	if (skip_frame)
 	{
 		return;
