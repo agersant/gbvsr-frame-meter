@@ -2,6 +2,7 @@
 
 #include <Unreal/AActor.hpp>
 
+#include "bitmask.h"
 #include "struct_util.h"
 
 namespace ASW
@@ -97,6 +98,16 @@ namespace ASW
 		EvasiveMove,
 	};
 
+	// ON_XXXX_INTRPT
+	enum BBScriptInterrupt
+	{
+		ON_INITIALIZE = 0,
+		ON_RECEIVE_HIT_1 = 41,
+		ON_RECEIVE_HIT_2 = 64,
+		ON_RECEIVE_HIT_3 = 96,
+		MAX = 104,
+	};
+
 	class Player
 	{
 	public:
@@ -126,6 +137,7 @@ namespace ASW
 		BIT_FIELD(0x3C0, 0x00000100, active_frames);
 		BIT_FIELD(0x3C0, 0x00000002, hit_connecting);
 		BIT_FIELD(0x3C0, 0x10000000, guard_connecting); // Other bits in same byte also good candidates
+		FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 		ARRAY_FIELD(0x3EC0, char[20], action_name);
 	};
 

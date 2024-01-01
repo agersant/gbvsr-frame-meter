@@ -11,6 +11,29 @@ void Page::clear()
 	num_frames = 0;
 }
 
+static std::wstring bytes_to_string(void *bytes, size_t num_bytes)
+{
+	std::wstring out;
+	out.reserve(2 + 3 * num_bytes);
+	for (int i = 0; i < num_bytes; i++)
+	{
+		const uint8_t value = *((uint8_t *)(bytes) + i);
+		if (value)
+		{
+			out.append(std::format(STR("{:02X}"), value));
+		}
+		else
+		{
+			out.append(STR("xx"));
+		}
+		if (i + 1 < num_bytes)
+		{
+			out.append(STR(" "));
+		}
+	}
+	return out;
+}
+
 void FrameMeter::update(AREDGameState_Battle *battle)
 {
 	ASW::Character *character_1 = battle->engine->player_1.character;
@@ -25,17 +48,15 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
 
 		Output::send<LogLevel::Warning>(
-			STR("{} {:#02x} {:#08x} {:#08x} {:#08x}    ||    {} {:#02x} {:#08x} {:#08x} {:#08x}    {} {}\n"),
+			STR("{} {:#02x} [{}] [{}]    ||    {} {:#02x} [{}] [{}]    {} {}\n"),
 			(void *)character_1,
 			(uint32_t)character_1->action_id,
-			character_1->flags_1,
-			character_1->flags_2,
-			character_1->flags_3,
+			bytes_to_string(&character_1->flags_1, 12),
+			bytes_to_string(&character_1->bbscript_interrupts, 14),
 			(void *)character_2,
 			(uint32_t)character_2->action_id,
-			character_2->flags_1,
-			character_2->flags_2,
-			character_2->flags_3,
+			bytes_to_string(&character_2->flags_1, 12),
+			bytes_to_string(&character_2->bbscript_interrupts, 14),
 			action_1,
 			action_2);
 	}
