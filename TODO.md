@@ -1,0 +1,9 @@
+- Projectiles
+- Span durations as text
+- Screen centering
+- Match SF6 palette and sizes
+- Scale with game resolution
+- Frames after successful throw or command grab
+- Dont add frames to meter while game is paused
+- Hitting Zeta during 4S skips one too many frame
+- Hitting Lowain during 6S should skip more frames
