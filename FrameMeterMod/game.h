@@ -130,6 +130,7 @@ namespace ASW
 		FIELD(0x3B8, uint32_t, flags_1);
 		FIELD(0x3BC, uint32_t, flags_2);
 		FIELD(0x3C0, uint32_t, flags_3);
+		FIELD(0x3C4, uint32_t, flags_4); // ?
 		BIT_FIELD(0x3B8, 0x40000000, recovery);
 		BIT_FIELD(0x3BC, 0x00000010, dodge_invincible);
 		BIT_FIELD(0x3BC, 0x00000020, full_invincible);
@@ -145,6 +146,8 @@ namespace ASW
 	{
 	public:
 		FIELD(0xD020, EnableFlag, enable_flag);
+		FIELD(0xD038, uint32_t, blockstun_duration);
+		FIELD(0xD060, uint32_t, hitstun_duration);
 		FIELD(0xDA54, ActionID, action_id);
 
 		bool can_walk();
