@@ -1,6 +1,7 @@
 - Projectiles
 - Span durations as text
 - Screen centering
+- Counter/armor/parry states
 - Match SF6 palette and sizes
 - Scale with game resolution
 - Frames after successful throw or command grab
