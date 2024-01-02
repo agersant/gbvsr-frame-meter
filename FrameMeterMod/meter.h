@@ -11,6 +11,7 @@ enum CharacterState
 	STUN,
 	MOVEMENT,
 	INVINCIBLE,
+	PROJECTILE,
 };
 
 struct Page
@@ -32,6 +33,6 @@ public:
 	void update(AREDGameState_Battle *battle);
 
 protected:
-	static CharacterState get_character_state(ASW::Character *character);
+	static CharacterState get_character_state(AREDGameState_Battle *battle, ASW::Character *character);
 	bool pending_reset;
 };

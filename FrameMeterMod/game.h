@@ -119,6 +119,8 @@ namespace ASW
 	public:
 		FIELD(0x10, class Player, player_1);
 		FIELD(0x88, class Player, player_2);
+		static constexpr size_t NUM_ENTITIES = 132;
+		ARRAY_FIELD(0x1030, class Entity *[NUM_ENTITIES], entities);
 	};
 
 	class Entity
@@ -127,6 +129,7 @@ namespace ASW
 		FIELD(0x110, uint32_t, num_hitboxes);
 		BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
 		FIELD(0x25C, uint32_t, hitstop);
+		FIELD(0x280, Character *, parent_character);
 		FIELD(0x3B8, uint32_t, flags_1);
 		FIELD(0x3BC, uint32_t, flags_2);
 		FIELD(0x3C0, uint32_t, flags_3);
@@ -138,6 +141,8 @@ namespace ASW
 		BIT_FIELD(0x3C0, 0x00000100, active_frames);
 		BIT_FIELD(0x3C0, 0x00000002, hit_connecting);
 		BIT_FIELD(0x3C0, 0x10000000, guard_connecting); // Other bits in same byte also good candidates
+		FIELD(0x3D0, int32_t, position_x);
+		FIELD(0x3D4, int32_t, position_y);
 		BIT_FIELD(0x45C, 0x04, cinematic_attack);
 		FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 		ARRAY_FIELD(0x3EC0, char[20], action_name);

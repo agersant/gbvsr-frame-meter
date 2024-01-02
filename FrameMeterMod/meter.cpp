@@ -69,8 +69,8 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		return;
 	}
 
-	CharacterState state_1 = get_character_state(character_1);
-	CharacterState state_2 = get_character_state(character_2);
+	CharacterState state_1 = get_character_state(battle, character_1);
+	CharacterState state_2 = get_character_state(battle, character_2);
 
 	if (state_1 == CharacterState::IDLE && state_2 == CharacterState::IDLE)
 	{
@@ -96,7 +96,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	}
 }
 
-CharacterState FrameMeter::get_character_state(ASW::Character *character)
+CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)
 {
 	if (!character->hit_connecting && !character->guard_connecting)
 	{
@@ -109,6 +109,29 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 	if (character->is_in_blockstun() || character->is_in_hitstun())
 	{
 		return CharacterState::STUN;
+	}
+
+	for (size_t i = 0; i < ASW::Engine::NUM_ENTITIES; i++)
+	{
+		ASW::Entity *entity = battle->engine->entities[i];
+		if (!entity)
+		{
+			continue;
+		}
+		if (entity != character && entity->parent_character == character)
+		{
+			Output::send<LogLevel::Warning>(
+				STR("Entity {} at {}: ({}, {}) {} hitboxes"),
+				i,
+				(void *)entity,
+				entity->position_x,
+				entity->position_y,
+				entity->num_hitboxes);
+			if (entity->num_hitboxes > 0)
+			{
+				return CharacterState::PROJECTILE;
+			}
+		}
 	}
 
 	if (character->is_recovering())
