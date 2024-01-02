@@ -111,6 +111,11 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		return CharacterState::STUN;
 	}
 
+	if (character->is_invincible())
+	{
+		return CharacterState::INVINCIBLE;
+	}
+
 	if (character->is_recovering())
 	{
 		return CharacterState::PUNISH_COUNTER;
@@ -119,11 +124,6 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 	if (character->is_in_active_frames())
 	{
 		return CharacterState::ACTIVE_HITBOX;
-	}
-
-	if (character->is_invincible())
-	{
-		return CharacterState::INVINCIBLE;
 	}
 
 	if (character->is_counterable())
