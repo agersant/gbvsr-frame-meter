@@ -136,5 +136,10 @@ CharacterState FrameMeter::get_character_state(ASW::Character *character)
 		return CharacterState::MOVEMENT;
 	}
 
+	if (character->cinematic_attack)
+	{
+		return CharacterState::INVINCIBLE;
+	}
+
 	return CharacterState::IDLE;
 }

@@ -138,6 +138,7 @@ namespace ASW
 		BIT_FIELD(0x3C0, 0x00000100, active_frames);
 		BIT_FIELD(0x3C0, 0x00000002, hit_connecting);
 		BIT_FIELD(0x3C0, 0x10000000, guard_connecting); // Other bits in same byte also good candidates
+		BIT_FIELD(0x45C, 0x04, cinematic_attack);
 		FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 		ARRAY_FIELD(0x3EC0, char[20], action_name);
 	};
