@@ -47,18 +47,18 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		mbstowcs_s(&r, action_1, 64, &character_1->action_name[0], 64);
 		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
 
-		// Output::send<LogLevel::Warning>(
-		// 	STR("{} {:#02X} [{}] {:02}   ||   {} {:#02X} [{}] {:02}  {} {}\n"),
-		// 	(void *)character_1,
-		// 	(uint32_t)character_1->action_id,
-		// 	bytes_to_string(&character_1->flags_1, 16),
-		// 	character_1->hitstop,
-		// 	(void *)character_2,
-		// 	(uint32_t)character_2->action_id,
-		// 	bytes_to_string(&character_2->flags_1, 16),
-		// 	character_2->hitstop,
-		// 	action_1,
-		// 	action_2);
+		Output::send<LogLevel::Warning>(
+			STR("{} {:#02X} [{}] {:02}   ||   {} {:#02X} [{}] {:02}  {} {}\n"),
+			(void *)character_1,
+			(uint32_t)character_1->action_id,
+			bytes_to_string(&character_1->flags_1, 16),
+			character_1->hitstop,
+			(void *)character_2,
+			(uint32_t)character_2->action_id,
+			bytes_to_string(&character_2->flags_1, 16),
+			character_2->hitstop,
+			action_1,
+			action_2);
 	}
 
 	const bool cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
@@ -98,7 +98,25 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)
 {
-	if (!character->hit_connecting && !character->guard_connecting)
+	for (size_t i = 0; i < ASW::Engine::NUM_ENTITIES; i++)
+	{
+		ASW::Entity *entity = battle->engine->entities[i];
+		if (!entity || entity == character || entity->parent_character != character)
+		{
+			continue;
+		}
+		if (!entity->active_frames || entity->num_hitboxes <= 0)
+		{
+			continue;
+		}
+		if (entity->recovery && !entity->attack_hit_connecting)
+		{
+			continue;
+		}
+		return CharacterState::PROJECTILE;
+	}
+
+	if (!character->defense_hit_connecting && !character->defense_guard_connecting)
 	{
 		if (character->can_walk() || (character->can_attack() && character->action_id != ASW::ActionID::Jump))
 		{
@@ -109,33 +127,6 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 	if (character->is_in_blockstun() || character->is_in_hitstun())
 	{
 		return CharacterState::STUN;
-	}
-
-	for (size_t i = 0; i < ASW::Engine::NUM_ENTITIES; i++)
-	{
-		ASW::Entity *entity = battle->engine->entities[i];
-		if (!entity)
-		{
-			continue;
-		}
-		if (entity != character && entity->parent_character == character)
-		{
-			if (entity->num_hitboxes > &&entity->attacking && !entity->recovery)
-			{
-				// TODO projectiles connecting frame 1
-				Output::send<LogLevel::Warning>(
-					STR("Entity {} at {}: [{}] [{}] [{}] [{}] ({}, {})"),
-					i,
-					(void *)entity,
-					bytes_to_string(&entity->flags_1, 4),
-					bytes_to_string(&entity->flags_2, 4),
-					bytes_to_string(&entity->flags_3, 4),
-					bytes_to_string(&entity->flags_4, 4),
-					entity->position_x,
-					entity->position_y);
-				return CharacterState::PROJECTILE;
-			}
-		}
 	}
 
 	if (character->is_recovering())

@@ -128,6 +128,7 @@ namespace ASW
 	public:
 		FIELD(0x110, uint32_t, num_hitboxes);
 		BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
+		BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
 		FIELD(0x25C, uint32_t, hitstop);
 		FIELD(0x280, Character *, parent_character);
 		FIELD(0x3B8, uint32_t, flags_1);
@@ -139,8 +140,8 @@ namespace ASW
 		BIT_FIELD(0x3BC, 0x00000020, full_invincible);
 		BIT_FIELD(0x3C0, 0x00080000, attacking);
 		BIT_FIELD(0x3C0, 0x00000100, active_frames);
-		BIT_FIELD(0x3C0, 0x00000002, hit_connecting);
-		BIT_FIELD(0x3C0, 0x10000000, guard_connecting); // Other bits in same byte also good candidates
+		BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
+		BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
 		FIELD(0x3D0, int32_t, position_x);
 		FIELD(0x3D4, int32_t, position_y);
 		BIT_FIELD(0x45C, 0x04, cinematic_attack);

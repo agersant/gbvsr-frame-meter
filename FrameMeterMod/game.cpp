@@ -32,7 +32,7 @@ bool ASW::Character::is_invincible()
 
 bool ASW::Character::is_in_blockstun()
 {
-	if (guard_connecting)
+	if (defense_guard_connecting)
 	{
 		return true;
 	}
@@ -60,7 +60,7 @@ bool ASW::Character::is_maneuvering()
 
 bool ASW::Character::is_in_hitstun()
 {
-	if (hit_connecting)
+	if (defense_hit_connecting)
 	{
 		return true;
 	}

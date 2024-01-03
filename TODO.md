@@ -1,4 +1,3 @@
-- Projectiles
 - Span durations as text
 - Screen centering
 - Counter/armor/parry states
