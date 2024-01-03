@@ -47,18 +47,18 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		mbstowcs_s(&r, action_1, 64, &character_1->action_name[0], 64);
 		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
 
-		Output::send<LogLevel::Warning>(
-			STR("{} {:#02X} [{}] {:02}   ||   {} {:#02X} [{}] {:02}  {} {}\n"),
-			(void *)character_1,
-			(uint32_t)character_1->action_id,
-			bytes_to_string(&character_1->flags_1, 16),
-			character_1->hitstop,
-			(void *)character_2,
-			(uint32_t)character_2->action_id,
-			bytes_to_string(&character_2->flags_1, 16),
-			character_2->hitstop,
-			action_1,
-			action_2);
+		// Output::send<LogLevel::Warning>(
+		// 	STR("{} {:#02X} [{}] {:02}   ||   {} {:#02X} [{}] {:02}  {} {}\n"),
+		// 	(void *)character_1,
+		// 	(uint32_t)character_1->action_id,
+		// 	bytes_to_string(&character_1->flags_1, 16),
+		// 	character_1->hitstop,
+		// 	(void *)character_2,
+		// 	(uint32_t)character_2->action_id,
+		// 	bytes_to_string(&character_2->flags_1, 16),
+		// 	character_2->hitstop,
+		// 	action_1,
+		// 	action_2);
 	}
 
 	const bool cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
@@ -120,15 +120,19 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 		}
 		if (entity != character && entity->parent_character == character)
 		{
-			Output::send<LogLevel::Warning>(
-				STR("Entity {} at {}: ({}, {}) {} hitboxes"),
-				i,
-				(void *)entity,
-				entity->position_x,
-				entity->position_y,
-				entity->num_hitboxes);
-			if (entity->num_hitboxes > 0)
+			if (entity->num_hitboxes > &&entity->attacking && !entity->recovery)
 			{
+				// TODO projectiles connecting frame 1
+				Output::send<LogLevel::Warning>(
+					STR("Entity {} at {}: [{}] [{}] [{}] [{}] ({}, {})"),
+					i,
+					(void *)entity,
+					bytes_to_string(&entity->flags_1, 4),
+					bytes_to_string(&entity->flags_2, 4),
+					bytes_to_string(&entity->flags_3, 4),
+					bytes_to_string(&entity->flags_4, 4),
+					entity->position_x,
+					entity->position_y);
 				return CharacterState::PROJECTILE;
 			}
 		}
