@@ -53,8 +53,9 @@ static void post_render(uintptr_t hud_ptr)
 	{
 		UObject *hud = (UObject *)hud_ptr;
 		UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
+		UFunction *draw_text_original = hud->GetFunctionByNameInChain(FName(STR("DrawText")));
 
-		DrawContext draw_context(hud, draw_rect_original);
+		DrawContext draw_context(hud, draw_rect_original, draw_text_original);
 		UI::draw(draw_context, frame_meter);
 	}
 }

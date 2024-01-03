@@ -14,15 +14,24 @@ enum CharacterState
 	PROJECTILE,
 };
 
+struct Frame
+{
+	CharacterState state;
+	int32_t span_start_index;
+	std::optional<size_t> span_length;
+};
+
 struct Page
 {
 public:
 	static constexpr uint8_t SIZE = 80;
-	std::array<CharacterState, SIZE> player_1;
-	std::array<CharacterState, SIZE> player_2;
+	std::array<std::array<Frame, SIZE>, 2> players;
 	uint8_t num_frames;
 
 	void clear();
+	void add_frame(CharacterState state_1, CharacterState state_2);
+	void commit_span(std::array<Frame, SIZE> &player);
+	void add_player_frame(std::array<Frame, SIZE> &player, CharacterState state);
 };
 
 struct FrameMeter

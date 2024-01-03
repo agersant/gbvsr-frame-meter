@@ -6,8 +6,8 @@ using namespace RC;
 
 void Page::clear()
 {
-	player_1.fill(CharacterState::IDLE);
-	player_2.fill(CharacterState::IDLE);
+	players[0].fill(Frame{});
+	players[1].fill(Frame{});
 	num_frames = 0;
 }
 
@@ -74,7 +74,12 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 	if (state_1 == CharacterState::IDLE && state_2 == CharacterState::IDLE)
 	{
-		pending_reset = true;
+		if (!pending_reset)
+		{
+			current_page.commit_span(current_page.players[0]);
+			current_page.commit_span(current_page.players[1]);
+			pending_reset = true;
+		}
 	}
 	else
 	{
@@ -90,10 +95,42 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 			current_page.clear();
 		}
 
-		current_page.player_1[current_page.num_frames] = state_1;
-		current_page.player_2[current_page.num_frames] = state_2;
-		current_page.num_frames += 1;
+		current_page.add_frame(state_1, state_2);
 	}
+}
+
+void Page::add_frame(CharacterState state_1, CharacterState state_2)
+{
+	assert(num_frames < Page::SIZE);
+	add_player_frame(players[0], state_1);
+	add_player_frame(players[1], state_2);
+	num_frames += 1;
+}
+
+void Page::commit_span(std::array<Frame, SIZE> &player)
+{
+	if (num_frames <= 0)
+	{
+		return;
+	}
+	const int32_t first = player[num_frames - 1].span_start_index;
+	const int32_t last = num_frames - 1;
+	for (size_t i = std::max(0, first); i <= last; i++)
+	{
+		player[i].span_length = 1 + last - first;
+	}
+}
+
+void Page::add_player_frame(std::array<Frame, SIZE> &player, CharacterState state)
+{
+	const bool is_new_span = num_frames == 0 || state != player[num_frames - 1].state;
+	if (is_new_span)
+	{
+		commit_span(player);
+	}
+
+	const int32_t start_index = is_new_span ? num_frames : player[num_frames - 1].span_start_index;
+	player[num_frames] = Frame{.state = state, .span_start_index = start_index};
 }
 
 CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)

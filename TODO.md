@@ -1,4 +1,5 @@
 - Span durations as text
+- Render previous page data
 - Screen centering
 - Counter/armor/parry states
 - Match SF6 palette and sizes
