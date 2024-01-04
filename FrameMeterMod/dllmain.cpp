@@ -16,6 +16,9 @@
 using namespace RC;
 using namespace RC::Unreal;
 
+static UREDGameCommon *game_instance = nullptr;
+static UFont *small_font = nullptr;
+
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
 
@@ -27,7 +30,10 @@ static FrameMeter frame_meter = {};
 
 static bool is_training_mode()
 {
-	UREDGameCommon *game_instance = (UREDGameCommon *)UObjectGlobals::FindFirstOf(L"REDGameCommon");
+	if (!game_instance)
+	{
+		game_instance = (UREDGameCommon *)UObjectGlobals::FindFirstOf(L"REDGameCommon");
+	}
 	return game_instance && game_instance->game_mode == GameMode::TRAINING;
 }
 
@@ -55,7 +61,11 @@ static void post_render(uintptr_t hud_ptr)
 		UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
 		UFunction *draw_text_original = hud->GetFunctionByNameInChain(FName(STR("DrawText")));
 
-		DrawContext draw_context(hud, draw_rect_original, draw_text_original);
+		if (!small_font)
+		{
+			small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, L"/Engine/EngineFonts/Roboto.Roboto");
+		}
+		DrawContext draw_context(hud, draw_rect_original, draw_text_original, small_font);
 		UI::draw(draw_context, frame_meter);
 	}
 }

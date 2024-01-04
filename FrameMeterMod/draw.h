@@ -5,7 +5,9 @@
 
 using namespace RC::Unreal;
 
-class UFont;
+class UFont : public UObject
+{
+};
 
 struct FLinearColor
 {
@@ -13,6 +15,8 @@ struct FLinearColor
 	float g;
 	float b;
 	float a;
+
+	static FLinearColor from_srgb(int32_t srgb);
 };
 
 struct DrawRectParams
@@ -39,18 +43,20 @@ struct DrawContext
 {
 
 public:
-	DrawContext(UObject *hud, UFunction *draw_rect, UFunction *draw_text)
+	DrawContext(UObject *hud, UFunction *draw_rect, UFunction *draw_text, UFont *small_font)
 		: hud(hud),
 		  draw_rect_internal(draw_rect),
-		  draw_text_internal(draw_text)
+		  draw_text_internal(draw_text),
+		  small_font(small_font)
 	{
 	}
 
 	void draw_rect(int32_t color, float x, float y, float width, float height) const;
-	void draw_text(int32_t color, float x, float y, const std::wstring &text, UFont *font = nullptr, float scale = 1.f) const;
+	void draw_text(int32_t color, float x, float y, const std::wstring &text, float scale = 1.f) const;
 
 protected:
 	UObject *hud;
 	UFunction *draw_rect_internal;
 	UFunction *draw_text_internal;
+	UFont *small_font;
 };
