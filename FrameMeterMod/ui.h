@@ -3,7 +3,4 @@
 #include "draw.h"
 #include "meter.h"
 
-namespace UI
-{
-	void draw(const DrawContext &context, const FrameMeter &frame_meter);
-}
+void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter);

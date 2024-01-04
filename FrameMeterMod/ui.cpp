@@ -32,7 +32,7 @@ static constexpr float player_spacing = 8.f;
 void draw_player(const DrawContext &context, float x, float y, const FrameMeter &frame_meter, size_t player_index);
 void draw_player_frames(const DrawContext &context, float x, float y, const Player &player, bool fill_row, const std::map<CharacterState, int32_t> &palette);
 
-void UI::draw(const DrawContext &context, const FrameMeter &frame_meter)
+void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
 	float x = 100.f;
 	float y = 100.f;

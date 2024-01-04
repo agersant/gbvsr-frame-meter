@@ -69,7 +69,7 @@ static void post_render(uintptr_t hud_ptr)
 			small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, L"/Engine/EngineFonts/Roboto.Roboto");
 		}
 		DrawContext draw_context(hud, draw_rect_original, draw_text_original, small_font);
-		UI::draw(draw_context, frame_meter);
+		draw_frame_meter(draw_context, frame_meter);
 	}
 }
 
