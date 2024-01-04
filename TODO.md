@@ -1,4 +1,3 @@
-- Render previous page data
 - Screen centering
 - Counter/armor/parry states
 - Scale with game resolution
