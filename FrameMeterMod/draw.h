@@ -45,20 +45,23 @@ struct DrawContext
 {
 
 public:
-	DrawContext(UObject *hud, UFunction *draw_rect, UFunction *draw_text, UFont *small_font)
-		: hud(hud),
-		  draw_rect_internal(draw_rect),
-		  draw_text_internal(draw_text),
-		  small_font(small_font)
-	{
-	}
+	DrawContext(UObject *hud);
+
+	static inline const float ui_width = 1920.f;
+	static inline const float ui_height = 1080.f;
 
 	void draw_rect(int32_t color, float x, float y, float width, float height) const;
 	void draw_text(int32_t color, float x, float y, const std::wstring &text, float scale = 1.f) const;
 
 protected:
-	UObject *hud;
-	UFunction *draw_rect_internal;
-	UFunction *draw_text_internal;
-	UFont *small_font;
+	static inline UFunction *draw_rect_internal = nullptr;
+	static inline UFunction *draw_text_internal = nullptr;
+	static inline UFunction *get_player_controller = nullptr;
+	static inline UFunction *get_viewport_size = nullptr;
+	static inline UFont *small_font = nullptr;
+
+	UObject *hud = nullptr;
+	uint32_t width = 0;
+	uint32_t height = 0;
+	float scaling_factor = 1.f;
 };

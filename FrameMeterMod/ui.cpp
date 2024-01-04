@@ -23,6 +23,7 @@ static const std::map<CharacterState, int32_t> previous_page_palette = {
 	{CharacterState::PROJECTILE, multiply_color(current_page_palette.at(CharacterState::PROJECTILE), darkening)},
 };
 
+static constexpr float bottom_margin = 160.f;
 static constexpr float border = 4.f;
 static constexpr float frame_width = 14.f;
 static constexpr float frame_height = 24.f;
@@ -34,8 +35,10 @@ void draw_player_frames(const DrawContext &context, float x, float y, const Play
 
 void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
-	float x = 100.f;
-	float y = 100.f;
+	const float widget_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
+	const float widget_height = 2 * (2 * border + frame_height) - player_spacing;
+	float x = round((context.ui_width - widget_width) / 2.f);
+	float y = context.ui_height - bottom_margin - widget_height;
 
 	draw_player(context, x, y, frame_meter, 0);
 	y += 2 * border + frame_height + player_spacing;

@@ -19,7 +19,6 @@ using namespace RC;
 using namespace RC::Unreal;
 
 static UREDGameCommon *game_instance = nullptr;
-static UFont *small_font = nullptr;
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -60,15 +59,7 @@ static void post_render(uintptr_t hud_ptr)
 
 	if (is_training_mode())
 	{
-		UObject *hud = (UObject *)hud_ptr;
-		UFunction *draw_rect_original = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
-		UFunction *draw_text_original = hud->GetFunctionByNameInChain(FName(STR("DrawText")));
-
-		if (!small_font)
-		{
-			small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, L"/Engine/EngineFonts/Roboto.Roboto");
-		}
-		DrawContext draw_context(hud, draw_rect_original, draw_text_original, small_font);
+		DrawContext draw_context((UObject *)hud_ptr);
 		draw_frame_meter(draw_context, frame_meter);
 	}
 }
