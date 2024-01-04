@@ -1,5 +1,3 @@
-- Reset meter on training start
-- Reset meter when resetting training
 - Dont add frames to meter while game is paused
 - More accurate colors
 - Automatically lower meter when `opponent behavior` and `position reset controls` are hidden

@@ -119,7 +119,7 @@ namespace ASW
 	public:
 		FIELD(0x10, class Player, player_1);
 		FIELD(0x88, class Player, player_2);
-		static constexpr size_t NUM_ENTITIES = 132;
+		static constexpr size_t NUM_ENTITIES = 131;
 		ARRAY_FIELD(0x1030, class Entity *[NUM_ENTITIES], entities);
 	};
 

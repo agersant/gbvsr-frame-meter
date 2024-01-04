@@ -48,6 +48,8 @@ struct FrameMeter
 public:
 	std::optional<Page> previous_page;
 	Page current_page;
+
+	void reset();
 	void update(AREDGameState_Battle *battle);
 
 protected:

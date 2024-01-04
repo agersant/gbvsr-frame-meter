@@ -1,5 +1,12 @@
 #include "meter.h"
 
+void FrameMeter::reset()
+{
+	previous_page.reset();
+	current_page.clear();
+	pending_reset = false;
+}
+
 void FrameMeter::update(AREDGameState_Battle *battle)
 {
 	ASW::Character *character_1 = battle->engine->player_1.character;
@@ -29,9 +36,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	{
 		if (pending_reset)
 		{
-			current_page.clear();
-			previous_page.reset();
-			pending_reset = false;
+			reset();
 		}
 		else if (current_page.players[0].num_frames == PAGE_SIZE)
 		{

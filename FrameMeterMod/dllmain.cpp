@@ -23,18 +23,27 @@ static UREDGameCommon *game_instance = nullptr;
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
 
+static std::unique_ptr<PLH::x64Detour> reset_battle_detour = nullptr;
+static uint64_t reset_battle_original;
+
 const uint8_t HUD_VTABLE_INDEX_POST_RENDER = 0x6C0 / 8;
 static std::unique_ptr<PLH::VFuncSwapHook> hud_post_render_hook = nullptr;
 static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 
-static bool is_training_mode()
+static UREDGameCommon *get_game_instance()
 {
 	if (!game_instance)
 	{
 		game_instance = (UREDGameCommon *)UObjectGlobals::FindFirstOf(L"REDGameCommon");
 	}
+	return game_instance;
+}
+
+static bool is_training_mode()
+{
+	UREDGameCommon *game_instance = get_game_instance();
 	return game_instance && game_instance->game_mode == GameMode::TRAINING;
 }
 
@@ -46,6 +55,16 @@ static void update_battle(AREDGameState_Battle *battle, float delta_time)
 	{
 		frame_meter.update(battle);
 		print_battle_data(battle);
+	}
+}
+
+static void reset_battle(ASW::Engine *engine, int32_t *param)
+{
+	using ResetBattle_sig = void (*)(ASW::Engine *, int32_t *);
+	((ResetBattle_sig)reset_battle_original)(engine, param);
+	if (is_training_mode())
+	{
+		frame_meter.reset();
 	}
 }
 
@@ -64,6 +83,67 @@ static void post_render(uintptr_t hud_ptr)
 	}
 }
 
+std::unique_ptr<PLH::x64Detour> setup_detour(uint64_t callback, uint64_t *trampoline, const char *signature)
+{
+	std::unique_ptr<PLH::x64Detour> detour = nullptr;
+
+	SignatureContainer signature_container{
+		{{signature}},
+		[&](const SignatureContainer &self)
+		{
+			detour = std::make_unique<PLH::x64Detour>(
+				(uint64_t)self.get_match_address(),
+				callback,
+				trampoline);
+			detour->hook();
+			return true;
+		},
+		[](SignatureContainer &self) {},
+	};
+	SinglePassScanner::SignatureContainerMap signature_containers = {
+		{ScanTarget::MainExe, {signature_container}},
+	};
+	SinglePassScanner::start_scan(signature_containers);
+
+	return detour;
+}
+
+void hook_ui_render()
+{
+	Hook::RegisterInitGameStatePostCallback(
+		[&](AGameModeBase *GameMode)
+		{
+			if (hud_post_render_hook != nullptr)
+			{
+				return;
+			}
+
+			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
+			if (!hud_class)
+			{
+				Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
+				return;
+			}
+
+			UObject *default_hud = hud_class->GetClassDefaultObject();
+			if (!default_hud)
+			{
+				Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
+				return;
+			}
+
+			hud_post_render_hook = std::make_unique<PLH::VFuncSwapHook>(
+				(uintptr_t)default_hud,
+				PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&post_render}}),
+				&hud_original_functions);
+
+			if (!hud_post_render_hook->hook())
+			{
+				Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
+			}
+		});
+}
+
 class FrameMeterMod : public RC::CppUserModBase
 {
 public:
@@ -77,65 +157,9 @@ public:
 
 	void on_unreal_init() override
 	{
-		hook_battle_updates();
+		update_battle_detour = setup_detour((uint64_t)&update_battle, &update_battle_original, "40 57 41 54 41 55 48 83 EC 70 80 B9 C0 0A 00 00 01 48 8B F9 44 0F 29 44 24");
+		reset_battle_detour = setup_detour((uint64_t)&reset_battle, &reset_battle_original, "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 5D 18 91 04 48 33 C4");
 		hook_ui_render();
-	}
-
-	void hook_battle_updates()
-	{
-		SignatureContainer update_battle_signature{
-			{{"40 57 41 54 41 55 48 83 EC 70 80 B9 C0 0A 00 00 01 48 8B F9 44 0F 29 44 24"}},
-			[&](const SignatureContainer &self)
-			{
-				update_battle_detour = std::make_unique<PLH::x64Detour>(
-					(uint64_t)self.get_match_address(),
-					(uint64_t)&update_battle,
-					&update_battle_original);
-				update_battle_detour->hook();
-				return true;
-			},
-			[](SignatureContainer &self) {},
-		};
-		SinglePassScanner::SignatureContainerMap signature_containers = {
-			{ScanTarget::MainExe, {update_battle_signature}},
-		};
-		SinglePassScanner::start_scan(signature_containers);
-	}
-
-	void hook_ui_render()
-	{
-		Hook::RegisterInitGameStatePostCallback(
-			[&](AGameModeBase *GameMode)
-			{
-				if (hud_post_render_hook != nullptr)
-				{
-					return;
-				}
-
-				UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
-				if (!hud_class)
-				{
-					Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
-					return;
-				}
-
-				UObject *default_hud = hud_class->GetClassDefaultObject();
-				if (!default_hud)
-				{
-					Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
-					return;
-				}
-
-				hud_post_render_hook = std::make_unique<PLH::VFuncSwapHook>(
-					(uintptr_t)default_hud,
-					PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&post_render}}),
-					&hud_original_functions);
-
-				if (!hud_post_render_hook->hook())
-				{
-					Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
-				}
-			});
 	}
 
 	~FrameMeterMod() override
@@ -153,6 +177,7 @@ extern "C"
 	__declspec(dllexport) void uninstall_mod(RC::CppUserModBase *mod)
 	{
 		update_battle_detour.reset();
+		reset_battle_detour.reset();
 		hud_post_render_hook.reset();
 		delete mod;
 	}
