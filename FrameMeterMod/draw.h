@@ -5,6 +5,8 @@
 
 using namespace RC::Unreal;
 
+int32_t multiply_color(int32_t color, float multiplier);
+
 class UFont : public UObject
 {
 };

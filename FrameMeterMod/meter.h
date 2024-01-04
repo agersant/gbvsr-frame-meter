@@ -2,6 +2,8 @@
 
 #include "game.h"
 
+constexpr size_t PAGE_SIZE = 80;
+
 enum CharacterState
 {
 	IDLE,
@@ -17,21 +19,28 @@ enum CharacterState
 struct Frame
 {
 	CharacterState state;
-	int32_t span_start_index;
+	int32_t span_start_index; // Relative to owning page (0 = start of page, negative values for span started in prior page)
 	std::optional<size_t> span_length;
+};
+
+struct Player
+{
+public:
+	std::array<Frame, PAGE_SIZE> frames;
+	std::optional<std::pair<CharacterState, int32_t>> prior_span;
+	uint8_t num_frames;
+
+	void commit_span();
+	void add_frame(CharacterState state);
 };
 
 struct Page
 {
 public:
-	static constexpr uint8_t SIZE = 80;
-	std::array<std::array<Frame, SIZE>, 2> players;
-	uint8_t num_frames;
+	std::array<Player, 2> players;
 
 	void clear();
-	void add_frame(CharacterState state_1, CharacterState state_2);
-	void commit_span(std::array<Frame, SIZE> &player);
-	void add_player_frame(std::array<Frame, SIZE> &player, CharacterState state);
+	void add_player_frame(size_t player_index, CharacterState state);
 };
 
 struct FrameMeter
@@ -42,6 +51,6 @@ public:
 	void update(AREDGameState_Battle *battle);
 
 protected:
-	static CharacterState get_character_state(AREDGameState_Battle *battle, ASW::Character *character);
 	bool pending_reset;
+	static CharacterState get_character_state(AREDGameState_Battle *battle, ASW::Character *character);
 };

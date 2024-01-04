@@ -2,12 +2,14 @@
 #include <polyhook2/Detour/x64Detour.hpp>
 #include <polyhook2/Virtuals/VFuncSwapHook.hpp>
 
+#include <DynamicOutput/Output.hpp>
 #include <SigScanner/SinglePassSigScanner.hpp>
 #include <Mod/CppUserModBase.hpp>
 #include <Unreal/UClass.hpp>
 #include <Unreal/UFunction.hpp>
 #include <Unreal/UObject.hpp>
 
+#include "debug.h"
 #include "draw.h"
 #include "game.h"
 #include "meter.h"
@@ -44,6 +46,7 @@ static void update_battle(AREDGameState_Battle *battle, float delta_time)
 	if (is_training_mode())
 	{
 		frame_meter.update(battle);
+		print_battle_data(battle);
 	}
 }
 

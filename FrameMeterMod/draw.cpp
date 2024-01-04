@@ -1,5 +1,13 @@
 #include "draw.h"
 
+int32_t multiply_color(int32_t color, float multiplier)
+{
+	uint8_t r = std::clamp(int(0xFF * multiplier * ((color >> 16) & 0xFF) / 255.f), 0, 0xFF);
+	uint8_t g = std::clamp(int(0xFF * multiplier * ((color >> 8) & 0xFF) / 255.f), 0, 0xFF);
+	uint8_t b = std::clamp(int(0xFF * multiplier * ((color >> 0) & 0xFF) / 255.f), 0, 0xFF);
+	return (r << 16) + (g << 8) + b;
+}
+
 FLinearColor FLinearColor::from_srgb(int32_t srgb)
 {
 	const float r = ((srgb >> 16) & 0xFF) / 255.f;

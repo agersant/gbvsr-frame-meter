@@ -1,69 +1,13 @@
-#include <DynamicOutput/DynamicOutput.hpp>
-
 #include "meter.h"
-
-using namespace RC;
-
-void Page::clear()
-{
-	players[0].fill(Frame{});
-	players[1].fill(Frame{});
-	num_frames = 0;
-}
-
-static std::wstring bytes_to_string(void *bytes, size_t num_bytes)
-{
-	std::wstring out;
-	out.reserve(2 + 3 * num_bytes);
-	for (int i = 0; i < num_bytes; i++)
-	{
-		const uint8_t value = *((uint8_t *)(bytes) + i);
-		if (value)
-		{
-			out.append(std::format(STR("{:02X}"), value));
-		}
-		else
-		{
-			out.append(STR("xx"));
-		}
-		if (i + 1 < num_bytes)
-		{
-			out.append(STR(" "));
-		}
-	}
-	return out;
-}
 
 void FrameMeter::update(AREDGameState_Battle *battle)
 {
 	ASW::Character *character_1 = battle->engine->player_1.character;
 	ASW::Character *character_2 = battle->engine->player_2.character;
 
-	if (character_1->action_id != 0 || character_2->action_id != 0)
-	{
-		wchar_t action_1[64];
-		wchar_t action_2[64];
-		size_t r;
-		mbstowcs_s(&r, action_1, 64, &character_1->action_name[0], 64);
-		mbstowcs_s(&r, action_2, 64, &character_2->action_name[0], 64);
-
-		Output::send<LogLevel::Warning>(
-			STR("{} {:#02X} [{}] {:02}   ||   {} {:#02X} [{}] {:02}  {} {}\n"),
-			(void *)character_1,
-			(uint32_t)character_1->action_id,
-			bytes_to_string(&character_1->flags_1, 16),
-			character_1->hitstop,
-			(void *)character_2,
-			(uint32_t)character_2->action_id,
-			bytes_to_string(&character_2->flags_1, 16),
-			character_2->hitstop,
-			action_1,
-			action_2);
-	}
-
-	const bool cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
-	const uint32_t hitstop = std::min(character_1->hitstop, character_2->hitstop);
-	const bool skip_frame = cinematic_freeze || hitstop > 0;
+	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
+	const bool is_shared_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
+	const bool skip_frame = is_cinematic_freeze || is_shared_hitstop;
 	if (skip_frame)
 	{
 		return;
@@ -76,8 +20,8 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	{
 		if (!pending_reset)
 		{
-			current_page.commit_span(current_page.players[0]);
-			current_page.commit_span(current_page.players[1]);
+			current_page.players[0].commit_span();
+			current_page.players[1].commit_span();
 			pending_reset = true;
 		}
 	}
@@ -89,48 +33,21 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 			previous_page.reset();
 			pending_reset = false;
 		}
-		else if (current_page.num_frames == Page::SIZE)
+		else if (current_page.players[0].num_frames == PAGE_SIZE)
 		{
 			previous_page = current_page;
 			current_page.clear();
+			const Frame &last_frame_1 = previous_page->players[0].frames.back();
+			const Frame &last_frame_2 = previous_page->players[1].frames.back();
+			current_page.players[0].prior_span = {last_frame_1.state, last_frame_1.span_start_index};
+			current_page.players[1].prior_span = {last_frame_2.state, last_frame_2.span_start_index};
 		}
 
-		current_page.add_frame(state_1, state_2);
-	}
-}
-
-void Page::add_frame(CharacterState state_1, CharacterState state_2)
-{
-	assert(num_frames < Page::SIZE);
-	add_player_frame(players[0], state_1);
-	add_player_frame(players[1], state_2);
-	num_frames += 1;
-}
-
-void Page::commit_span(std::array<Frame, SIZE> &player)
-{
-	if (num_frames <= 0)
-	{
-		return;
-	}
-	const int32_t first = player[num_frames - 1].span_start_index;
-	const int32_t last = num_frames - 1;
-	for (size_t i = std::max(0, first); i <= last; i++)
-	{
-		player[i].span_length = 1 + last - first;
-	}
-}
-
-void Page::add_player_frame(std::array<Frame, SIZE> &player, CharacterState state)
-{
-	const bool is_new_span = num_frames == 0 || state != player[num_frames - 1].state;
-	if (is_new_span)
-	{
-		commit_span(player);
+		current_page.players[0].add_frame(state_1);
+		current_page.players[1].add_frame(state_2);
 	}
 
-	const int32_t start_index = is_new_span ? num_frames : player[num_frames - 1].span_start_index;
-	player[num_frames] = Frame{.state = state, .span_start_index = start_index};
+	assert(current_page.players[0].num_frames == current_page.players[1].num_frames);
 }
 
 CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)
@@ -197,4 +114,55 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 	}
 
 	return CharacterState::IDLE;
+}
+
+void Page::clear()
+{
+	players.fill(Player{});
+}
+
+void Player::add_frame(CharacterState state)
+{
+	bool is_new_span;
+	int32_t span_start;
+	if (num_frames > 0)
+	{
+		const Frame &previous_frame = frames[num_frames - 1];
+		is_new_span = state != previous_frame.state;
+		span_start = is_new_span ? num_frames : previous_frame.span_start_index;
+	}
+	else if (prior_span.has_value() && state == prior_span->first)
+	{
+		is_new_span = false;
+		span_start = prior_span->second - PAGE_SIZE;
+	}
+	else
+	{
+		is_new_span = true;
+		span_start = 0;
+	}
+
+	if (is_new_span)
+	{
+		commit_span();
+	}
+
+	assert(num_frames < PAGE_SIZE);
+	frames[num_frames] = Frame{.state = state, .span_start_index = span_start};
+
+	num_frames += 1;
+}
+
+void Player::commit_span()
+{
+	if (num_frames <= 0)
+	{
+		return;
+	}
+	const int32_t first = frames[num_frames - 1].span_start_index;
+	const int32_t last = num_frames - 1;
+	for (size_t i = std::max(0, first); i <= last; i++)
+	{
+		frames[i].span_length = 1 + last - first;
+	}
 }

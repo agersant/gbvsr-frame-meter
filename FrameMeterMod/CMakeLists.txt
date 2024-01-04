@@ -5,6 +5,7 @@ project(${TARGET})
 
 
 set(${TARGET}_Sources
+	"${CMAKE_CURRENT_SOURCE_DIR}/debug.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/dllmain.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/draw.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/game.cpp"
