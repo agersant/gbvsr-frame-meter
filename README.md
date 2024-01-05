@@ -27,8 +27,8 @@ This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-scree
 
 ## Understanding the Meter
 
-| Color                                                  | Meaning                                |
-| ------------------------------------------------------ | -------------------------------------- |
+|                         Color                          | Meaning                                |
+| :----------------------------------------------------: | -------------------------------------- |
 | <img src="https://placehold.co/21x36/00B796/00B796" /> | Counter State                          |
 | <img src="https://placehold.co/21x36/0170BE/0170BE" /> | Punish Counter State                   |
 | <img src="https://placehold.co/21x36/42F8FD/42F8FD" /> | Non-Counter Action                     |
