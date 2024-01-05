@@ -17,7 +17,7 @@ jobs:
           submodules: recursive
           token: ${{ secrets.PAT_TOKEN }}
       - name: Configure Github SSH
-        run: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
+        run: ssh-keyscan -H github.com >> %userprofile%\.ssh\known_hosts
       - name: Generate solution
         run: cmake -S . -B output
       - name: Build binaries
