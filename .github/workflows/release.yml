@@ -19,6 +19,8 @@ jobs:
         with:
           key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
+      - name: Setup Visual Studio Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Prepare release
         run: .\scripts\release.ps1
       - name: Bump version

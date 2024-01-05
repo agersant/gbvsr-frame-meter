@@ -21,6 +21,8 @@ jobs:
         with:
           key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
           known_hosts: unnecessary
+      - name: Setup Visual Studio Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
       - name: Generate solution
         run: cmake -S . -B output
       - name: Build binaries
