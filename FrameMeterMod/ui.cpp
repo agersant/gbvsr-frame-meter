@@ -85,14 +85,14 @@ void draw_player_frames(const DrawContext &context, float x, float y, const Play
 				const int32_t power = (span_length - 1) - index_in_span;
 				const int32_t digit = (span_length / int32_t(pow(10, power))) % 10;
 				const std::wstring digit_string = std::to_wstring(digit);
-				const float font_scale = 1.4f;
-				const float dx = 2.f;
-				const float dy = 1.f;
-				context.draw_text(0x000000, x + dx - 1, y + dy, digit_string, font_scale);
-				context.draw_text(0x000000, x + dx + 1, y + dy, digit_string, font_scale);
-				context.draw_text(0x000000, x + dx, y + dy - 1, digit_string, font_scale);
-				context.draw_text(0x000000, x + dx, y + dy + 1, digit_string, font_scale);
-				context.draw_text(0xFFFFFF, x + dx, y + dy, digit_string, font_scale);
+				const float font_size = 16.f;
+				const float dx = 1.f;
+				const float dy = 0.f;
+				context.draw_text(0x000000, x + dx - 1, y + dy, digit_string, font_size);
+				context.draw_text(0x000000, x + dx + 1, y + dy, digit_string, font_size);
+				context.draw_text(0x000000, x + dx, y + dy - 1, digit_string, font_size);
+				context.draw_text(0x000000, x + dx, y + dy + 1, digit_string, font_size);
+				context.draw_text(0xFFFFFF, x + dx, y + dy, digit_string, font_size);
 			}
 		}
 

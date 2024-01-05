@@ -25,7 +25,11 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 {
 	if (!small_font)
 	{
-		small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, L"/Engine/EngineFonts/Roboto.Roboto");
+		// /Engine/EngineFonts/Roboto.Roboto
+		// /Game/Shared/Font/JPN/FOT-SkipStd-D_Font.FOT-SkipStd-D_Font							12.f 1.f 4.f
+		// /Game/Shared/Font/JPN/FOT-TsukuOldMinPro-R_Font.FOT-TsukuOldMinPro-R_Font			ugly, didnt bother
+		// /Game/Shared/Font/JPN/FOT-NewCinemaAStd-D_Font.FOT-NewCinemaAStd-D_Font				identical to skip
+		small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, STR("/Engine/EngineFonts/Roboto.Roboto"));
 	}
 
 	if (!draw_rect_internal)
@@ -89,15 +93,25 @@ void DrawContext::draw_rect(int32_t color, float x, float y, float width, float 
 	}
 }
 
-void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring &text, float scale) const
+void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring &text, float text_size) const
 {
+	if (!small_font)
+	{
+		return;
+	}
+
+	int32_t *font_size = small_font->GetValuePtrByPropertyName<int32_t>(STR("LegacyFontSize"));
+	const int32_t original_font_size = *font_size;
+	*font_size = int32_t(std::max(1.f, ceil(scaling_factor * text_size)));
+	const float scale = (scaling_factor * text_size) / *font_size;
+
 	DrawTextParams params = {
 		.text = FString::FString(text.c_str()),
 		.color = FLinearColor::from_srgb(color),
 		.x = x * scaling_factor,
 		.y = y * scaling_factor,
 		.font = small_font,
-		.scale = scale * scaling_factor,
+		.scale = scale,
 		.scale_position = false,
 	};
 
@@ -105,4 +119,6 @@ void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring 
 	{
 		hud->ProcessEvent(draw_text_internal, &params);
 	}
+
+	*font_size = original_font_size;
 }

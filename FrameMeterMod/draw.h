@@ -51,7 +51,7 @@ public:
 	static inline const float ui_height = 1080.f;
 
 	void draw_rect(int32_t color, float x, float y, float width, float height) const;
-	void draw_text(int32_t color, float x, float y, const std::wstring &text, float scale = 1.f) const;
+	void draw_text(int32_t color, float x, float y, const std::wstring &text, float text_size) const;
 
 protected:
 	static inline UFunction *draw_rect_internal = nullptr;

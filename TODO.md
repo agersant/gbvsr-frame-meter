@@ -1,4 +1,3 @@
-- Better looking font (see https://forums.unrealengine.com/t/how-do-you-dynamically-create-a-ufont-at-runtime-in-c/405643/3)
 - Advantage display
 - Automatically lower meter when `opponent behavior` and `position reset controls` are hidden
 - Counter/armor/parry states
