@@ -1,6 +1,6 @@
-- More accurate colors
-- Automatically lower meter when `opponent behavior` and `position reset controls` are hidden
 - Better looking font (see https://forums.unrealengine.com/t/how-do-you-dynamically-create-a-ufont-at-runtime-in-c/405643/3)
+- Advantage display
+- Automatically lower meter when `opponent behavior` and `position reset controls` are hidden
 - Counter/armor/parry states
 - Hitting Zeta during 4S skips one too many frame
 - Hitting Lowain during 6S should skip more frames

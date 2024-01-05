@@ -1,7 +1,7 @@
 #include "ui.h"
 
 static const std::map<CharacterState, int32_t> current_page_palette = {
-	{CharacterState::IDLE, 0x1A1A1A},
+	{CharacterState::IDLE, 0x202020}, // Should be 0x1A1A1A, but UE doesn't render these 1:1. Perceptually adjusted.
 	{CharacterState::COUNTER, 0x00B796},
 	{CharacterState::ACTIVE_HITBOX, 0xCC2B67},
 	{CharacterState::PUNISH_COUNTER, 0x0170BE},
@@ -11,7 +11,7 @@ static const std::map<CharacterState, int32_t> current_page_palette = {
 	{CharacterState::PROJECTILE, 0xC98002},
 };
 
-static const float darkening = 0.7f;
+static const float darkening = 0.6f;
 static const std::map<CharacterState, int32_t> previous_page_palette = {
 	{CharacterState::IDLE, current_page_palette.at(CharacterState::IDLE)},
 	{CharacterState::COUNTER, multiply_color(current_page_palette.at(CharacterState::COUNTER), darkening)},
