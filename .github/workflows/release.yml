@@ -13,6 +13,7 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
       - name: Prepare release
         run: .\scripts\release.ps1
       - name: Bump version
