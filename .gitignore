@@ -1,2 +1,4 @@
 *.pdb
 output
+release
+release.zip
