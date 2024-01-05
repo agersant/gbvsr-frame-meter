@@ -8,6 +8,7 @@
 #include <Unreal/UClass.hpp>
 #include <Unreal/UFunction.hpp>
 #include <Unreal/UObject.hpp>
+#include <Unreal/World.hpp>
 
 #include "debug.h"
 #include "draw.h"
@@ -19,6 +20,7 @@ using namespace RC;
 using namespace RC::Unreal;
 
 static UREDGameCommon *game_instance = nullptr;
+static UFunction *get_world_settings_func = nullptr;
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -32,7 +34,11 @@ static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 
-static UREDGameCommon *get_game_instance()
+class AWorldSettings : public AActor
+{
+};
+
+UREDGameCommon *get_game_instance()
 {
 	if (!game_instance)
 	{
@@ -41,24 +47,56 @@ static UREDGameCommon *get_game_instance()
 	return game_instance;
 }
 
-static bool is_training_mode()
+AWorldSettings *get_world_settings(AActor *actor)
+{
+	UWorld *world = actor->GetWorld();
+	if (!actor || !world)
+	{
+		return nullptr;
+	}
+
+	AWorldSettings *world_settings = nullptr;
+	if (!get_world_settings_func)
+	{
+		get_world_settings_func = world->GetFunctionByNameInChain(FName(STR("K2_GetWorldSettings")));
+	}
+
+	if (get_world_settings_func)
+	{
+		world->ProcessEvent(get_world_settings_func, &world_settings);
+	}
+
+	return world_settings;
+}
+
+bool is_training_mode()
 {
 	UREDGameCommon *game_instance = get_game_instance();
 	return game_instance && game_instance->game_mode == GameMode::TRAINING;
 }
 
-static void update_battle(AREDGameState_Battle *battle, float delta_time)
+bool is_paused(AREDGameState_Battle *battle)
+{
+	if (AActor *world_settings = get_world_settings(battle))
+	{
+		TObjectPtr<AActor> *pauser = (TObjectPtr<AActor> *)world_settings->GetValuePtrByPropertyNameInChain(STR("PauserPlayerState"));
+		return pauser != nullptr && pauser->UnderlyingObjectPointer != nullptr;
+	}
+	return true;
+}
+
+void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
-	if (is_training_mode())
+	if (is_training_mode() && !is_paused(battle))
 	{
 		frame_meter.update(battle);
 		print_battle_data(battle);
 	}
 }
 
-static void reset_battle(ASW::Engine *engine, int32_t *param)
+void reset_battle(ASW::Engine *engine, int32_t *param)
 {
 	using ResetBattle_sig = void (*)(ASW::Engine *, int32_t *);
 	((ResetBattle_sig)reset_battle_original)(engine, param);
@@ -68,7 +106,7 @@ static void reset_battle(ASW::Engine *engine, int32_t *param)
 	}
 }
 
-static void post_render(uintptr_t hud_ptr)
+void post_render(uintptr_t hud_ptr)
 {
 	if (hud_original_functions.contains(HUD_VTABLE_INDEX_POST_RENDER))
 	{

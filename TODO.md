@@ -1,4 +1,3 @@
-- Dont add frames to meter while game is paused
 - More accurate colors
 - Automatically lower meter when `opponent behavior` and `position reset controls` are hidden
 - Better looking font (see https://forums.unrealengine.com/t/how-do-you-dynamically-create-a-ufont-at-runtime-in-c/405643/3)
