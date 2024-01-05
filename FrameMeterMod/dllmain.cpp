@@ -92,7 +92,7 @@ void update_battle(AREDGameState_Battle *battle, float delta_time)
 	if (is_training_mode() && !is_paused(battle))
 	{
 		frame_meter.update(battle);
-		print_battle_data(battle);
+		// print_battle_data(battle);
 	}
 }
 
