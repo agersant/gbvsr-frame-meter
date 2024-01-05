@@ -15,7 +15,9 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
       - name: Configure Github SSH
-        run: ssh-keyscan -H github.com >> "$Env:USERPROFILE\.ssh\known_hosts"
+        run: |
+          New-Item -Type dir -Force "$Env:USERPROFILE\.ssh"
+          ssh-keyscan -H github.com >> "$Env:USERPROFILE\.ssh\known_hosts"
       - name: Prepare release
         run: .\scripts\release.ps1
       - name: Bump version
