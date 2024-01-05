@@ -77,7 +77,11 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 
 	if (!character->defense_hit_connecting && !character->defense_guard_connecting)
 	{
-		if (character->can_walk() || (character->can_attack() && character->action_id != ASW::ActionID::Jump))
+		const bool can_walk = character->can_walk();
+		const bool is_mid_jump = character->action_id == ASW::ActionID::Jump;
+		const bool is_mid_dash = character->action_id == ASW::ActionID::FDash;
+		const bool can_use_normal = character->can_attack() && !is_mid_jump && !is_mid_dash;
+		if (can_walk || can_use_normal)
 		{
 			return CharacterState::IDLE;
 		}
