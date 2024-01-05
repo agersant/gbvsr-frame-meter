@@ -16,10 +16,10 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.PAT_TOKEN }}
-      - name: Configure Github SSH
-        run: |
-          New-Item -Type dir -Force "$Env:USERPROFILE\.ssh"
-          ssh-keyscan -H github.com >> "$Env:USERPROFILE\.ssh\known_hosts"
+      - name: Setup github SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
       - name: Generate solution
         run: cmake -S . -B output
       - name: Build binaries

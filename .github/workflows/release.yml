@@ -14,10 +14,10 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
-      - name: Configure Github SSH
-        run: |
-          New-Item -Type dir -Force "$Env:USERPROFILE\.ssh"
-          ssh-keyscan -H github.com >> "$Env:USERPROFILE\.ssh\known_hosts"
+      - name: Setup github SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
       - name: Prepare release
         run: .\scripts\release.ps1
       - name: Bump version
