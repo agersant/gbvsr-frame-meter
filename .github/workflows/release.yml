@@ -18,6 +18,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
       - name: Prepare release
         run: .\scripts\release.ps1
       - name: Bump version

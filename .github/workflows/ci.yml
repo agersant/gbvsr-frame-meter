@@ -20,6 +20,7 @@ jobs:
         uses: shimataro/ssh-key-action@v2
         with:
           key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
       - name: Generate solution
         run: cmake -S . -B output
       - name: Build binaries
