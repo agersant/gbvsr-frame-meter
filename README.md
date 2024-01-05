@@ -29,13 +29,13 @@ This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-scree
 
 | Color                                                  | Meaning                                |
 | ------------------------------------------------------ | -------------------------------------- |
-| <img src="https://placehold.co/28x48/00B796/00B796" /> | Counter State                          |
-| <img src="https://placehold.co/28x48/0170BE/0170BE" /> | Punish Counter State                   |
-| <img src="https://placehold.co/28x48/42F8FD/42F8FD" /> | Non-Counter Action                     |
-| <img src="https://placehold.co/28x48/CC2B67/CC2B67" /> | Hitbox Appearance Period               |
-| <img src="https://placehold.co/28x48/C98002/C98002" /> | Projectile's Active Time               |
-| <img src="https://placehold.co/28x48/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
-| <img src="https://placehold.co/28x48/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
+| <img src="https://placehold.co/21x36/00B796/00B796" /> | Counter State                          |
+| <img src="https://placehold.co/21x36/0170BE/0170BE" /> | Punish Counter State                   |
+| <img src="https://placehold.co/21x36/42F8FD/42F8FD" /> | Non-Counter Action                     |
+| <img src="https://placehold.co/21x36/CC2B67/CC2B67" /> | Hitbox Appearance Period               |
+| <img src="https://placehold.co/21x36/C98002/C98002" /> | Projectile's Active Time               |
+| <img src="https://placehold.co/21x36/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
+| <img src="https://placehold.co/21x36/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
 
 ## Caveats
 
