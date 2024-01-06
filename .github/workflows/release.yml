@@ -31,6 +31,6 @@ jobs:
       - name: Make Github release
         uses: softprops/action-gh-release@v1
         with:
-          name: "${{ inputs.version_number }}"
+          tag_name: "${{ inputs.version_number }}"
           files: gbvsr-frame-meter.zip
           fail_on_unmatched_files: true
