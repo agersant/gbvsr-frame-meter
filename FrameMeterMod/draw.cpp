@@ -23,13 +23,14 @@ FLinearColor FLinearColor::from_srgb(int32_t srgb)
 
 DrawContext::DrawContext(UObject *hud) : hud(hud)
 {
-	if (!small_font)
+	if (fonts.at(Typeface::Roboto) == nullptr)
 	{
-		// /Engine/EngineFonts/Roboto.Roboto
-		// /Game/Shared/Font/JPN/FOT-SkipStd-D_Font.FOT-SkipStd-D_Font							12.f 1.f 4.f
-		// /Game/Shared/Font/JPN/FOT-TsukuOldMinPro-R_Font.FOT-TsukuOldMinPro-R_Font			ugly, didnt bother
-		// /Game/Shared/Font/JPN/FOT-NewCinemaAStd-D_Font.FOT-NewCinemaAStd-D_Font				identical to skip
-		small_font = UObjectGlobals::StaticFindObject<UFont *>(nullptr, nullptr, STR("/Engine/EngineFonts/Roboto.Roboto"));
+		fonts.at(Typeface::Roboto) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Engine/EngineFonts/Roboto.Roboto"));
+	}
+
+	if (fonts.at(Typeface::SkipStd) == nullptr)
+	{
+		fonts.at(Typeface::SkipStd) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Game/Shared/Font/JPN/FOT-SkipStd-D_Font.FOT-SkipStd-D_Font"));
 	}
 
 	if (!draw_rect_internal)
@@ -40,6 +41,11 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 	if (!draw_text_internal)
 	{
 		draw_text_internal = hud->GetFunctionByNameInChain(FName(STR("DrawText")));
+	}
+
+	if (!get_text_size_internal)
+	{
+		get_text_size_internal = hud->GetFunctionByNameInChain(FName(STR("GetTextSize")));
 	}
 
 	if (!get_player_controller)
@@ -93,24 +99,25 @@ void DrawContext::draw_rect(int32_t color, float x, float y, float width, float 
 	}
 }
 
-void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring &text, float text_size) const
+void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
 {
-	if (!small_font)
+	UFont *font = fonts.at(typeface);
+	if (font == nullptr)
 	{
 		return;
 	}
 
-	int32_t *font_size = small_font->GetValuePtrByPropertyName<int32_t>(STR("LegacyFontSize"));
-	const int32_t original_font_size = *font_size;
-	*font_size = int32_t(std::max(1.f, ceil(scaling_factor * text_size)));
-	const float scale = (scaling_factor * text_size) / *font_size;
+	int32_t *size_prop = font->GetValuePtrByPropertyName<int32_t>(STR("LegacyFontSize"));
+	const int32_t original_size = *size_prop;
+	*size_prop = int32_t(std::max(1.f, ceil(scaling_factor * size)));
+	const float scale = (scaling_factor * size) / *size_prop;
 
 	DrawTextParams params = {
 		.text = FString::FString(text.c_str()),
 		.color = FLinearColor::from_srgb(color),
 		.x = x * scaling_factor,
 		.y = y * scaling_factor,
-		.font = small_font,
+		.font = font,
 		.scale = scale,
 		.scale_position = false,
 	};
@@ -120,5 +127,48 @@ void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring 
 		hud->ProcessEvent(draw_text_internal, &params);
 	}
 
-	*font_size = original_font_size;
+	*size_prop = original_size;
+}
+
+void DrawContext::draw_outlined_text(int32_t color, int32_t outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
+{
+	draw_text(outline_color, x - 1, y, text, typeface, size);
+	draw_text(outline_color, x + 1, y, text, typeface, size);
+	draw_text(outline_color, x, y - 1, text, typeface, size);
+	draw_text(outline_color, x, y + 1, text, typeface, size);
+	draw_text(color, x, y, text, typeface, size);
+}
+
+TextSize DrawContext::get_text_size(const std::wstring &text, Typeface typeface, float size) const
+{
+	TextSize text_size;
+	UFont *font = fonts.at(typeface);
+	if (font == nullptr)
+	{
+		return text_size;
+	}
+
+	int32_t *size_prop = font->GetValuePtrByPropertyName<int32_t>(STR("LegacyFontSize"));
+	const int32_t original_size = *size_prop;
+	*size_prop = int32_t(std::max(1.f, ceil(scaling_factor * size)));
+	const float scale = (scaling_factor * size) / *size_prop;
+
+	GetTextSizeParams params = {
+		.text = FString::FString(text.c_str()),
+		.out_width = 0.f,
+		.out_height = 0.f,
+		.font = font,
+		.scale = scale,
+	};
+
+	if (hud && get_text_size_internal)
+	{
+		hud->ProcessEvent(get_text_size_internal, &params);
+		text_size.width = params.out_width;
+		text_size.height = params.out_height;
+	}
+
+	*size_prop = original_size;
+
+	return text_size;
 }

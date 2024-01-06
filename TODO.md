@@ -1,3 +1,0 @@
-- Advantage display
-- Automatically lower meter when `opponent behavior` and `position reset controls` are hidden
-- Counter/armor/parry states

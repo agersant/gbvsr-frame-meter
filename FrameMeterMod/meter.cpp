@@ -51,8 +51,34 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		current_page.players[0].add_frame(state_1);
 		current_page.players[1].add_frame(state_2);
 	}
-
 	assert(current_page.players[0].num_frames == current_page.players[1].num_frames);
+
+	advantage = compute_advantage();
+}
+
+std::optional<int32_t> FrameMeter::compute_advantage() const
+{
+	const int32_t num_frames = current_page.players[0].num_frames;
+	if (!pending_reset || num_frames <= 0)
+	{
+		return std::nullopt;
+	}
+
+	int32_t p1_free_at;
+	{
+		const Frame &last_frame = current_page.players[0].frames[num_frames - 1];
+		const bool is_idle = last_frame.state == CharacterState::IDLE;
+		p1_free_at = is_idle ? last_frame.span_start_index : num_frames;
+	}
+
+	int32_t p2_free_at;
+	{
+		const Frame &last_frame = current_page.players[1].frames[num_frames - 1];
+		const bool is_idle = last_frame.state == CharacterState::IDLE;
+		p2_free_at = is_idle ? last_frame.span_start_index : num_frames;
+	}
+
+	return p2_free_at - p1_free_at;
 }
 
 CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)

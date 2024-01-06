@@ -1,5 +1,7 @@
 #include "ui.h"
 
+static const int32_t advantage_plus_color = 0x7FD1FA;
+static const int32_t advantage_minus_color = 0xFC9594;
 static const std::map<CharacterState, int32_t> current_page_palette = {
 	{CharacterState::IDLE, 0x202020}, // Should be 0x1A1A1A, but UE doesn't render these 1:1. Perceptually adjusted.
 	{CharacterState::COUNTER, 0x00B796},
@@ -23,43 +25,42 @@ static const std::map<CharacterState, int32_t> previous_page_palette = {
 	{CharacterState::PROJECTILE, multiply_color(current_page_palette.at(CharacterState::PROJECTILE), darkening)},
 };
 
-static constexpr float bottom_margin = 160.f;
+static constexpr float bottom_margin = 140.f;
 static constexpr float border = 4.f;
 static constexpr float frame_width = 14.f;
 static constexpr float frame_height = 24.f;
 static constexpr float frame_spacing = 1.f;
 static constexpr float player_spacing = 8.f;
+static constexpr float advantage_text_size = 15.f;
+static constexpr float advantage_text_margin = 5.f;
 
-void draw_player(const DrawContext &context, float x, float y, const FrameMeter &frame_meter, size_t player_index);
-void draw_player_frames(const DrawContext &context, float x, float y, const Player &player, bool fill_row, const std::map<CharacterState, int32_t> &palette);
-
-void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
+float draw_advantage(const DrawContext &context, float x, float y, const FrameMeter &frame_meter)
 {
-	const float widget_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
-	const float widget_height = 2 * (2 * border + frame_height) - player_spacing;
-	float x = round((context.ui_width - widget_width) / 2.f);
-	float y = context.ui_height - bottom_margin - widget_height;
+	const wchar_t *caption_text = STR("Advantage");
+	const Typeface typeface = Typeface::SkipStd;
+	const float size = advantage_text_size;
+	TextSize computed_size = context.get_text_size(caption_text, typeface, size);
+	context.draw_outlined_text(0xFFFFFF, 0x000000, x, y, caption_text, typeface, size);
+	x += computed_size.width + 8.f;
 
-	draw_player(context, x, y, frame_meter, 0);
-	y += 2 * border + frame_height + player_spacing;
-	draw_player(context, x, y, frame_meter, 1);
-}
-
-void draw_player(const DrawContext &context, float x, float y, const FrameMeter &frame_meter, size_t player_index)
-{
-	const float background_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
-	const float background_height = 2 * border + frame_height;
-	context.draw_rect(0x000000, x, y, background_width, background_height);
-	x += border;
-	y += border;
-
-	const bool has_previous_page = frame_meter.previous_page.has_value();
-	if (has_previous_page)
+	const std::optional<int32_t> advantage = frame_meter.advantage;
+	std::wstring advantage_text = STR("--");
+	int32_t color = 0xFFFFFF;
+	if (advantage.has_value())
 	{
-		draw_player_frames(context, x, y, frame_meter.previous_page.value().players[player_index], true, previous_page_palette);
+		advantage_text = std::to_wstring(abs(*advantage)) + STR("F");
+		if (*advantage > 0)
+		{
+			color = advantage_plus_color;
+		}
+		else if (*advantage < 0)
+		{
+			color = advantage_minus_color;
+		}
 	}
+	context.draw_outlined_text(color, 0x000000, x, y, advantage_text, typeface, size);
 
-	draw_player_frames(context, x, y, frame_meter.current_page.players[player_index], !has_previous_page, current_page_palette);
+	return computed_size.height;
 }
 
 void draw_player_frames(const DrawContext &context, float x, float y, const Player &player, bool fill_row, const std::map<CharacterState, int32_t> &palette)
@@ -85,17 +86,42 @@ void draw_player_frames(const DrawContext &context, float x, float y, const Play
 				const int32_t power = (span_length - 1) - index_in_span;
 				const int32_t digit = (span_length / int32_t(pow(10, power))) % 10;
 				const std::wstring digit_string = std::to_wstring(digit);
-				const float font_size = 16.f;
-				const float dx = 1.f;
-				const float dy = 0.f;
-				context.draw_text(0x000000, x + dx - 1, y + dy, digit_string, font_size);
-				context.draw_text(0x000000, x + dx + 1, y + dy, digit_string, font_size);
-				context.draw_text(0x000000, x + dx, y + dy - 1, digit_string, font_size);
-				context.draw_text(0x000000, x + dx, y + dy + 1, digit_string, font_size);
-				context.draw_text(0xFFFFFF, x + dx, y + dy, digit_string, font_size);
+				const Typeface typeface = Typeface::Roboto;
+				const float size = 16.f;
+				context.draw_outlined_text(0xFFFFFF, 0x000000, x + 1.f, y, digit_string, typeface, size);
 			}
 		}
 
 		x += frame_width + frame_spacing;
 	}
+}
+
+void draw_player(const DrawContext &context, float x, float y, const FrameMeter &frame_meter, size_t player_index)
+{
+	const float background_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
+	const float background_height = 2 * border + frame_height;
+	context.draw_rect(0x000000, x, y, background_width, background_height);
+	x += border;
+	y += border;
+
+	const bool has_previous_page = frame_meter.previous_page.has_value();
+	if (has_previous_page)
+	{
+		draw_player_frames(context, x, y, frame_meter.previous_page.value().players[player_index], true, previous_page_palette);
+	}
+
+	draw_player_frames(context, x, y, frame_meter.current_page.players[player_index], !has_previous_page, current_page_palette);
+}
+
+void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
+{
+	const float widget_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
+	const float widget_height = advantage_text_size + advantage_text_margin + 2 * (2 * border + frame_height) + player_spacing;
+	float x = round((context.ui_width - widget_width) / 2.f);
+	float y = context.ui_height - bottom_margin - widget_height;
+
+	y += draw_advantage(context, x, y, frame_meter) + advantage_text_margin;
+	draw_player(context, x, y, frame_meter, 0);
+	y += 2 * border + frame_height + player_spacing;
+	draw_player(context, x, y, frame_meter, 1);
 }

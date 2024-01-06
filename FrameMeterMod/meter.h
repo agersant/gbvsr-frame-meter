@@ -46,13 +46,16 @@ public:
 struct FrameMeter
 {
 public:
-	std::optional<Page> previous_page;
 	Page current_page;
+	std::optional<Page> previous_page;
+	std::optional<int32_t> advantage;
 
 	void reset();
 	void update(AREDGameState_Battle *battle);
 
 protected:
 	bool pending_reset;
+
 	static CharacterState get_character_state(AREDGameState_Battle *battle, ASW::Character *character);
+	std::optional<int32_t> compute_advantage() const;
 };
