@@ -49,6 +49,8 @@ public:
 	Page current_page;
 	std::optional<Page> previous_page;
 	std::optional<int32_t> advantage;
+	bool continuous;
+	bool advantage_enabled;
 
 	void reset();
 	void update(AREDGameState_Battle *battle);

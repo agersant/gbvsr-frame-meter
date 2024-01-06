@@ -23,7 +23,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	CharacterState state_1 = get_character_state(battle, character_1);
 	CharacterState state_2 = get_character_state(battle, character_2);
 
-	if (state_1 == CharacterState::IDLE && state_2 == CharacterState::IDLE)
+	if (!continuous && state_1 == CharacterState::IDLE && state_2 == CharacterState::IDLE)
 	{
 		if (!pending_reset)
 		{
@@ -53,7 +53,10 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	}
 	assert(current_page.players[0].num_frames == current_page.players[1].num_frames);
 
-	advantage = compute_advantage();
+	if (advantage_enabled)
+	{
+		advantage = compute_advantage();
+	}
 }
 
 std::optional<int32_t> FrameMeter::compute_advantage() const

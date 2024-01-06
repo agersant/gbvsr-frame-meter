@@ -115,12 +115,17 @@ void draw_player(const DrawContext &context, float x, float y, const FrameMeter 
 
 void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
-	const float widget_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
-	const float widget_height = advantage_text_size + advantage_text_margin + 2 * (2 * border + frame_height) + player_spacing;
-	float x = round((context.ui_width - widget_width) / 2.f);
-	float y = context.ui_height - bottom_margin - widget_height;
+	const float meter_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
+	const float meter_height = 2 * (2 * border + frame_height) + player_spacing;
+	float x = round((context.ui_width - meter_width) / 2.f);
+	float y = context.ui_height - bottom_margin - meter_height;
 
-	y += draw_advantage(context, x, y, frame_meter) + advantage_text_margin;
+	if (frame_meter.advantage_enabled)
+	{
+		y -= advantage_text_size + advantage_text_margin;
+		y += draw_advantage(context, x, y, frame_meter) + advantage_text_margin;
+	}
+
 	draw_player(context, x, y, frame_meter, 0);
 	y += 2 * border + frame_height + player_spacing;
 	draw_player(context, x, y, frame_meter, 1);

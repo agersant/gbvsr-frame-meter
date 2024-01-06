@@ -75,6 +75,17 @@ bool is_training_mode()
 	return game_instance && game_instance->game_mode == GameMode::TRAINING;
 }
 
+bool is_replay_mode()
+{
+	UREDGameCommon *game_instance = get_game_instance();
+	return game_instance && game_instance->game_mode == GameMode::REPLAY;
+}
+
+bool is_meter_allowed()
+{
+	return is_training_mode() || is_replay_mode();
+}
+
 bool is_paused(AREDGameState_Battle *battle)
 {
 	if (AActor *world_settings = get_world_settings(battle))
@@ -89,7 +100,7 @@ void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
-	if (is_training_mode() && !is_paused(battle))
+	if (is_meter_allowed() && !is_paused(battle))
 	{
 		frame_meter.update(battle);
 		// print_battle_data(battle);
@@ -100,9 +111,11 @@ void reset_battle(ASW::Engine *engine, int32_t *param)
 {
 	using ResetBattle_sig = void (*)(ASW::Engine *, int32_t *);
 	((ResetBattle_sig)reset_battle_original)(engine, param);
-	if (is_training_mode())
+	if (is_meter_allowed())
 	{
 		frame_meter.reset();
+		frame_meter.continuous = is_replay_mode();
+		frame_meter.advantage_enabled = is_training_mode();
 	}
 }
 
@@ -114,7 +127,7 @@ void post_render(uintptr_t hud_ptr)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud_ptr);
 	}
 
-	if (is_training_mode())
+	if (is_meter_allowed())
 	{
 		DrawContext draw_context((UObject *)hud_ptr);
 		draw_frame_meter(draw_context, frame_meter);

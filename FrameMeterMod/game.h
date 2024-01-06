@@ -188,6 +188,8 @@ enum class GameMode : uint8_t
 	ARCADE = 0x02,
 	TRAINING = 0x06,
 	MENU = 0x0A,
+	ONLINE_MATCH = 0x11,
+	REPLAY = 0x12,
 	STORY = 0x14,
 };
 
