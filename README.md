@@ -2,6 +2,10 @@
 
 This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-screen display of character frame data during training, similar to the frame meter from `Street Fighter 6`. This can be used to easily analyze gameplay situations, find frametraps or troubleshoot combos.
 
+
+https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-ac72-cfc3e0756ec5
+
+
 ## Installation
 
 1. Go to the [latest release](https://github.com/agersant/gbvsr-frame-meter/releases/latest) page.
@@ -30,7 +34,7 @@ This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-scree
 |                         Color                          | Meaning                                |
 | :----------------------------------------------------: | -------------------------------------- |
 | <img src="https://placehold.co/21x36/00B796/00B796" /> | Counter State                          |
-| <img src="https://placehold.co/21x36/0170BE/0170BE" /> | Punish Counter State                   |
+| <img src="https://placehold.co/21x36/0170BE/0170BE" /> | Recovery                               |
 | <img src="https://placehold.co/21x36/42F8FD/42F8FD" /> | Non-Counter Action                     |
 | <img src="https://placehold.co/21x36/CC2B67/CC2B67" /> | Hitbox Appearance Period               |
 | <img src="https://placehold.co/21x36/C98002/C98002" /> | Projectile's Active Time               |
