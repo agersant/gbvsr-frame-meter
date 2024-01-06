@@ -18,9 +18,9 @@ This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-scree
           📄 UE4SS-settings.ini
           📁 Mods
             📁 FrameMeterMod
-        	  📄 enabled.txt
-        	  📁 dlls
-        	    📄 main.dll
+              📄 enabled.txt
+              📁 dlls
+                📄 main.dll
 ```
 
 5. Launch the game via Steam as usual.
