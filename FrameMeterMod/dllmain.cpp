@@ -156,7 +156,7 @@ void hook_ui_render()
 				return;
 			}
 
-			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, L"/Script/RED.REDHUD_Battle");
+			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/RED.REDHUD_Battle"));
 			if (!hud_class)
 			{
 				Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
