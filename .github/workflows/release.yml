@@ -2,6 +2,11 @@ name: Release
 
 on:
   workflow_dispatch:
+    inputs:
+      version_number:
+        type: string
+        required: true
+        description: "User-facing version number with no prefix"
 
 jobs:
   build:
@@ -21,16 +26,11 @@ jobs:
           known_hosts: unnecessary
       - name: Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
-      - name: Prepare release
+      - name: Compile & Package
         run: .\scripts\release.ps1
-      - name: Bump version
-        id: tag
-        uses: reecetech/version-increment@2023.9.3
-        with:
-          increment: major
       - name: Make Github release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: "${{ steps.tag.outputs.version }}"
+          name: "${{ inputs.version_number }}"
           files: gbvsr-frame-meter.zip
           fail_on_unmatched_files: true
