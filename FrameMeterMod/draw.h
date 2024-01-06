@@ -27,35 +27,6 @@ struct FLinearColor
 	static FLinearColor from_srgb(int32_t srgb);
 };
 
-struct DrawRectParams
-{
-	FLinearColor color;
-	float x;
-	float y;
-	float w;
-	float h;
-};
-
-struct DrawTextParams
-{
-	FString text;
-	FLinearColor color;
-	float x;
-	float y;
-	UFont *font;
-	float scale;
-	bool scale_position;
-};
-
-struct GetTextSizeParams
-{
-	FString text;
-	float out_width;
-	float out_height;
-	UFont *font;
-	float scale;
-};
-
 struct TextSize
 {
 	float width = 0.f;

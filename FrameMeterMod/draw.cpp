@@ -85,7 +85,14 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 
 void DrawContext::draw_rect(int32_t color, float x, float y, float width, float height) const
 {
-	DrawRectParams params = {
+	struct DrawRectParams
+	{
+		FLinearColor color;
+		float x;
+		float y;
+		float w;
+		float h;
+	} params = {
 		.color = FLinearColor::from_srgb(color),
 		.x = x * scaling_factor,
 		.y = y * scaling_factor,
@@ -112,7 +119,16 @@ void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring 
 	*size_prop = int32_t(std::max(1.f, ceil(scaling_factor * size)));
 	const float scale = (scaling_factor * size) / *size_prop;
 
-	DrawTextParams params = {
+	struct DrawTextParams
+	{
+		FString text;
+		FLinearColor color;
+		float x;
+		float y;
+		UFont *font;
+		float scale;
+		bool scale_position;
+	} params = {
 		.text = FString::FString(text.c_str()),
 		.color = FLinearColor::from_srgb(color),
 		.x = x * scaling_factor,
@@ -153,7 +169,14 @@ TextSize DrawContext::get_text_size(const std::wstring &text, Typeface typeface,
 	*size_prop = int32_t(std::max(1.f, ceil(size)));
 	const float scale = size / *size_prop;
 
-	GetTextSizeParams params = {
+	struct GetTextSizeParams
+	{
+		FString text;
+		float out_width;
+		float out_height;
+		UFont *font;
+		float scale;
+	} params = {
 		.text = FString::FString(text.c_str()),
 		.out_width = 0.f,
 		.out_height = 0.f,
