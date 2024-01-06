@@ -150,8 +150,8 @@ TextSize DrawContext::get_text_size(const std::wstring &text, Typeface typeface,
 
 	int32_t *size_prop = font->GetValuePtrByPropertyName<int32_t>(STR("LegacyFontSize"));
 	const int32_t original_size = *size_prop;
-	*size_prop = int32_t(std::max(1.f, ceil(scaling_factor * size)));
-	const float scale = (scaling_factor * size) / *size_prop;
+	*size_prop = int32_t(std::max(1.f, ceil(size)));
+	const float scale = size / *size_prop;
 
 	GetTextSizeParams params = {
 		.text = FString::FString(text.c_str()),
