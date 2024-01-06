@@ -19,8 +19,11 @@
 using namespace RC;
 using namespace RC::Unreal;
 
-static UREDGameCommon *game_instance = nullptr;
 static UFunction *get_world_settings_func = nullptr;
+static UFunction *get_scalar_parameter_value_func = nullptr;
+
+static UREDGameCommon *game_instance = nullptr;
+static std::map<UWorld *, UObject *> hud_material = {};
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -50,22 +53,13 @@ UREDGameCommon *get_game_instance()
 AWorldSettings *get_world_settings(AActor *actor)
 {
 	UWorld *world = actor->GetWorld();
-	if (!actor || !world)
-	{
-		return nullptr;
-	}
-
-	AWorldSettings *world_settings = nullptr;
 	if (!get_world_settings_func)
 	{
 		get_world_settings_func = world->GetFunctionByNameInChain(FName(STR("K2_GetWorldSettings")));
 	}
 
-	if (get_world_settings_func)
-	{
-		world->ProcessEvent(get_world_settings_func, &world_settings);
-	}
-
+	AWorldSettings *world_settings = nullptr;
+	world->ProcessEvent(get_world_settings_func, &world_settings);
 	return world_settings;
 }
 
@@ -96,6 +90,45 @@ bool is_paused(AREDGameState_Battle *battle)
 	return true;
 }
 
+UObject *get_hud_material(AActor *hud)
+{
+	UWorld *world = hud->GetWorld();
+	if (hud_material[world] == nullptr)
+	{
+		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(L"BattleHudTop_C"))
+		{
+			UClass *static_mesh_component_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/Engine.StaticMeshComponent"));
+			UObject *static_mesh_component = UObjectGlobals::FindObject(static_mesh_component_class, battle_hud_top_actor, STR("StaticMeshComponent0"));
+			TArray<TObjectPtr<UObject>> *materials = (TArray<TObjectPtr<UObject>> *)static_mesh_component->GetValuePtrByPropertyNameInChain(STR("OverrideMaterials"));
+			hud_material[world] = (*materials)[0].UnderlyingObjectPointer;
+		}
+	};
+	return hud_material[world];
+}
+
+bool is_hud_visible(AActor *hud)
+{
+	UObject *hud_material = get_hud_material(hud);
+	if (!hud_material)
+	{
+		return false;
+	}
+
+	if (!get_scalar_parameter_value_func)
+	{
+		get_scalar_parameter_value_func = hud_material->GetFunctionByNameInChain(FName(STR("K2_GetScalarParameterValue")));
+	}
+
+	struct FGetScalarParameterValueParams
+	{
+		FName parameter_name;
+		float value;
+	} params;
+	params.parameter_name = FName(STR("DrawFlag"));
+	hud_material->ProcessEvent(get_scalar_parameter_value_func, &params);
+	return params.value > 0.f;
+}
+
 void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
@@ -119,17 +152,17 @@ void reset_battle(ASW::Engine *engine, int32_t *param)
 	}
 }
 
-void post_render(uintptr_t hud_ptr)
+void post_render(AActor *hud)
 {
 	if (hud_original_functions.contains(HUD_VTABLE_INDEX_POST_RENDER))
 	{
 		using HUDPostRender_sig = void (*)(uintptr_t);
-		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud_ptr);
+		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud);
 	}
 
-	if (is_meter_allowed())
+	if (is_meter_allowed() && is_hud_visible(hud))
 	{
-		DrawContext draw_context((UObject *)hud_ptr);
+		DrawContext draw_context(hud);
 		draw_frame_meter(draw_context, frame_meter);
 	}
 }
@@ -164,6 +197,8 @@ void hook_ui_render()
 	Hook::RegisterInitGameStatePostCallback(
 		[&](AGameModeBase *GameMode)
 		{
+			hud_material.clear();
+
 			if (hud_post_render_hook != nullptr)
 			{
 				return;
@@ -172,14 +207,11 @@ void hook_ui_render()
 			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/RED.REDHUD_Battle"));
 			if (!hud_class)
 			{
-				Output::send<LogLevel::Warning>(STR("REDHUD_Battle not found\n"));
 				return;
 			}
-
 			UObject *default_hud = hud_class->GetClassDefaultObject();
 			if (!default_hud)
 			{
-				Output::send<LogLevel::Warning>(STR("HUD DefaultObject not found\n"));
 				return;
 			}
 
@@ -188,10 +220,7 @@ void hook_ui_render()
 				PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&post_render}}),
 				&hud_original_functions);
 
-			if (!hud_post_render_hook->hook())
-			{
-				Output::send<LogLevel::Warning>(STR("Failed to install HUD hook\n"));
-			}
+			hud_post_render_hook->hook();
 		});
 }
 
