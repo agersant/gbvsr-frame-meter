@@ -49,6 +49,7 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 
 - This mod is not compatible with the free version of the game.
 - ⚠ This mod is likely to stop working or even cause crashes after the game receives an update. If this happens, rename `enabled.txt` to `disabled.txt` to turn off the mod. Default location of this file is `C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod\enabled.txt`.
+- Framecounts are altered during [Ultimate Skill Slowdown](https://www.dustloop.com/w/GBVSR/Mechanics#Ultimate_Skill_Slowdown)
 - There is currently no indication of parry/armor states like Charlotta's `5U` or Siegfried's `4S+U`.
 - Some moves may exhibit minor inaccuracies. For example, Ferry's `6S` does not show any active frames on the meter.
 
