@@ -27,7 +27,7 @@ bool ASW::Character::is_recovering()
 
 bool ASW::Character::is_invincible()
 {
-	return full_invincible || dodge_invincible;
+	return full_invincible || strike_invincible || throw_invincible;
 }
 
 bool ASW::Character::is_in_blockstun()

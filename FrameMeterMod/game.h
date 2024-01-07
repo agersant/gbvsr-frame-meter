@@ -136,8 +136,9 @@ namespace ASW
 		FIELD(0x3C0, uint32_t, flags_3);
 		FIELD(0x3C4, uint32_t, flags_4); // ?
 		BIT_FIELD(0x3B8, 0x40000000, recovery);
-		BIT_FIELD(0x3BC, 0x00000010, dodge_invincible);
-		BIT_FIELD(0x3BC, 0x00000020, full_invincible);
+		BIT_FIELD(0x3BC, 0x00000010, strike_invincible); // except crossups
+		BIT_FIELD(0x3BC, 0x00000020, throw_invincible);
+		BIT_FIELD(0x3BC, 0x00000040, full_invincible); // except crossups
 		BIT_FIELD(0x3C0, 0x00080000, attacking);
 		BIT_FIELD(0x3C0, 0x00000100, active_frames);
 		BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
