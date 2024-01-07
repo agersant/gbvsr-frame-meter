@@ -55,5 +55,5 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 
 ## Credits
 
-- Thanks to Ryn (@WistfulHopes) for their help and prior work on Arc System Works game modding.
+- Thanks to Ryn (@WistfulHopes) for her help and prior work on Arc System Works game modding.
 - Thanks to the RE-UE4SS project for providing a useful modding framework.
