@@ -10,6 +10,14 @@ bool ASW::Character::can_attack()
 	return enable_flag & EnableFlag::NormalAttack;
 }
 
+bool ASW::Character::can_act()
+{
+	const bool is_mid_jump = action_id == ASW::ActionID::Jump;
+	const bool is_mid_dash = action_id == ASW::ActionID::FDash;
+	const bool can_use_normal = can_attack() && !is_mid_jump && !is_mid_dash;
+	return can_walk() || can_use_normal;
+}
+
 bool ASW::Character::is_counterable()
 {
 	return attacking && !recovery;

@@ -2,8 +2,8 @@
 
 void FrameMeter::reset()
 {
-	previous_page.reset();
-	current_page.clear();
+	players.fill(Player{});
+	advantage = std::nullopt;
 	pending_reset = false;
 }
 
@@ -27,8 +27,8 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	{
 		if (!pending_reset)
 		{
-			current_page.players[0].commit_span();
-			current_page.players[1].commit_span();
+			players[0].current_page.commit_span();
+			players[1].current_page.commit_span();
 			pending_reset = true;
 		}
 	}
@@ -38,20 +38,23 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 		{
 			reset();
 		}
-		else if (current_page.players[0].num_frames == PAGE_SIZE)
+		else if (players[0].current_page.num_frames == PAGE_SIZE)
 		{
-			previous_page = current_page;
-			current_page.clear();
-			const Frame &last_frame_1 = previous_page->players[0].frames.back();
-			const Frame &last_frame_2 = previous_page->players[1].frames.back();
-			current_page.players[0].prior_span = {last_frame_1.state, last_frame_1.span_start_index};
-			current_page.players[1].prior_span = {last_frame_2.state, last_frame_2.span_start_index};
+			players[0].end_page();
+			players[1].end_page();
 		}
 
-		current_page.players[0].add_frame(state_1);
-		current_page.players[1].add_frame(state_2);
+		// can_act() catches all situations except when defender presses a button on wake-up frame 1 and gets counter hit
+		// -> attacking catches this counter hit situation but somehow also picks up every frame during throw tech
+		// -> defense_hit_connecting distinguishes throw techs from the counter hit scenario
+		const bool can_highlight_1 = character_1->can_act() || (character_1->attacking && character_1->defense_hit_connecting);
+		const bool can_highlight_2 = character_2->can_act() || (character_2->attacking && character_2->defense_hit_connecting);
+
+		players[0].add_frame(state_1, can_highlight_1);
+		players[1].add_frame(state_2, can_highlight_2);
 	}
-	assert(current_page.players[0].num_frames == current_page.players[1].num_frames);
+
+	assert(players[0].current_page.num_frames == players[1].current_page.num_frames);
 
 	if (advantage_enabled)
 	{
@@ -61,7 +64,7 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 
 std::optional<int32_t> FrameMeter::compute_advantage() const
 {
-	const int32_t num_frames = current_page.players[0].num_frames;
+	const int32_t num_frames = players[0].current_page.num_frames;
 	if (!pending_reset || num_frames <= 0)
 	{
 		return std::nullopt;
@@ -69,14 +72,14 @@ std::optional<int32_t> FrameMeter::compute_advantage() const
 
 	int32_t p1_free_at;
 	{
-		const Frame &last_frame = current_page.players[0].frames[num_frames - 1];
+		const Frame &last_frame = players[0].current_page.frames[num_frames - 1];
 		const bool is_idle = last_frame.state == CharacterState::IDLE;
 		p1_free_at = is_idle ? last_frame.span_start_index : num_frames;
 	}
 
 	int32_t p2_free_at;
 	{
-		const Frame &last_frame = current_page.players[1].frames[num_frames - 1];
+		const Frame &last_frame = players[1].current_page.frames[num_frames - 1];
 		const bool is_idle = last_frame.state == CharacterState::IDLE;
 		p2_free_at = is_idle ? last_frame.span_start_index : num_frames;
 	}
@@ -104,16 +107,9 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 		return CharacterState::PROJECTILE;
 	}
 
-	if (!character->defense_hit_connecting && !character->defense_guard_connecting)
+	if (character->can_act() && !character->defense_hit_connecting && !character->defense_guard_connecting)
 	{
-		const bool can_walk = character->can_walk();
-		const bool is_mid_jump = character->action_id == ASW::ActionID::Jump;
-		const bool is_mid_dash = character->action_id == ASW::ActionID::FDash;
-		const bool can_use_normal = character->can_attack() && !is_mid_jump && !is_mid_dash;
-		if (can_walk || can_use_normal)
-		{
-			return CharacterState::IDLE;
-		}
+		return CharacterState::IDLE;
 	}
 
 	if (character->is_in_blockstun() || character->is_in_hitstun())
@@ -154,44 +150,70 @@ CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW
 	return CharacterState::IDLE;
 }
 
-void Page::clear()
+void Player::end_page()
 {
-	players.fill(Player{});
+	previous_page = current_page;
+	for (int i = 0; i < PAGE_SIZE; i++)
+	{
+		previous_page->frames[i].highlight = false;
+	}
+	current_page.frames.fill(Frame{});
+	current_page.num_frames = 0;
 }
 
-void Player::add_frame(CharacterState state)
+void Player::add_frame(CharacterState state, bool can_highlight)
 {
-	bool is_new_span;
-	int32_t span_start;
-	if (num_frames > 0)
+	Frame *previous_frame = nullptr;
+	if (current_page.num_frames > 0)
 	{
-		const Frame &previous_frame = frames[num_frames - 1];
-		is_new_span = state != previous_frame.state;
-		span_start = is_new_span ? num_frames : previous_frame.span_start_index;
+		previous_frame = &current_page.frames[current_page.num_frames - 1];
 	}
-	else if (prior_span.has_value() && state == prior_span->first)
+	else if (previous_page.has_value())
 	{
-		is_new_span = false;
-		span_start = prior_span->second - PAGE_SIZE;
+		previous_frame = &previous_page->frames.back();
+	}
+
+	bool highlight_previous = can_highlight && state == CharacterState::STUN && previous_frame && previous_frame->state == CharacterState::STUN;
+	if (highlight_previous)
+	{
+		previous_frame->highlight = true;
+	}
+
+	const bool is_new_span = !previous_frame || previous_frame->state != state || highlight_previous;
+	if (is_new_span)
+	{
+		current_page.commit_span();
+	}
+
+	int32_t span_start;
+	if (is_new_span)
+	{
+		span_start = current_page.num_frames;
+	}
+	else if (current_page.num_frames > 0)
+	{
+		span_start = previous_frame->span_start_index;
 	}
 	else
 	{
-		is_new_span = true;
-		span_start = 0;
+		span_start = previous_frame->span_start_index - PAGE_SIZE;
 	}
 
-	if (is_new_span)
-	{
-		commit_span();
-	}
+	assert(current_page.num_frames < PAGE_SIZE);
+	current_page.add_frame(Frame{
+		.state = state,
+		.span_start_index = span_start,
+		.highlight = false,
+	});
+}
 
-	assert(num_frames < PAGE_SIZE);
-	frames[num_frames] = Frame{.state = state, .span_start_index = span_start};
-
+void Page::add_frame(const Frame &frame)
+{
+	frames[num_frames] = frame;
 	num_frames += 1;
 }
 
-void Player::commit_span()
+void Page::commit_span()
 {
 	if (num_frames <= 0)
 	{

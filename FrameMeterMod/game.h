@@ -160,6 +160,7 @@ namespace ASW
 
 		bool can_walk();
 		bool can_attack();
+		bool can_act();
 		bool is_counterable();
 		bool is_in_active_frames();
 		bool is_recovering();

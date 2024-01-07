@@ -21,33 +21,33 @@ struct Frame
 	CharacterState state;
 	int32_t span_start_index; // Relative to owning page (0 = start of page, negative values for span started in prior page)
 	std::optional<size_t> span_length;
-};
-
-struct Player
-{
-public:
-	std::array<Frame, PAGE_SIZE> frames;
-	std::optional<std::pair<CharacterState, int32_t>> prior_span;
-	uint8_t num_frames;
-
-	void commit_span();
-	void add_frame(CharacterState state);
+	bool highlight;
 };
 
 struct Page
 {
 public:
-	std::array<Player, 2> players;
+	std::array<Frame, PAGE_SIZE> frames;
+	uint8_t num_frames;
 
-	void clear();
-	void add_player_frame(size_t player_index, CharacterState state);
+	void add_frame(const Frame &frame);
+	void commit_span();
+};
+
+struct Player
+{
+public:
+	Page current_page;
+	std::optional<Page> previous_page;
+
+	void end_page();
+	void add_frame(CharacterState state, bool can_highlight);
 };
 
 struct FrameMeter
 {
 public:
-	Page current_page;
-	std::optional<Page> previous_page;
+	std::array<Player, 2> players;
 	std::optional<int32_t> advantage;
 	bool continuous;
 	bool advantage_enabled;
