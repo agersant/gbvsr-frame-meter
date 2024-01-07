@@ -1,10 +1,8 @@
 # GBVSR Frame Meter
 
-This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-screen display of character frame data during training, similar to the frame meter from `Street Fighter 6`. This can be used to easily analyze gameplay situations, find frametraps or troubleshoot combos.
-
+This project is a mod for `Granblue Fantasy Versus: Rising`. It adds an on-screen display of character frame data during training and replays, similar to the frame meter from `Street Fighter 6`. This can be used to easily analyze gameplay situations, find frametraps or troubleshoot combos.
 
 https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-ac72-cfc3e0756ec5
-
 
 ## Installation
 
@@ -41,11 +39,17 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 | <img src="https://placehold.co/21x36/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
 | <img src="https://placehold.co/21x36/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
 
+## Keyboard Shortcuts
+
+| Key  | Effect                    |
+| :--: | ------------------------- |
+| `F4` | Toggles meter visibility. |
+
 ## Caveats
 
 - This mod is not compatible with the free version of the game.
 - ⚠ This mod is likely to stop working or even cause crashes after the game receives an update. If this happens, rename `enabled.txt` to `disabled.txt` to turn off the mod. Default location of this file is `C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod\enabled.txt`.
-- There is currently no indication of parry/counter states like Charlotta's `5U` or Lowain's `6S`.
+- There is currently no indication of parry/armor states like Charlotta's `5U` or Siegfried's `4S+U`.
 - Some moves may exhibit minor inaccuracies. For example, Ferry's `6S` does not show any active frames on the meter.
 
 ## Credits
