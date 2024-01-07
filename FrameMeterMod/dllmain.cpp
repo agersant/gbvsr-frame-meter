@@ -10,6 +10,9 @@
 #include <Unreal/UObject.hpp>
 #include <Unreal/World.hpp>
 
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"
+
 #include "debug.h"
 #include "draw.h"
 #include "game.h"
@@ -21,6 +24,7 @@ using namespace RC::Unreal;
 
 static UFunction *get_world_settings_func = nullptr;
 static UFunction *get_scalar_parameter_value_func = nullptr;
+static std::map<int32_t, bool> pressed_keys = {};
 
 static UREDGameCommon *game_instance = nullptr;
 static std::map<UWorld *, UObject *> hud_material = {};
@@ -36,10 +40,18 @@ static std::unique_ptr<PLH::VFuncSwapHook> hud_post_render_hook = nullptr;
 static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
+static bool meter_visible = true;
 
 class AWorldSettings : public AActor
 {
 };
+
+bool just_pressed(int32_t key)
+{
+	bool was_pressed = pressed_keys[key];
+	pressed_keys[key] = GetAsyncKeyState(key) & 0x8000;
+	return pressed_keys[key] && !was_pressed;
+}
 
 UREDGameCommon *get_game_instance()
 {
@@ -90,9 +102,9 @@ bool is_paused(AREDGameState_Battle *battle)
 	return true;
 }
 
-UObject *get_hud_material(AActor *hud)
+UObject *get_hud_material(AActor *actor)
 {
-	UWorld *world = hud->GetWorld();
+	UWorld *world = actor->GetWorld();
 	if (hud_material[world] == nullptr)
 	{
 		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(L"BattleHudTop_C"))
@@ -106,9 +118,9 @@ UObject *get_hud_material(AActor *hud)
 	return hud_material[world];
 }
 
-bool is_hud_visible(AActor *hud)
+bool is_hud_visible(AActor *actor)
 {
-	UObject *hud_material = get_hud_material(hud);
+	UObject *hud_material = get_hud_material(actor);
 	if (!hud_material)
 	{
 		return false;
@@ -133,10 +145,17 @@ void update_battle(AREDGameState_Battle *battle, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
 	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
-	if (is_meter_allowed() && !is_paused(battle))
+	if (is_meter_allowed())
 	{
-		frame_meter.update(battle);
-		// print_battle_data(battle);
+		if (!is_paused(battle))
+		{
+			frame_meter.update(battle);
+			// print_battle_data(battle);
+		}
+		if (is_hud_visible(battle) && just_pressed(VK_F4))
+		{
+			meter_visible = !meter_visible;
+		}
 	}
 }
 
@@ -160,7 +179,7 @@ void post_render(AActor *hud)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud);
 	}
 
-	if (is_meter_allowed() && is_hud_visible(hud))
+	if (is_meter_allowed() && is_hud_visible(hud) && meter_visible)
 	{
 		DrawContext draw_context(hud);
 		draw_frame_meter(draw_context, frame_meter);
