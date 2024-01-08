@@ -123,9 +123,36 @@ namespace ASW
 		ARRAY_FIELD(0x1030, class Entity *[NUM_ENTITIES], entities);
 	};
 
+	class FrameInfo
+	{
+	public:
+		FIELD(0x2D, uint8_t, num_hurtboxes);
+		FIELD(0x2F, uint8_t, num_hitboxes);
+	};
+
+	enum class BoxType : uint8_t
+	{
+		HURTBOX,
+		HITBOX,
+	};
+
+	class Box
+	{
+	public:
+		BoxType type;
+		float x;
+		float y;
+		float w;
+		float h;
+	};
+
 	class Entity
 	{
 	public:
+		FIELD(0x20, bool, is_player);
+		FIELD(0x60, FrameInfo *, frame_info);
+		FIELD(0x78, Box *, hurtboxes);
+		FIELD(0x80, Box *, hitboxes);
 		FIELD(0x110, uint32_t, num_hitboxes);
 		BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
 		BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
