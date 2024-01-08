@@ -228,6 +228,7 @@ void hook_ui_render()
 			{
 				return;
 			}
+
 			UObject *default_hud = hud_class->GetClassDefaultObject();
 			if (!default_hud)
 			{
