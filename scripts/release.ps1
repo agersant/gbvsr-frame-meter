@@ -14,7 +14,6 @@ New-Item -Type dir -Force "$game_path" | Out-Null
 Copy-Item -Path "output/Output/Game__Shipping__Win64/proxy/bin/dwmapi.dll" -Destination "$game_path"
 Copy-Item -Path "output/Output/Game__Shipping__Win64/UE4SS/bin/UE4SS.dll" -Destination "$game_path"
 Copy-Item -Path "RE-UE4SS/assets/UE4SS-settings.ini" -Destination "$game_path"
-Copy-Item -Path "RE-UE4SS/assets/Mods" -Destination "$game_path" -Recurse
 
 $mod_path = "$game_path\Mods\FrameMeterMod"
 New-Item -Type dir -Force "$mod_path" | Out-Null
