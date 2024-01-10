@@ -13,6 +13,7 @@ set(FrameMeterMod_Sources
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/mod/debug.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/mod/dllmain.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/mod/draw.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/mod/game.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/mod/ui.cpp"
 )
 

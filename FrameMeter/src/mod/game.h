@@ -39,3 +39,10 @@ class UREDGameCommon : public UGameInstance
 public:
 	FIELD(0x318, GameMode, game_mode);
 };
+
+bool is_training_mode();
+bool is_replay_mode();
+bool is_meter_allowed();
+
+bool is_paused(AREDGameState_Battle *game_state);
+bool is_hud_visible(AActor *actor);
