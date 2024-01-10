@@ -155,6 +155,7 @@ namespace ASW
 		FIELD(0x80, Box *, hitboxes);
 		FIELD(0x110, uint32_t, num_hitboxes);
 		BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
+		BIT_FIELD(0x1AC, 0x00200000, slowdown_bonus_frame);
 		BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
 		FIELD(0x25C, uint32_t, hitstop);
 		FIELD(0x280, Character *, parent_character);
@@ -184,6 +185,7 @@ namespace ASW
 		FIELD(0xD038, uint32_t, blockstun_duration);
 		FIELD(0xD060, uint32_t, hitstun_duration);
 		FIELD(0xDA54, ActionID, action_id);
+		FIELD(0xE6FC, int32_t, slowdown_remaining);
 
 		bool can_walk();
 		bool can_attack();

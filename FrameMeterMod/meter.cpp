@@ -13,8 +13,9 @@ void FrameMeter::update(AREDGameState_Battle *battle)
 	ASW::Character *character_2 = battle->engine->player_2.character;
 
 	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
-	const bool is_shared_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
-	const bool skip_frame = is_cinematic_freeze || is_shared_hitstop;
+	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
+	const bool is_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
+	const bool skip_frame = is_cinematic_freeze || is_slowdown_bonus_frame || is_hitstop;
 	if (skip_frame)
 	{
 		return;
