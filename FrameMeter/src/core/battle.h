@@ -106,11 +106,11 @@ enum BBScriptInterrupt
 
 class Team
 {
-	char pad[78];
-
+	char pad[0x78];
 public:
 	FIELD(0x08, class Character *, main_player_object);
 };
+static_assert(sizeof(Team) == 0x78);
 
 class Battle
 {

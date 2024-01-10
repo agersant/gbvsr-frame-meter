@@ -63,9 +63,9 @@ UObject *get_hud_material(AActor *actor)
 	UWorld *world = actor->GetWorld();
 	if (hud_material.first != world || hud_material.second == nullptr)
 	{
-		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(L"BattleHudTop_C"))
+		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(STR("BattleHudTop_C")))
 		{
-			UClass *static_mesh_component_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/Battle.StaticMeshComponent"));
+			UClass *static_mesh_component_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/Engine.StaticMeshComponent"));
 			UObject *static_mesh_component = UObjectGlobals::FindObject(static_mesh_component_class, battle_hud_top_actor, STR("StaticMeshComponent0"));
 			TArray<TObjectPtr<UObject>> *materials = (TArray<TObjectPtr<UObject>> *)static_mesh_component->GetValuePtrByPropertyNameInChain(STR("OverrideMaterials"));
 			hud_material.first = world;

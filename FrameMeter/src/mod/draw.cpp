@@ -25,7 +25,7 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 {
 	if (fonts.at(Typeface::Roboto) == nullptr)
 	{
-		fonts.at(Typeface::Roboto) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Battle/EngineFonts/Roboto.Roboto"));
+		fonts.at(Typeface::Roboto) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Engine/EngineFonts/Roboto.Roboto"));
 	}
 
 	if (fonts.at(Typeface::SkipStd) == nullptr)
