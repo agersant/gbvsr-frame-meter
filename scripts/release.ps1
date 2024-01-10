@@ -8,7 +8,8 @@ if (Test-Path "$game_path") {
 }
 
 cmake -S . -B output
-MSBuild.exe .\output\MyMods.sln /p:Configuration=Game__Shipping__Win64
+MSBuild.exe .\output\MyMods.sln -target:proxy /p:Configuration=Game__Shipping__Win64
+MSBuild.exe .\output\MyMods.sln -target:FrameMeterMod /p:Configuration=Game__Shipping__Win64
 
 New-Item -Type dir -Force "$game_path" | Out-Null
 Copy-Item -Path "output/Output/Game__Shipping__Win64/proxy/bin/dwmapi.dll" -Destination "$game_path"
@@ -18,7 +19,7 @@ Copy-Item -Path "RE-UE4SS/assets/UE4SS-settings.ini" -Destination "$game_path"
 $mod_path = "$game_path\Mods\FrameMeterMod"
 New-Item -Type dir -Force "$mod_path" | Out-Null
 New-Item -Type dir -Force "$mod_path/dlls" | Out-Null
-Copy-Item -Path "output/FrameMeterMod/Game__Shipping__Win64/FrameMeterMod.dll" -Destination "$mod_path/dlls/main.dll"
+Copy-Item -Path "output/FrameMeter/Game__Shipping__Win64/FrameMeterMod.dll" -Destination "$mod_path/dlls/main.dll"
 New-Item -Type file -Force "$mod_path/enabled.txt" | Out-Null
 
 $settings = get-content "RE-UE4SS/assets/UE4SS-settings.ini"

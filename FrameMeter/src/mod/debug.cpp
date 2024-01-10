@@ -1,6 +1,6 @@
 #include <DynamicOutput/Output.hpp>
 
-#include "debug.h"
+#include "mod/debug.h"
 
 using namespace RC;
 
@@ -27,10 +27,10 @@ static std::wstring bytes_to_string(void *bytes, size_t num_bytes)
 	return out;
 }
 
-void print_battle_data(AREDGameState_Battle *battle)
+void print_battle_data(AREDGameState_Battle *game_state)
 {
-	ASW::Character *character_1 = battle->engine->player_1.character;
-	ASW::Character *character_2 = battle->engine->player_2.character;
+	Character *character_1 = game_state->battle->teams[0].main_player_object;
+	Character *character_2 = game_state->battle->teams[1].main_player_object;
 
 	if (character_1->action_id != 0 || character_2->action_id != 0)
 	{

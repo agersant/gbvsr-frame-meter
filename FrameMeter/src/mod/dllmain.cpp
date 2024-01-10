@@ -13,11 +13,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include "Windows.h"
 
-#include "debug.h"
-#include "draw.h"
-#include "game.h"
-#include "meter.h"
-#include "ui.h"
+#include "core/battle.h"
+#include "core/meter.h"
+#include "mod/debug.h"
+#include "mod/draw.h"
+#include "mod/game.h"
+#include "mod/ui.h"
 
 using namespace RC;
 using namespace RC::Unreal;
@@ -26,7 +27,7 @@ static UFunction *get_world_settings_func = nullptr;
 static UFunction *get_scalar_parameter_value_func = nullptr;
 static std::map<int32_t, bool> pressed_keys = {};
 
-static UREDGameCommon *game_instance = nullptr;
+static class UREDGameCommon *game_instance = nullptr;
 static std::map<UWorld *, UObject *> hud_material = {};
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
@@ -41,10 +42,6 @@ static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 static bool meter_visible = true;
-
-class AWorldSettings : public AActor
-{
-};
 
 bool just_pressed(int32_t key)
 {
@@ -92,9 +89,9 @@ bool is_meter_allowed()
 	return is_training_mode() || is_replay_mode();
 }
 
-bool is_paused(AREDGameState_Battle *battle)
+bool is_paused(AREDGameState_Battle *game_state)
 {
-	if (AActor *world_settings = get_world_settings(battle))
+	if (AActor *world_settings = get_world_settings(game_state))
 	{
 		TObjectPtr<AActor> *pauser = (TObjectPtr<AActor> *)world_settings->GetValuePtrByPropertyNameInChain(STR("PauserPlayerState"));
 		return pauser != nullptr && pauser->UnderlyingObjectPointer != nullptr;
@@ -109,7 +106,7 @@ UObject *get_hud_material(AActor *actor)
 	{
 		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(L"BattleHudTop_C"))
 		{
-			UClass *static_mesh_component_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/Engine.StaticMeshComponent"));
+			UClass *static_mesh_component_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/Battle.StaticMeshComponent"));
 			UObject *static_mesh_component = UObjectGlobals::FindObject(static_mesh_component_class, battle_hud_top_actor, STR("StaticMeshComponent0"));
 			TArray<TObjectPtr<UObject>> *materials = (TArray<TObjectPtr<UObject>> *)static_mesh_component->GetValuePtrByPropertyNameInChain(STR("OverrideMaterials"));
 			hud_material[world] = (*materials)[0].UnderlyingObjectPointer;
@@ -141,28 +138,28 @@ bool is_hud_visible(AActor *actor)
 	return params.value > 0.f;
 }
 
-void update_battle(AREDGameState_Battle *battle, float delta_time)
+void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
-	((UpdateBattle_sig)update_battle_original)(battle, delta_time);
+	((UpdateBattle_sig)update_battle_original)(game_state, delta_time);
 	if (is_meter_allowed())
 	{
-		if (!is_paused(battle))
+		if (!is_paused(game_state))
 		{
-			frame_meter.update(battle);
-			// print_battle_data(battle);
+			frame_meter.update(game_state->battle);
+			// print_battle_data(game_state);
 		}
-		if (is_hud_visible(battle) && just_pressed(VK_F4))
+		if (is_hud_visible(game_state) && just_pressed(VK_F4))
 		{
 			meter_visible = !meter_visible;
 		}
 	}
 }
 
-void reset_battle(ASW::Engine *engine, int32_t *param)
+void reset_battle(Battle *battle, int32_t *param)
 {
-	using ResetBattle_sig = void (*)(ASW::Engine *, int32_t *);
-	((ResetBattle_sig)reset_battle_original)(engine, param);
+	using ResetBattle_sig = void (*)(Battle *, int32_t *);
+	((ResetBattle_sig)reset_battle_original)(battle, param);
 	if (is_meter_allowed())
 	{
 		frame_meter.reset();

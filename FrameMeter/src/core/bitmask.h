@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 template <size_t N>
 class Bitmask
 {

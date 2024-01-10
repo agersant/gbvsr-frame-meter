@@ -1,4 +1,6 @@
-#include "meter.h"
+#include <cassert>
+
+#include "core/meter.h"
 
 void FrameMeter::reset()
 {
@@ -7,10 +9,10 @@ void FrameMeter::reset()
 	pending_reset = false;
 }
 
-void FrameMeter::update(AREDGameState_Battle *battle)
+void FrameMeter::update(Battle *battle)
 {
-	ASW::Character *character_1 = battle->engine->player_1.character;
-	ASW::Character *character_2 = battle->engine->player_2.character;
+	Character *character_1 = battle->teams[0].main_player_object;
+	Character *character_2 = battle->teams[1].main_player_object;
 
 	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
 	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
@@ -88,11 +90,11 @@ std::optional<int32_t> FrameMeter::compute_advantage() const
 	return p2_free_at - p1_free_at;
 }
 
-CharacterState FrameMeter::get_character_state(AREDGameState_Battle *battle, ASW::Character *character)
+CharacterState FrameMeter::get_character_state(Battle *battle, Character *character)
 {
-	for (size_t i = 0; i < ASW::Engine::NUM_ENTITIES; i++)
+	for (int i = 0; i < Battle::NUM_ENTITIES; i++)
 	{
-		ASW::Entity *entity = battle->engine->entities[i];
+		Entity *entity = battle->entities[i];
 		if (!entity || entity == character || entity->parent_character != character)
 		{
 			continue;

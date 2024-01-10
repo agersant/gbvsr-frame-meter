@@ -1,44 +1,44 @@
-#include "game.h"
+#include "core/battle.h"
 
-bool ASW::Character::can_walk()
+bool Character::can_walk()
 {
 	return enable_flag & EnableFlag::ForwardWalk;
 }
 
-bool ASW::Character::can_attack()
+bool Character::can_attack()
 {
 	return enable_flag & EnableFlag::NormalAttack;
 }
 
-bool ASW::Character::can_act()
+bool Character::can_act()
 {
-	const bool is_mid_jump = action_id == ASW::ActionID::Jump;
-	const bool is_mid_dash = action_id == ASW::ActionID::FDash;
+	const bool is_mid_jump = action_id == ActionID::Jump;
+	const bool is_mid_dash = action_id == ActionID::FDash;
 	const bool can_use_normal = can_attack() && !is_mid_jump && !is_mid_dash;
 	return can_walk() || can_use_normal;
 }
 
-bool ASW::Character::is_counterable()
+bool Character::is_counterable()
 {
 	return attacking && !recovery;
 }
 
-bool ASW::Character::is_in_active_frames()
+bool Character::is_in_active_frames()
 {
 	return attacking && active_frames && num_hitboxes > 0;
 }
 
-bool ASW::Character::is_recovering()
+bool Character::is_recovering()
 {
 	return attacking && recovery;
 }
 
-bool ASW::Character::is_invincible()
+bool Character::is_invincible()
 {
 	return full_invincible || strike_invincible || throw_invincible;
 }
 
-bool ASW::Character::is_in_blockstun()
+bool Character::is_in_blockstun()
 {
 	if (defense_guard_connecting)
 	{
@@ -47,7 +47,7 @@ bool ASW::Character::is_in_blockstun()
 	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
-bool ASW::Character::is_maneuvering()
+bool Character::is_maneuvering()
 {
 	switch (action_id)
 	{
@@ -66,7 +66,7 @@ bool ASW::Character::is_maneuvering()
 	}
 }
 
-bool ASW::Character::is_in_hitstun()
+bool Character::is_in_hitstun()
 {
 	if (defense_hit_connecting)
 	{

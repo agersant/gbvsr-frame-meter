@@ -1,6 +1,9 @@
 #pragma once
 
-#include "game.h"
+#include <array>
+#include <optional>
+
+#include "core/battle.h"
 
 constexpr size_t PAGE_SIZE = 80;
 
@@ -53,11 +56,11 @@ public:
 	bool advantage_enabled;
 
 	void reset();
-	void update(AREDGameState_Battle *battle);
+	void update(Battle *battle);
 
 protected:
 	bool pending_reset;
 
-	static CharacterState get_character_state(AREDGameState_Battle *battle, ASW::Character *character);
+	static CharacterState get_character_state(Battle *battle, Character *character);
 	std::optional<int32_t> compute_advantage() const;
 };

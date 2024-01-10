@@ -1,4 +1,4 @@
-#include "ui.h"
+#include "mod/ui.h"
 
 static const int32_t advantage_plus_color = 0x7FD1FA;
 static const int32_t advantage_minus_color = 0xFC9594;
