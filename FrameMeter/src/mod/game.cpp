@@ -1,13 +1,17 @@
-#include "game.h"
-
 #include <Unreal/UObjectGlobals.hpp>
 #include <Unreal/UClass.hpp>
 #include <Unreal/World.hpp>
+
+#define WIN32_LEAN_AND_MEAN
+#include "Windows.h"
+
+#include "mod/game.h"
 
 static class UREDGameCommon *game_instance = nullptr;
 static UFunction *get_world_settings_func = nullptr;
 static UFunction *get_scalar_parameter_value_func = nullptr;
 static std::pair<UWorld *, UObject *> hud_material = {};
+static std::map<int32_t, bool> pressed_keys = {};
 
 UREDGameCommon *get_game_instance()
 {
@@ -29,6 +33,13 @@ AWorldSettings *get_world_settings(AActor *actor)
 	AWorldSettings *world_settings = nullptr;
 	world->ProcessEvent(get_world_settings_func, &world_settings);
 	return world_settings;
+}
+
+bool just_pressed(int32_t key)
+{
+	bool was_pressed = pressed_keys[key];
+	pressed_keys[key] = GetAsyncKeyState(key) & 0x8000;
+	return pressed_keys[key] && !was_pressed;
 }
 
 bool is_training_mode()

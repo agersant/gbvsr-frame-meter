@@ -9,7 +9,12 @@ void FrameMeter::reset()
 	pending_reset = false;
 }
 
-void FrameMeter::update(Battle *battle)
+bool FrameMeter::is_at_rest() const
+{
+	return pending_reset;
+}
+
+void FrameMeter::update(const Battle *battle)
 {
 	Character *character_1 = battle->teams[0].main_player_object;
 	Character *character_2 = battle->teams[1].main_player_object;
@@ -90,7 +95,7 @@ std::optional<int32_t> FrameMeter::compute_advantage() const
 	return p2_free_at - p1_free_at;
 }
 
-CharacterState FrameMeter::get_character_state(Battle *battle, Character *character)
+CharacterState FrameMeter::get_character_state(const Battle *battle, Character *character)
 {
 	for (int i = 0; i < Battle::NUM_ENTITIES; i++)
 	{

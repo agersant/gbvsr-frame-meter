@@ -7,8 +7,27 @@ on:
       - main
 
 jobs:
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT_TOKEN }}
+      - name: Setup github SSH
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.GBVSR_FRAME_METER_SSH_PRIVATE_KEY }}
+          known_hosts: unnecessary
+      - name: Setup Visual Studio Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1
+      - name: Run Tests
+        run: .\scripts\test.ps1
+
   build:
-    name: Build
+    name: Build Release
     runs-on: windows-latest
 
     steps:
@@ -24,6 +43,6 @@ jobs:
       - name: Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
       - name: Generate solution
-        run: cmake -S . -B output
-      - name: Build binaries
-        run: MSBuild.exe .\output\MyMods.sln /p:Configuration=Game__Shipping__Win64
+        run: .\scripts\generate_solution.ps1
+      - name: Compile & Package
+        run: .\scripts\release.ps1

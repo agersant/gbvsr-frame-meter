@@ -10,7 +10,9 @@
         "_DEBUG",
         "UNICODE",
         "_UNICODE",
-        "OVERRIDE_PLATFORM_HEADER_NAME=Windows"
+        "OVERRIDE_PLATFORM_HEADER_NAME=Windows",
+        "UE_BUILD_TEST",
+        "FRAME_METER_AUTOMATED_TESTS"
       ],
       "windowsSdkVersion": "10.0.20348.0",
       "cppStandard": "c++20",

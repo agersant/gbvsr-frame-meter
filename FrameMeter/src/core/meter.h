@@ -56,11 +56,12 @@ public:
 	bool advantage_enabled;
 
 	void reset();
-	void update(Battle *battle);
+	bool is_at_rest() const;
+	void update(const Battle *battle);
 
 protected:
 	bool pending_reset;
 
-	static CharacterState get_character_state(Battle *battle, Character *character);
+	static CharacterState get_character_state(const Battle *battle, Character *character);
 	std::optional<int32_t> compute_advantage() const;
 };

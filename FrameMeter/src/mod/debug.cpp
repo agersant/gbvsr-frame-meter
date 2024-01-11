@@ -4,6 +4,8 @@
 
 using namespace RC;
 
+#if UE_BUILD_TEST
+
 static std::wstring bytes_to_string(void *bytes, size_t num_bytes)
 {
 	std::wstring out;
@@ -54,3 +56,5 @@ void print_battle_data(AREDGameState_Battle *game_state)
 			action_2);
 	}
 }
+
+#endif

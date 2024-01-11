@@ -8,17 +8,44 @@ const char frame_marker[] = "FRAME_END";
 const uint32_t max_objects_per_frame = 500;
 const size_t max_object_size = 0xFFFFF;
 
-DumpWriter::DumpWriter(const std::filesystem::path &path) : num_frames(0)
+#if UE_BUILD_TEST
+
+static DumpWriter *dump_writer = nullptr;
+
+DumpWriter::DumpWriter() : num_frames(0)
 {
-	file.open(path, std::ios::binary | std::ios::out | std::ios::trunc);
+	file.open("rename_me.dump", std::ios::binary | std::ios::out | std::ios::trunc);
 }
 
-void DumpWriter::add_frame(Battle *battle)
+void DumpWriter::begin_dump()
 {
-	if (!file.is_open())
+	if (dump_writer)
+	{
+		delete dump_writer;
+		dump_writer = nullptr;
+	}
+	dump_writer = new DumpWriter();
+}
+
+void DumpWriter::update(const Battle *battle, const FrameMeter &frame_meter)
+{
+	if (!dump_writer)
 	{
 		return;
 	}
+	if (!frame_meter.is_at_rest())
+	{
+		dump_writer->dump_frame(battle);
+	}
+	else if (dump_writer->num_frames > 0)
+	{
+		delete dump_writer;
+		dump_writer = nullptr;
+	}
+}
+
+void DumpWriter::dump_frame(const Battle *battle)
+{
 	file.write((char *)battle, sizeof(Battle));
 	for (int i = 0; i < battle->NUM_ENTITIES; i++)
 	{
@@ -36,10 +63,9 @@ void DumpWriter::add_frame(Battle *battle)
 	num_frames += 1;
 }
 
-void DumpWriter::close()
-{
-	file.close();
-}
+#endif
+
+#if FRAME_METER_AUTOMATED_TESTS
 
 Dump *Dump::read_from_disk(const std::filesystem::path &path)
 {
@@ -132,3 +158,5 @@ void Dump::remap_pointers(char *target, size_t target_size, const std::map<char 
 		cursor += sizeof(char *);
 	}
 }
+
+#endif

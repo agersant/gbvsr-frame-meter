@@ -6,20 +6,27 @@
 #include <vector>
 
 #include "core/battle.h"
+#include "core/meter.h"
+
+#if UE_BUILD_TEST
 
 class DumpWriter
 {
 public:
-	DumpWriter(const std::filesystem::path &path);
-
-	void add_frame(Battle *battle);
-	int32_t get_num_frames() const { return num_frames; }
-	void close();
+	static void begin_dump();
+	static void update(const Battle *battle, const FrameMeter &frame_meter);
 
 private:
+	DumpWriter();
+	void dump_frame(const Battle *battle);
+
 	int32_t num_frames;
 	std::ofstream file;
 };
+
+#endif
+
+#if FRAME_METER_AUTOMATED_TESTS
 
 class Dump
 {
@@ -37,3 +44,5 @@ public:
 private:
 	static void remap_pointers(char *target, size_t target_size, const std::map<char *, char *> &pointer_map);
 };
+
+#endif

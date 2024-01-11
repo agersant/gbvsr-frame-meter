@@ -33,3 +33,4 @@ set(FrameMeterTest_Sources
 add_executable(FrameMeterTest ${FrameMeterCore_Sources} ${FrameMeterTest_Sources})
 target_compile_features(FrameMeterTest PRIVATE cxx_std_20)
 target_include_directories(FrameMeterTest PRIVATE src)
+target_compile_definitions(FrameMeterTest PRIVATE FRAME_METER_AUTOMATED_TESTS)

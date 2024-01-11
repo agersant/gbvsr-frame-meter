@@ -13,6 +13,7 @@
 #include "Windows.h"
 
 #include "core/battle.h"
+#include "core/dump.h"
 #include "core/meter.h"
 #include "mod/debug.h"
 #include "mod/draw.h"
@@ -21,8 +22,6 @@
 
 using namespace RC;
 using namespace RC::Unreal;
-
-static std::map<int32_t, bool> pressed_keys = {};
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -37,13 +36,6 @@ static PLH::VFuncMap hud_original_functions = {};
 static FrameMeter frame_meter = {};
 static bool meter_visible = true;
 
-bool just_pressed(int32_t key)
-{
-	bool was_pressed = pressed_keys[key];
-	pressed_keys[key] = GetAsyncKeyState(key) & 0x8000;
-	return pressed_keys[key] && !was_pressed;
-}
-
 void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
 	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
@@ -53,7 +45,14 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 		if (!is_paused(game_state))
 		{
 			frame_meter.update(game_state->battle);
-			// print_battle_data(game_state);
+#if UE_BUILD_TEST
+			print_battle_data(game_state);
+			if (just_pressed(VK_F8))
+			{
+				DumpWriter::begin_dump();
+			}
+			DumpWriter::update(game_state->battle, frame_meter);
+#endif
 		}
 		if (is_hud_visible(game_state) && just_pressed(VK_F4))
 		{

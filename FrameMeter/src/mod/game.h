@@ -40,6 +40,8 @@ public:
 	FIELD(0x318, GameMode, game_mode);
 };
 
+bool just_pressed(int32_t key);
+
 bool is_training_mode();
 bool is_replay_mode();
 bool is_meter_allowed();
