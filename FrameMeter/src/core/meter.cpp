@@ -97,7 +97,7 @@ std::optional<int32_t> FrameMeter::compute_advantage() const
 
 CharacterState FrameMeter::get_character_state(const Battle *battle, Character *character)
 {
-	for (int i = 0; i < Battle::NUM_ENTITIES; i++)
+	for (int i = 0; i < battle->num_entities; i++)
 	{
 		Entity *entity = battle->entities[i];
 		if (!entity || entity == character || entity->parent_character != character)

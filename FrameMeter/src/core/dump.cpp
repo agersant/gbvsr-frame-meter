@@ -47,7 +47,7 @@ void DumpWriter::update(const Battle *battle, const FrameMeter &frame_meter)
 void DumpWriter::dump_frame(const Battle *battle)
 {
 	file.write((char *)battle, sizeof(Battle));
-	for (int i = 0; i < battle->NUM_ENTITIES; i++)
+	for (int i = 0; i < battle->num_entities; i++)
 	{
 		const Entity *entity = battle->entities[i];
 		if (entity == nullptr)

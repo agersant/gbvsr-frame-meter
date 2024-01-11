@@ -115,13 +115,14 @@ static_assert(sizeof(Team) == 0x78);
 
 struct Battle
 {
-	static constexpr int32_t NUM_ENTITIES = 131;
-
-	ARRAY_FIELD(0x10, Team[2], teams);
-	ARRAY_FIELD(0x1030, struct Entity *[NUM_ENTITIES], entities);
-
 private:
-	char pad[0x1030 + Battle::NUM_ENTITIES * sizeof(void *)];
+	static constexpr int32_t MAX_ENTITIES = 131;
+	char pad[0x14C0 + Battle::MAX_ENTITIES * sizeof(void *)];
+
+public:
+	ARRAY_FIELD(0x10, Team[2], teams);
+	FIELD(0x1018, int32_t, num_entities);
+	ARRAY_FIELD(0x14C0, struct Entity *[MAX_ENTITIES], entities);
 };
 
 struct FrameInfo
