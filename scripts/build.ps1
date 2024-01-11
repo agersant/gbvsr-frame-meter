@@ -1,4 +1,4 @@
-MSBuild.exe .\output\MyMods.sln -target:FrameMeterMod /p:Configuration=Game__Shipping__Win64
+cmake --build output --target FrameMeterMod --config Game__Shipping__Win64
 
 $game_path = "C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64"
 $mod_path = "$game_path\Mods\FrameMeterMod"

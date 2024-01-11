@@ -8,7 +8,7 @@ if (Test-Path "$game_path") {
 }
 
 cmake -S . -B output
-MSBuild.exe .\output\MyMods.sln -target:FrameMeterMod /p:Configuration=Game__Shipping__Win64
+cmake --build output --target FrameMeterMod --config Game__Shipping__Win64
 
 New-Item -Type dir -Force "$game_path" | Out-Null
 Copy-Item -Path "output/Output/Game__Shipping__Win64/proxy/bin/dwmapi.dll" -Destination "$game_path"

@@ -1,4 +1,4 @@
-MSBuild.exe .\output\MyMods.sln -target:FrameMeterTest /p:Configuration=Game__Shipping__Win64
+cmake --build output --target FrameMeterTest --config Game__Shipping__Win64
 
 if ($LastExitCode -ne 0) {
 	exit $LastExitCode;
