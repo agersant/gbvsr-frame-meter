@@ -4,6 +4,7 @@ project(FrameMeter)
 
 set(FrameMeterCore_Sources
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/battle.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/dump.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/meter.cpp"
 )
 
@@ -25,6 +26,7 @@ target_link_libraries(FrameMeterMod PUBLIC UE4SS)
 
 set(FrameMeterTest_Sources
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/test/main.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/test/meter_snapshot.cpp"
 )
 
 add_executable(FrameMeterTest ${FrameMeterCore_Sources} ${FrameMeterTest_Sources})

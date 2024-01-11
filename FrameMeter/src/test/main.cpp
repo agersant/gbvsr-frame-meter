@@ -1,79 +1,70 @@
+#include <Windows.h>
+
 #include <filesystem>
+#include <format>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
-#include "core/battle.h"
+#include "core/dump.h"
 #include "core/meter.h"
+#include "test/meter_snapshot.h"
 
 namespace fs = std::filesystem;
 
-struct Dump
+bool run_test(std::shared_ptr<const Dump> dump, std::shared_ptr<const MeterSnapshot> snapshot)
 {
-	Dump(){};
-	Dump(const Dump &) = delete;
-	void operator=(const Dump &) = delete;
+	if (dump->frames.size() != snapshot->frames.size())
+	{
+		return false;
+	}
 
-	std::vector<Battle> frames;
-};
+	FrameMeter frame_meter = {};
 
-struct MeterFrame
-{
-	CharacterState state;
-	bool highlight;
-};
+	for (int i = 0; i < dump->frames.size(); i++)
+	{
+		frame_meter.update(&dump->frames[i]);
+		const uint8_t num_frames = frame_meter.players[0].current_page.num_frames;
+		const Frame &actual_1 = frame_meter.players[0].current_page.frames[num_frames - 1];
+		const Frame &actual_2 = frame_meter.players[1].current_page.frames[num_frames - 1];
+		const MeterFrame &expected_1 = snapshot->frames[i][0];
+		const MeterFrame &expected_2 = snapshot->frames[i][1];
+		const bool states_match = actual_1.state == expected_1.state && actual_2.state == expected_2.state;
+		const bool highlights_match = actual_1.highlight == expected_1.highlight && actual_2.highlight == expected_2.highlight;
+		if (!states_match || !highlights_match)
+		{
+			return false;
+		}
+	}
 
-struct MeterSnapshot
-{
-	std::vector<std::pair<MeterFrame, MeterFrame>> frames;
-};
-
-std::shared_ptr<Dump> read_game_dump(const std::wstring &path)
-{
-	std::shared_ptr<Dump> dump(new Dump());
-	return dump;
-}
-
-std::shared_ptr<MeterSnapshot> read_meter_snapshot(const std::wstring &path)
-{
-	std::shared_ptr<MeterSnapshot> snapshot(new MeterSnapshot());
-	return snapshot;
-}
-
-struct TestResult
-{
-	bool success;
-	std::wstring error_message;
-};
-
-TestResult run_test(std::shared_ptr<Dump> dump, std::shared_ptr<MeterSnapshot> expected)
-{
-	return {.success = false, .error_message = L"oopsie"};
+	return true;
 }
 
 int main()
 {
-	std::map<std::wstring, TestResult> results;
+	SetConsoleOutputCP(CP_UTF8);
+
+	std::map<std::string, bool> results;
 	uint32_t num_success = 0;
 	uint32_t num_failure = 0;
 
-	const std::string path = "FrameMeter\\test_data";
-	const int64_t num_tests = std::distance(fs::directory_iterator(path), fs::directory_iterator{});
-	std::wcout << std::format(L"\nrunning {} tests:\n", num_tests);
+	std::cout << std::format("\nrunning tests:\n");
 
+	const fs::path path = R"(FrameMeter\test_data)";
 	for (const auto &entry : fs::directory_iterator(path))
 	{
-		std::wstring name = entry.path().stem();
+		const std::string name = entry.path().stem().string();
 		if (results.contains(name))
 		{
 			continue;
 		}
-		std::shared_ptr<Dump> dump = read_game_dump(name + L".dump");
-		std::shared_ptr<MeterSnapshot> snapshot = read_meter_snapshot(name + L".meter");
-		results[name] = run_test(dump, snapshot);
-		if (results[name].success)
+		const fs::path dump_path = fs::path(entry.path()).replace_extension(".dump");
+		const fs::path meter_path = fs::path(entry.path()).replace_extension(".meter");
+		std::shared_ptr<const Dump> dump = std::shared_ptr<const Dump>(Dump::read_from_disk(dump_path));
+		std::shared_ptr<const MeterSnapshot> snapshot = std::shared_ptr<const MeterSnapshot>(MeterSnapshot::read_from_disk(meter_path));
+		results[name] = dump && snapshot && run_test(dump, snapshot);
+		if (results[name])
 		{
 			num_success += 1;
 		}
@@ -81,33 +72,24 @@ int main()
 		{
 			num_failure += 1;
 		}
-		const std::wstring result_text = results[name].success ? L"\x1B[32mok\x1B[0m" : L"\x1B[31mFAILED\x1B[0m";
-		std::wcout << std::format(L"{} ... {}\n", name, result_text);
+		const std::string result_text = results[name] ? "\x1B[32mok\x1B[0m" : "\x1B[31mFAILED\x1B[0m";
+		std::cout << format("{} ... {}\n", name, result_text);
 	}
 
 	if (num_failure > 0)
 	{
-		std::wcout << L"\nfailures:\n";
+		std::cout << "\nfailures:\n";
 		for (auto &entry : results)
 		{
-			if (!entry.second.success)
+			if (!entry.second)
 			{
-				std::wcout << std::format(L"\n---- {} ----\n{}\n", entry.first, entry.second.error_message);
-			}
-		}
-
-		std::wcout << L"\nfailures:\n";
-		for (auto &entry : results)
-		{
-			if (!entry.second.success)
-			{
-				std::wcout << L"    " << entry.first << L"\n";
+				std::cout << "    " << entry.first << "\n";
 			}
 		}
 	}
 
-	const std::wstring result_text = num_failure == 0 ? L"\x1B[32mok\x1B[0m" : L"\x1B[31mFAILED\x1B[0m";
-	std::wcout << std::format(L"\ntest result: {}. {} passed; {} failed\n", result_text, num_success, num_failure);
+	const std::string result_text = num_failure == 0 ? "\x1B[32mok\x1B[0m" : "\x1B[31mFAILED\x1B[0m";
+	std::cout << std::format("\ntest result: {}. {} passed; {} failed\n", result_text, num_success, num_failure);
 
 	return 0;
 }

@@ -1,5 +1,5 @@
-if (Test-Path "release.zip") {
-	Remove-Item -Path "release.zip"
+if (Test-Path "gbvsr-frame-meter.zip") {
+	Remove-Item -Path "gbvsr-frame-meter.zip"
 }
 
 $game_path = "release"

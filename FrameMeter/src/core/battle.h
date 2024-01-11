@@ -104,23 +104,27 @@ enum BBScriptInterrupt
 	MAX = 104,
 };
 
-class Team
+struct Team
 {
+	FIELD(0x08, struct Character *, main_player_object);
+
+private:
 	char pad[0x78];
-public:
-	FIELD(0x08, class Character *, main_player_object);
 };
 static_assert(sizeof(Team) == 0x78);
 
-class Battle
+struct Battle
 {
-public:
+	static constexpr int32_t NUM_ENTITIES = 131;
+
 	ARRAY_FIELD(0x10, Team[2], teams);
-	static constexpr size_t NUM_ENTITIES = 131;
-	ARRAY_FIELD(0x1030, class Entity *[NUM_ENTITIES], entities);
+	ARRAY_FIELD(0x1030, struct Entity *[NUM_ENTITIES], entities);
+
+private:
+	char pad[0x1030 + Battle::NUM_ENTITIES * sizeof(void *)];
 };
 
-class FrameInfo
+struct FrameInfo
 {
 public:
 	FIELD(0x2D, uint8_t, num_hurtboxes);
@@ -133,7 +137,7 @@ enum class BoxType : uint8_t
 	HITBOX,
 };
 
-class Box
+struct Box
 {
 public:
 	BoxType type;
@@ -143,9 +147,8 @@ public:
 	float h;
 };
 
-class Entity
+struct Entity
 {
-public:
 	FIELD(0x20, bool, is_player);
 	FIELD(0x60, FrameInfo *, frame_info);
 	FIELD(0x78, Box *, hurtboxes);
@@ -173,11 +176,13 @@ public:
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
 	FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EC0, char[20], action_name);
+
+private:
+	char pad[0x3EE0 + 20];
 };
 
-class Character : public Entity
+struct Character : public Entity
 {
-public:
 	FIELD(0xD020, EnableFlag, enable_flag);
 	FIELD(0xD038, uint32_t, blockstun_duration);
 	FIELD(0xD060, uint32_t, hitstun_duration);
@@ -194,4 +199,7 @@ public:
 	bool is_in_blockstun();
 	bool is_in_hitstun();
 	bool is_maneuvering();
+
+private:
+	char pad[0xE6FC + sizeof(int32_t) - sizeof(Entity)];
 };
