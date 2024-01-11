@@ -21,6 +21,7 @@ set(FrameMeterMod_Sources
 add_library(FrameMeterMod SHARED ${FrameMeterCore_Sources} ${FrameMeterMod_Sources})
 target_include_directories(FrameMeterMod PRIVATE src)
 target_link_libraries(FrameMeterMod PUBLIC UE4SS)
+add_dependencies(FrameMeterMod proxy)
 
 # Tests executable
 

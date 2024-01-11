@@ -8,7 +8,6 @@ if (Test-Path "$game_path") {
 }
 
 cmake -S . -B output
-MSBuild.exe .\output\MyMods.sln -target:proxy /p:Configuration=Game__Shipping__Win64
 MSBuild.exe .\output\MyMods.sln -target:FrameMeterMod /p:Configuration=Game__Shipping__Win64
 
 New-Item -Type dir -Force "$game_path" | Out-Null

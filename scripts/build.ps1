@@ -1,4 +1,3 @@
-MSBuild.exe .\output\MyMods.sln -target:proxy /p:Configuration=Game__Shipping__Win64
 MSBuild.exe .\output\MyMods.sln -target:FrameMeterMod /p:Configuration=Game__Shipping__Win64
 
 $game_path = "C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64"
