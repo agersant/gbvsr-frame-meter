@@ -1,3 +1,7 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include "Windows.h"
+
 // Included here as workaround for conflict between UE4SS macro named S and polyhook source
 #include <polyhook2/Detour/x64Detour.hpp>
 #include <polyhook2/Virtuals/VFuncSwapHook.hpp>
@@ -8,9 +12,6 @@
 #include <Unreal/UClass.hpp>
 #include <Unreal/UFunction.hpp>
 #include <Unreal/UObject.hpp>
-
-#define WIN32_LEAN_AND_MEAN
-#include "Windows.h"
 
 #include "core/battle.h"
 #include "core/dump.h"

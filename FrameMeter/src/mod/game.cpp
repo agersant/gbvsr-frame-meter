@@ -1,9 +1,10 @@
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include "Windows.h"
+
 #include <Unreal/UObjectGlobals.hpp>
 #include <Unreal/UClass.hpp>
 #include <Unreal/World.hpp>
-
-#define WIN32_LEAN_AND_MEAN
-#include "Windows.h"
 
 #include "mod/game.h"
 
