@@ -179,7 +179,7 @@ struct Entity
 	ARRAY_FIELD(0x3EC0, char[20], action_name);
 
 private:
-	char pad[0x3EE0 + 20];
+	char pad[0xD000];
 };
 
 struct Character : public Entity
