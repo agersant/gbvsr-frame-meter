@@ -112,7 +112,7 @@ int main()
 		{
 			if (!entry.second.success)
 			{
-				std::cout << "\n---- " << entry.first << "----\n";
+				std::cout << "\n---- " << entry.first << " ----\n";
 				std::cout << entry.second.output;
 			}
 		}
