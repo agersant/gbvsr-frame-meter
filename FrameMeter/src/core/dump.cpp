@@ -86,7 +86,8 @@ Dump *Dump::read_from_disk(const std::filesystem::path &path)
 	if (!data)
 	{
 		std::cout << std::format("Zip error code {} while reading {}\n", (int32_t)err, path.string());
-		return dump;
+		delete dump;
+		return nullptr;
 	}
 	std::string data_string = std::string((char *)data, dump_size);
 	free(data);

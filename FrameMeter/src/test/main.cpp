@@ -23,6 +23,7 @@ bool run_test(const fs::path &test_file)
 	if (!dump)
 	{
 		std::cout << "Failed to read dump file\n";
+		return false;
 	}
 
 	const fs::path snapshot_path = fs::path(test_file).replace_extension(".meter");
@@ -30,6 +31,7 @@ bool run_test(const fs::path &test_file)
 	if (!expected)
 	{
 		std::cout << "Failed to read snapshot file\n";
+		return false;
 	}
 
 	FrameMeter meter = {};
