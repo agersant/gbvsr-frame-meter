@@ -38,7 +38,10 @@ bool run_test(const fs::path &test_file)
 	Snapshot actual;
 	for (int i = 0; i < dump->frames.size(); i++)
 	{
-		meter.update(&dump->frames[i]);
+		if (!meter.update(&dump->frames[i]))
+		{
+			continue;
+		}
 		std::array<SnapshotFrame, 2> &frame = actual.frames.emplace_back();
 
 		const uint8_t num_frames = meter.players[0].current_page.num_frames;

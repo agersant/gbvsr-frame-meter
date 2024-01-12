@@ -57,7 +57,7 @@ public:
 
 	void reset();
 	bool is_at_rest() const;
-	void update(const Battle *battle);
+	bool update(const Battle *battle);
 
 protected:
 	bool pending_reset;

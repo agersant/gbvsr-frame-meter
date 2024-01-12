@@ -14,7 +14,7 @@ bool FrameMeter::is_at_rest() const
 	return pending_reset;
 }
 
-void FrameMeter::update(const Battle *battle)
+bool FrameMeter::update(const Battle *battle)
 {
 	Character *character_1 = battle->teams[0].main_player_object;
 	Character *character_2 = battle->teams[1].main_player_object;
@@ -25,7 +25,7 @@ void FrameMeter::update(const Battle *battle)
 	const bool skip_frame = is_cinematic_freeze || is_slowdown_bonus_frame || is_hitstop;
 	if (skip_frame)
 	{
-		return;
+		return false;
 	}
 
 	CharacterState state_1 = get_character_state(battle, character_1);
@@ -37,37 +37,33 @@ void FrameMeter::update(const Battle *battle)
 		{
 			players[0].current_page.commit_span();
 			players[1].current_page.commit_span();
+			advantage = compute_advantage();
 			pending_reset = true;
 		}
+		return false;
 	}
-	else
+
+	if (pending_reset)
 	{
-		if (pending_reset)
-		{
-			reset();
-		}
-		else if (players[0].current_page.num_frames == PAGE_SIZE)
-		{
-			players[0].end_page();
-			players[1].end_page();
-		}
-
-		// can_act() catches all situations except when defender presses a button on wake-up frame 1 and gets counter hit
-		// -> attacking catches this counter hit situation but somehow also picks up every frame during throw tech
-		// -> defense_hit_connecting distinguishes throw techs from the counter hit scenario
-		const bool can_highlight_1 = character_1->can_act() || (character_1->attacking && character_1->defense_hit_connecting);
-		const bool can_highlight_2 = character_2->can_act() || (character_2->attacking && character_2->defense_hit_connecting);
-
-		players[0].add_frame(state_1, can_highlight_1);
-		players[1].add_frame(state_2, can_highlight_2);
+		reset();
 	}
-
-	assert(players[0].current_page.num_frames == players[1].current_page.num_frames);
-
-	if (advantage_enabled)
+	else if (players[0].current_page.num_frames == PAGE_SIZE)
 	{
-		advantage = compute_advantage();
+		players[0].end_page();
+		players[1].end_page();
 	}
+
+	// can_act() catches all situations except when defender presses a button on wake-up frame 1 and gets counter hit
+	// -> attacking catches this counter hit situation but somehow also picks up every frame during throw tech
+	// -> defense_hit_connecting distinguishes throw techs from the counter hit scenario
+	const bool can_highlight_1 = character_1->can_act() || (character_1->attacking && character_1->defense_hit_connecting);
+	const bool can_highlight_2 = character_2->can_act() || (character_2->attacking && character_2->defense_hit_connecting);
+
+	players[0].add_frame(state_1, can_highlight_1);
+	players[1].add_frame(state_2, can_highlight_2);
+	advantage = std::nullopt;
+
+	return true;
 }
 
 std::optional<int32_t> FrameMeter::compute_advantage() const
