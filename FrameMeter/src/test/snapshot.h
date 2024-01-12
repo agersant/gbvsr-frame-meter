@@ -8,21 +8,26 @@
 
 #include "core/meter.h"
 
-struct MeterFrame
+struct SnapshotFrame
 {
 	CharacterState state;
 	bool highlight;
+
+	bool operator==(SnapshotFrame const &) const = default;
 };
 
-struct MeterSnapshot
+struct Snapshot
 {
-	static MeterSnapshot *read_from_disk(const std::filesystem::path &path);
-	static std::string string_from_state(CharacterState state);
+	static Snapshot *read_from_disk(const std::filesystem::path &path);
 
-	std::vector<std::array<MeterFrame, 2>> frames;
+	std::string string() const;
+	bool operator==(Snapshot const &) const = default;
+
+	std::vector<std::array<SnapshotFrame, 2>> frames;
 
 private:
 	static std::optional<CharacterState> state_from_codepoint(char32_t codepoint);
 	static std::optional<char32_t> codepoint_from_state(CharacterState state);
+	static std::string string_from_state(CharacterState state);
 	static char32_t read_utf8_codepoint(std::ifstream &input);
 };

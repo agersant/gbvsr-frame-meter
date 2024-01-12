@@ -39,7 +39,7 @@ add_dependencies(FrameMeterMod proxy)
 
 set(FrameMeterTest_Sources
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/test/main.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/src/test/meter_snapshot.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/test/snapshot.cpp"
 )
 
 add_executable(FrameMeterTest

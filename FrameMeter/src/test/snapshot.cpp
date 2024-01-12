@@ -1,7 +1,7 @@
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <codecvt>
 
-#include "test/meter_snapshot.h"
+#include "test/snapshot.h"
 
 static const std::vector<std::pair<char32_t, CharacterState>> representations = {
 	{0x02B1B /*⬛*/, CharacterState::IDLE},
@@ -14,9 +14,27 @@ static const std::vector<std::pair<char32_t, CharacterState>> representations = 
 	{0x1F7E9 /*🟩*/, CharacterState::COUNTER},
 };
 
-MeterSnapshot *MeterSnapshot::read_from_disk(const std::filesystem::path &path)
+std::string Snapshot::string() const
 {
-	MeterSnapshot *snapshot = new MeterSnapshot();
+	std::string out;
+	for (int i = 0; i < 2; i++)
+	{
+		for (auto &frame : frames)
+		{
+			out += string_from_state(frame[i].state);
+			if (frame[i].highlight)
+			{
+				out += "]";
+			}
+		}
+		out += "\n";
+	}
+	return out;
+}
+
+Snapshot *Snapshot::read_from_disk(const std::filesystem::path &path)
+{
+	Snapshot *snapshot = new Snapshot();
 
 	std::ifstream file(path);
 	if (!file.is_open())
@@ -53,7 +71,7 @@ MeterSnapshot *MeterSnapshot::read_from_disk(const std::filesystem::path &path)
 	return snapshot;
 }
 
-std::optional<CharacterState> MeterSnapshot::state_from_codepoint(char32_t codepoint)
+std::optional<CharacterState> Snapshot::state_from_codepoint(char32_t codepoint)
 {
 	for (auto &entry : representations)
 	{
@@ -65,7 +83,7 @@ std::optional<CharacterState> MeterSnapshot::state_from_codepoint(char32_t codep
 	return std::nullopt;
 }
 
-std::optional<char32_t> MeterSnapshot::codepoint_from_state(CharacterState state)
+std::optional<char32_t> Snapshot::codepoint_from_state(CharacterState state)
 {
 	for (auto &entry : representations)
 	{
@@ -77,14 +95,14 @@ std::optional<char32_t> MeterSnapshot::codepoint_from_state(CharacterState state
 	return std::nullopt;
 }
 
-std::string MeterSnapshot::string_from_state(CharacterState state)
+std::string Snapshot::string_from_state(CharacterState state)
 {
 	const char32_t codepoint = codepoint_from_state(state).value_or(0);
 	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
 	return convert.to_bytes(&codepoint, &codepoint + 1);
 }
 
-char32_t MeterSnapshot::read_utf8_codepoint(std::ifstream &input)
+char32_t Snapshot::read_utf8_codepoint(std::ifstream &input)
 {
 	const char8_t c1 = input.get();
 	if (c1 < 0b10000000U)

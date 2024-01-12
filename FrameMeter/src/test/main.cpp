@@ -11,33 +11,49 @@
 
 #include "core/dump.h"
 #include "core/meter.h"
-#include "test/meter_snapshot.h"
+#include "test/output_sink.h"
+#include "test/snapshot.h"
 
 namespace fs = std::filesystem;
 
-bool run_test(std::shared_ptr<const Dump> dump, std::shared_ptr<const MeterSnapshot> snapshot)
+bool run_test(const fs::path &test_file)
 {
-	if (dump->frames.size() != snapshot->frames.size())
+
+	const fs::path dump_path = fs::path(test_file).replace_extension(".zip");
+	std::shared_ptr<const Dump> dump = std::unique_ptr<const Dump>(Dump::read_from_disk(dump_path));
+	if (!dump)
 	{
-		return false;
+		std::cout << "Failed to read dump file\n";
 	}
 
-	FrameMeter frame_meter = {};
+	const fs::path snapshot_path = fs::path(test_file).replace_extension(".meter");
+	std::shared_ptr<const Snapshot> expected = std::unique_ptr<const Snapshot>(Snapshot::read_from_disk(snapshot_path));
+	if (!expected)
+	{
+		std::cout << "Failed to read snapshot file\n";
+	}
 
+	FrameMeter meter = {};
+
+	Snapshot actual;
 	for (int i = 0; i < dump->frames.size(); i++)
 	{
-		frame_meter.update(&dump->frames[i]);
-		const uint8_t num_frames = frame_meter.players[0].current_page.num_frames;
-		const Frame &actual_1 = frame_meter.players[0].current_page.frames[num_frames - 1];
-		const Frame &actual_2 = frame_meter.players[1].current_page.frames[num_frames - 1];
-		const MeterFrame &expected_1 = snapshot->frames[i][0];
-		const MeterFrame &expected_2 = snapshot->frames[i][1];
-		const bool states_match = actual_1.state == expected_1.state && actual_2.state == expected_2.state;
-		const bool highlights_match = actual_1.highlight == expected_1.highlight && actual_2.highlight == expected_2.highlight;
-		if (!states_match || !highlights_match)
-		{
-			return false;
-		}
+		meter.update(&dump->frames[i]);
+		std::array<SnapshotFrame, 2> &frame = actual.frames.emplace_back();
+
+		const uint8_t num_frames = meter.players[0].current_page.num_frames;
+		const Frame &p1 = meter.players[0].current_page.frames[num_frames - 1];
+		const Frame &p2 = meter.players[1].current_page.frames[num_frames - 1];
+		frame[0].state = p1.state;
+		frame[0].highlight = p1.highlight;
+		frame[1].state = p2.state;
+		frame[1].highlight = p2.highlight;
+	}
+
+	if (actual != *expected)
+	{
+		std::cout << std::format("Expected:\n{}\nActual:\n{}\n", expected->string(), actual.string());
+		return false;
 	}
 
 	return true;
@@ -47,7 +63,13 @@ int main()
 {
 	SetConsoleOutputCP(CP_UTF8);
 
-	std::map<std::string, bool> results;
+	struct TestResult
+	{
+		bool success;
+		std::string output;
+	};
+
+	std::map<std::string, TestResult> results;
 	uint32_t num_success = 0;
 	uint32_t num_failure = 0;
 
@@ -61,12 +83,14 @@ int main()
 		{
 			continue;
 		}
-		const fs::path dump_path = fs::path(entry.path()).replace_extension(".zip");
-		const fs::path meter_path = fs::path(entry.path()).replace_extension(".meter");
-		std::shared_ptr<const Dump> dump = std::shared_ptr<const Dump>(Dump::read_from_disk(dump_path));
-		std::shared_ptr<const MeterSnapshot> snapshot = std::shared_ptr<const MeterSnapshot>(MeterSnapshot::read_from_disk(meter_path));
-		results[name] = dump && snapshot && run_test(dump, snapshot);
-		if (results[name])
+		{
+			OutputSink sink;
+			results[name] = {
+				.success = run_test(entry.path()),
+				.output = sink.content(),
+			};
+		}
+		if (results[name].success)
 		{
 			num_success += 1;
 		}
@@ -74,7 +98,7 @@ int main()
 		{
 			num_failure += 1;
 		}
-		const std::string result_text = results[name] ? "\x1B[32mok\x1B[0m" : "\x1B[31mFAILED\x1B[0m";
+		const std::string result_text = results[name].success ? "\x1B[32mok\x1B[0m" : "\x1B[31mFAILED\x1B[0m";
 		std::cout << format("{} ... {}\n", name, result_text);
 	}
 
@@ -83,7 +107,17 @@ int main()
 		std::cout << "\nfailures:\n";
 		for (auto &entry : results)
 		{
-			if (!entry.second)
+			if (!entry.second.success)
+			{
+				std::cout << "\n---- " << entry.first << "----\n";
+				std::cout << entry.second.output;
+			}
+		}
+
+		std::cout << "\nfailures:\n";
+		for (auto &entry : results)
+		{
+			if (!entry.second.success)
 			{
 				std::cout << "    " << entry.first << "\n";
 			}
