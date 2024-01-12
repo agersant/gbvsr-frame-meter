@@ -1,4 +1,6 @@
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include "Windows.h"
 
 #include <filesystem>
 #include <format>
@@ -59,7 +61,7 @@ int main()
 		{
 			continue;
 		}
-		const fs::path dump_path = fs::path(entry.path()).replace_extension(".dump");
+		const fs::path dump_path = fs::path(entry.path()).replace_extension(".zip");
 		const fs::path meter_path = fs::path(entry.path()).replace_extension(".meter");
 		std::shared_ptr<const Dump> dump = std::shared_ptr<const Dump>(Dump::read_from_disk(dump_path));
 		std::shared_ptr<const MeterSnapshot> snapshot = std::shared_ptr<const MeterSnapshot>(MeterSnapshot::read_from_disk(meter_path));

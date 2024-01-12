@@ -2,8 +2,11 @@
 #include <format>
 #include <map>
 
+#include "miniz.h"
+
 #include "core/dump.h"
 
+const char archived_file_name[] = "dump";
 const char frame_marker[] = "FRAME_END";
 const uint32_t max_objects_per_frame = 500;
 const size_t max_object_size = 0xFFFFF;
@@ -11,11 +14,6 @@ const size_t max_object_size = 0xFFFFF;
 #if UE_BUILD_TEST
 
 static DumpWriter *dump_writer = nullptr;
-
-DumpWriter::DumpWriter() : num_frames(0)
-{
-	file.open("rename_me.dump", std::ios::binary | std::ios::out | std::ios::trunc);
-}
 
 void DumpWriter::begin_dump()
 {
@@ -39,6 +37,7 @@ void DumpWriter::update(const Battle *battle, const FrameMeter &frame_meter)
 	}
 	else if (dump_writer->num_frames > 0)
 	{
+		dump_writer->finalize();
 		delete dump_writer;
 		dump_writer = nullptr;
 	}
@@ -46,7 +45,7 @@ void DumpWriter::update(const Battle *battle, const FrameMeter &frame_meter)
 
 void DumpWriter::dump_frame(const Battle *battle)
 {
-	file.write((char *)battle, sizeof(Battle));
+	dump.write((char *)battle, sizeof(Battle));
 	for (int i = 0; i < battle->num_entities; i++)
 	{
 		const Entity *entity = battle->entities[i];
@@ -55,12 +54,22 @@ void DumpWriter::dump_frame(const Battle *battle)
 			continue;
 		}
 		const int32_t size = entity->is_player ? sizeof(Character) : sizeof(Entity);
-		file.write((char *)(&entity), sizeof(char *));
-		file.write((char *)(&size), sizeof(size));
-		file.write((char *)entity, size);
+		dump.write((char *)(&entity), sizeof(char *));
+		dump.write((char *)(&size), sizeof(size));
+		dump.write((char *)entity, size);
 	}
-	file << frame_marker;
+	dump.write(frame_marker, sizeof(frame_marker) - 1);
 	num_frames += 1;
+}
+
+void DumpWriter::finalize()
+{
+	const char *zip_filename = "dump.zip";
+	remove(zip_filename);
+
+	dump.flush();
+	std::string data = dump.str();
+	mz_zip_add_mem_to_archive_file_in_place(zip_filename, archived_file_name, data.c_str(), data.size(), "", 0, MZ_BEST_COMPRESSION);
 }
 
 #endif
@@ -71,12 +80,17 @@ Dump *Dump::read_from_disk(const std::filesystem::path &path)
 {
 	Dump *dump = new Dump();
 
-	std::ifstream file;
-	file.open(path, std::ios::binary | std::ios::in);
-	if (!file.is_open())
+	size_t dump_size;
+	mz_zip_error err;
+	void *data = mz_zip_extract_archive_file_to_heap_v2(path.string().c_str(), archived_file_name, nullptr, &dump_size, 0, &err);
+	if (!data)
 	{
+		std::cout << std::format("Zip error code {} while reading {}\n", (int32_t)err, path.string());
 		return dump;
 	}
+	std::string data_string = std::string((char *)data, dump_size);
+	free(data);
+	std::istringstream file(data_string);
 
 	while (true)
 	{
@@ -87,9 +101,9 @@ Dump *Dump::read_from_disk(const std::filesystem::path &path)
 		std::map<char *, char *> pointer_map;
 		while (true)
 		{
-			char buffer[sizeof(frame_marker)] = {0};
-			file.read(buffer, sizeof(buffer) - 1);
-			const bool is_frame_over = std::memcmp(buffer, frame_marker, sizeof(frame_marker)) == 0;
+			char buffer[sizeof(frame_marker) - 1] = {0};
+			file.read(buffer, sizeof(buffer));
+			const bool is_frame_over = std::memcmp(buffer, frame_marker, sizeof(buffer)) == 0;
 			if (is_frame_over)
 			{
 				break;

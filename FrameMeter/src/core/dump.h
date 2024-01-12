@@ -1,7 +1,7 @@
 #pragma once
 
 #include <filesystem>
-#include <fstream>
+#include <sstream>
 #include <map>
 #include <vector>
 
@@ -17,11 +17,11 @@ public:
 	static void update(const Battle *battle, const FrameMeter &frame_meter);
 
 private:
-	DumpWriter();
 	void dump_frame(const Battle *battle);
+	void finalize();
 
 	int32_t num_frames;
-	std::ofstream file;
+	std::ostringstream dump;
 };
 
 #endif
