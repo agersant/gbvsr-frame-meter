@@ -69,7 +69,7 @@ bool FrameMeter::update(const Battle *battle)
 std::optional<int32_t> FrameMeter::compute_advantage() const
 {
 	const int32_t num_frames = players[0].current_page.num_frames;
-	if (!pending_reset || num_frames <= 0)
+	if (num_frames <= 0)
 	{
 		return std::nullopt;
 	}
