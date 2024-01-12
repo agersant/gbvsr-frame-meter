@@ -14,6 +14,7 @@ enum ActionID : uint32_t
 	JumpPre = 0x6,
 	Jump,
 	JumpLanding,
+	JumpLandingStiff,
 
 	FDash = 0xC,
 	FDashStop,

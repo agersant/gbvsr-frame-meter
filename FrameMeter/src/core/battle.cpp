@@ -54,6 +54,7 @@ bool Character::is_maneuvering()
 	case ActionID::JumpPre:
 	case ActionID::Jump:
 	case ActionID::JumpLanding:
+	case ActionID::JumpLandingStiff:
 	case ActionID::FDash:
 	case ActionID::FDashStop:
 	case ActionID::BDash:
