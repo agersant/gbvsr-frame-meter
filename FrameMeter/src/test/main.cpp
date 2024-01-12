@@ -18,7 +18,6 @@ namespace fs = std::filesystem;
 
 bool run_test(const fs::path &test_file)
 {
-
 	const fs::path dump_path = fs::path(test_file).replace_extension(".zip");
 	std::shared_ptr<const Dump> dump = std::unique_ptr<const Dump>(Dump::read_from_disk(dump_path));
 	if (!dump)
@@ -34,8 +33,8 @@ bool run_test(const fs::path &test_file)
 	}
 
 	FrameMeter meter = {};
-
 	Snapshot actual;
+
 	for (int i = 0; i < dump->frames.size(); i++)
 	{
 		if (!meter.update(&dump->frames[i]))
@@ -88,10 +87,9 @@ int main()
 		}
 		{
 			OutputSink sink;
-			results[name] = {
-				.success = run_test(entry.path()),
-				.output = sink.content(),
-			};
+			TestResult &result = results[name];
+			result.success = run_test(entry.path());
+			result.output = sink.content();
 		}
 		if (results[name].success)
 		{
