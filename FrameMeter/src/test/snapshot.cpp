@@ -1,9 +1,11 @@
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #include <codecvt>
 
+#include <map>
+
 #include "test/snapshot.h"
 
-static const std::vector<std::pair<char32_t, CharacterState>> representations = {
+static const std::map<char32_t, CharacterState> emoji_to_state = {
 	{0x02B1B /*⬛*/, CharacterState::IDLE},
 	{0x02B1C /*⬜*/, CharacterState::INVINCIBLE},
 	{0x1F537 /*🔷*/, CharacterState::MOVEMENT},
@@ -14,6 +16,17 @@ static const std::vector<std::pair<char32_t, CharacterState>> representations = 
 	{0x1F7E9 /*🟩*/, CharacterState::COUNTER},
 };
 
+static const std::map<CharacterState, std::string> state_to_string = {
+	{CharacterState::IDLE, "\x1B[38;5;234m■\x1B[0m "},
+	{CharacterState::INVINCIBLE, "\x1B[38;5;252m■\x1B[0m "},
+	{CharacterState::MOVEMENT, "\x1B[38;5;44m■\x1B[0m "},
+	{CharacterState::ACTIVE_HITBOX, "\x1B[38;5;160m■\x1B[0m "},
+	{CharacterState::PUNISH_COUNTER, "\x1B[38;5;26m■\x1B[0m "},
+	{CharacterState::PROJECTILE, "\x1B[38;5;172m■\x1B[0m "},
+	{CharacterState::STUN, "\x1B[38;5;220m■\x1B[0m "},
+	{CharacterState::COUNTER, "\x1B[38;5;35m■\x1B[0m "},
+};
+
 std::string Snapshot::string() const
 {
 	std::string out;
@@ -21,7 +34,7 @@ std::string Snapshot::string() const
 	{
 		for (auto &frame : frames)
 		{
-			out += string_from_state(frame[i].state);
+			out += state_to_string.at(frame[i].state);
 			if (frame[i].highlight)
 			{
 				out += "]";
@@ -56,50 +69,18 @@ Snapshot *Snapshot::read_from_disk(const std::filesystem::path &path)
 			player = 1;
 			frame = 0;
 		}
-		std::optional<CharacterState> state = state_from_codepoint(codepoint);
-		if (state.has_value())
+		if (emoji_to_state.contains(codepoint))
 		{
 			if (snapshot->frames.size() <= frame)
 			{
 				snapshot->frames.emplace_back();
 			}
-			snapshot->frames[frame][player].state = state.value();
+			snapshot->frames[frame][player].state = emoji_to_state.at(codepoint);
 			frame += 1;
 		}
 	}
 
 	return snapshot;
-}
-
-std::optional<CharacterState> Snapshot::state_from_codepoint(char32_t codepoint)
-{
-	for (auto &entry : representations)
-	{
-		if (entry.first == codepoint)
-		{
-			return entry.second;
-		}
-	}
-	return std::nullopt;
-}
-
-std::optional<char32_t> Snapshot::codepoint_from_state(CharacterState state)
-{
-	for (auto &entry : representations)
-	{
-		if (entry.second == state)
-		{
-			return entry.first;
-		}
-	}
-	return std::nullopt;
-}
-
-std::string Snapshot::string_from_state(CharacterState state)
-{
-	const char32_t codepoint = codepoint_from_state(state).value_or(0);
-	std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
-	return convert.to_bytes(&codepoint, &codepoint + 1);
 }
 
 char32_t Snapshot::read_utf8_codepoint(std::ifstream &input)
