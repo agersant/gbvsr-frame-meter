@@ -23,6 +23,8 @@ jobs:
           known_hosts: unnecessary
       - name: Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
+      - name: Generate solution
+        run: .\scripts\generate_solution.ps1
       - name: Run Tests
         run: .\scripts\test.ps1
 
