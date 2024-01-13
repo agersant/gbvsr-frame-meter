@@ -117,7 +117,7 @@ static_assert(sizeof(Team) == 0x78);
 struct Battle
 {
 private:
-	static constexpr int32_t MAX_ENTITIES = 131;
+	static const int32_t MAX_ENTITIES = 131;
 	char pad[0x14C0 + Battle::MAX_ENTITIES * sizeof(void *)];
 
 public:

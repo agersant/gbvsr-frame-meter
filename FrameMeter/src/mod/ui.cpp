@@ -25,14 +25,14 @@ static const std::map<CharacterState, int32_t> previous_page_palette = {
 	{CharacterState::PROJECTILE, multiply_color(current_page_palette.at(CharacterState::PROJECTILE), darkening)},
 };
 
-static constexpr float bottom_margin = 140.f;
-static constexpr float border = 4.f;
-static constexpr float frame_width = 14.f;
-static constexpr float frame_height = 24.f;
-static constexpr float frame_spacing = 1.f;
-static constexpr float player_spacing = 8.f;
-static constexpr float advantage_text_size = 15.f;
-static constexpr float advantage_text_margin = 5.f;
+static const float bottom_margin = 140.f;
+static const float border = 4.f;
+static const float frame_width = 14.f;
+static const float frame_height = 24.f;
+static const float frame_spacing = 1.f;
+static const float player_spacing = 8.f;
+static const float advantage_text_size = 15.f;
+static const float advantage_text_margin = 5.f;
 
 float draw_advantage(const DrawContext &context, float x, float y, const FrameMeter &frame_meter)
 {

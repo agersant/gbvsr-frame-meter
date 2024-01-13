@@ -5,7 +5,7 @@
 
 #include "core/battle.h"
 
-constexpr size_t PAGE_SIZE = 80;
+const size_t PAGE_SIZE = 80;
 
 enum CharacterState
 {
