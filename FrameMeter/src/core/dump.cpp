@@ -68,7 +68,7 @@ void DumpWriter::finalize()
 	remove(zip_filename);
 
 	dump.flush();
-	std::string data = dump.str();
+	std::string data = std::move(dump).str();
 	mz_zip_add_mem_to_archive_file_in_place(zip_filename, archived_file_name, data.c_str(), data.size(), "", 0, MZ_BEST_COMPRESSION);
 }
 
