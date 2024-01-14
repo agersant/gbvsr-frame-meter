@@ -100,13 +100,12 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		{
 			continue;
 		}
-		if (!entity->active_frames || entity->num_hitboxes <= 0)
+		if (!entity->attack_hit_connecting)
 		{
-			continue;
-		}
-		if (entity->recovery && !entity->attack_hit_connecting)
-		{
-			continue;
+			if (entity->recovery || !entity->active_frames || entity->num_hitboxes <= 0)
+			{
+				continue;
+			}
 		}
 		return CharacterState::PROJECTILE;
 	}
