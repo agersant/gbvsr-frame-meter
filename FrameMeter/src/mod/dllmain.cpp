@@ -86,7 +86,9 @@ void reset_battle(Battle *battle, int32_t *param)
 	using ResetBattle_sig = void (*)(Battle *, int32_t *);
 	((ResetBattle_sig)reset_battle_original)(battle, param);
 	frame_by_frame = false;
+#if UE_BUILD_TEST
 	DumpWriter::reset();
+#endif
 	frame_meter.reset();
 	frame_meter.continuous = is_replay_mode();
 	frame_meter.advantage_enabled = is_training_mode();
