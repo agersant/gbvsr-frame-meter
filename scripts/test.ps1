@@ -4,4 +4,4 @@ if ($LastExitCode -ne 0) {
 	exit $LastExitCode;
 }
 
-./output/FrameMeter/Game__Test__Win64/FrameMeterTest.exe
+./output/FrameMeter/Game__Test__Win64/FrameMeterTest.exe @args

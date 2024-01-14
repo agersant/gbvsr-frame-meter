@@ -63,9 +63,19 @@ bool run_test(const fs::path &test_file)
 	return true;
 }
 
-int main()
+int main(int32_t argc, char *argv[])
 {
 	SetConsoleOutputCP(CP_UTF8);
+
+	std::optional<std::string> test_name;
+	for (int i = 1; i < argc; i++)
+	{
+		if (i + 1 < argc && _stricmp(argv[i], "--only") == 0)
+		{
+			test_name = std::string(argv[i + 1]);
+			i += 1;
+		}
+	}
 
 	struct TestResult
 	{
@@ -84,6 +94,10 @@ int main()
 	{
 		const std::string name = entry.path().stem().string();
 		if (results.contains(name))
+		{
+			continue;
+		}
+		if (test_name.has_value() && _stricmp(name.c_str(), test_name->c_str()) != 0)
 		{
 			continue;
 		}
