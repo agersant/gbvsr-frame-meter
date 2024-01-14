@@ -46,5 +46,5 @@ bool is_training_mode();
 bool is_replay_mode();
 bool is_meter_allowed();
 
-bool is_paused(AREDGameState_Battle *game_state);
+bool is_paused(AActor *actor);
 bool is_hud_visible(AActor *actor);

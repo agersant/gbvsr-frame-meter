@@ -60,9 +60,9 @@ bool is_meter_allowed()
 	return is_training_mode() || is_replay_mode();
 }
 
-bool is_paused(AREDGameState_Battle *game_state)
+bool is_paused(AActor *actor)
 {
-	if (AActor *world_settings = get_world_settings(game_state))
+	if (AActor *world_settings = get_world_settings(actor))
 	{
 		TObjectPtr<AActor> *pauser = (TObjectPtr<AActor> *)world_settings->GetValuePtrByPropertyNameInChain(STR("PauserPlayerState"));
 		return pauser != nullptr && pauser->UnderlyingObjectPointer != nullptr;
