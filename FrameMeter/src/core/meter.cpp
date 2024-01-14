@@ -56,8 +56,8 @@ bool FrameMeter::update(const Battle *battle)
 	// can_act() catches all situations except when defender presses a button on wake-up frame 1 and gets counter hit
 	// -> attacking catches this counter hit situation but somehow also picks up every frame during throw tech
 	// -> defense_hit_connecting distinguishes throw techs from the counter hit scenario
-	const bool can_highlight_1 = character_1->can_act() || (character_1->attacking && character_1->defense_hit_connecting);
-	const bool can_highlight_2 = character_2->can_act() || (character_2->attacking && character_2->defense_hit_connecting);
+	const bool can_highlight_1 = character_1->is_idle() || (character_1->attacking && character_1->defense_hit_connecting);
+	const bool can_highlight_2 = character_2->is_idle() || (character_2->attacking && character_2->defense_hit_connecting);
 
 	players[0].add_frame(state_1, can_highlight_1);
 	players[1].add_frame(state_2, can_highlight_2);
@@ -110,7 +110,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::PROJECTILE;
 	}
 
-	if (character->can_act() && !character->defense_hit_connecting && !character->defense_guard_connecting)
+	if (character->is_idle() && !character->defense_hit_connecting && !character->defense_guard_connecting)
 	{
 		return CharacterState::IDLE;
 	}

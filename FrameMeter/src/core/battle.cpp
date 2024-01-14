@@ -10,12 +10,16 @@ bool Character::can_attack()
 	return enable_flag & EnableFlag::NormalAttack;
 }
 
-bool Character::can_act()
+bool Character::is_air_blocking()
+{
+	return action_id >= ActionID::AirGuardPre && action_id <= ActionID::AirGuardEnd;
+}
+
+bool Character::is_idle()
 {
 	const bool is_mid_jump = action_id == ActionID::Jump;
 	const bool is_mid_dash = action_id == ActionID::FDash;
-	const bool can_use_normal = can_attack() && !is_mid_jump && !is_mid_dash;
-	return can_walk() || can_use_normal;
+	return (can_walk() || can_attack()) && !is_air_blocking() && !is_mid_jump && !is_mid_dash;
 }
 
 bool Character::is_counterable()
@@ -44,6 +48,10 @@ bool Character::is_in_blockstun()
 	{
 		return true;
 	}
+	if (is_air_blocking() && can_attack())
+	{
+		return false;
+	}
 	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
@@ -55,6 +63,9 @@ bool Character::is_maneuvering()
 	case ActionID::Jump:
 	case ActionID::JumpLanding:
 	case ActionID::JumpLandingStiff:
+	case ActionID::AirGuardPre:
+	case ActionID::AirGuardLoop:
+	case ActionID::AirGuardEnd:
 	case ActionID::FDash:
 	case ActionID::FDashStop:
 	case ActionID::BDash:

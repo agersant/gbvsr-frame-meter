@@ -194,7 +194,8 @@ struct Character : public Entity
 
 	bool can_walk();
 	bool can_attack();
-	bool can_act();
+	bool is_air_blocking();
+	bool is_idle();
 	bool is_counterable();
 	bool is_in_active_frames();
 	bool is_recovering();
