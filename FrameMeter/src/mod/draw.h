@@ -27,6 +27,10 @@ struct FLinearColor
 	static FLinearColor from_srgb(int32_t srgb);
 };
 
+FLinearColor &operator*=(FLinearColor &color, const float multiplier);
+FLinearColor operator*(const FLinearColor &color, float multiplier);
+FLinearColor operator*(float multiplier, const FLinearColor &color);
+
 struct TextSize
 {
 	float width = 0.f;
@@ -42,9 +46,9 @@ public:
 	static inline const float ui_width = 1920.f;
 	static inline const float ui_height = 1080.f;
 
-	void draw_rect(int32_t color, float x, float y, float width, float height) const;
-	void draw_text(int32_t color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
-	void draw_outlined_text(int32_t color, int32_t outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
+	void draw_rect(const FLinearColor &color, float x, float y, float width, float height) const;
+	void draw_text(const FLinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
+	void draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
 	TextSize get_text_size(const std::wstring &text, Typeface typeface, float size) const;
 
 protected:

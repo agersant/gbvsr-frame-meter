@@ -1,13 +1,5 @@
 #include "mod/draw.h"
 
-int32_t multiply_color(int32_t color, float multiplier)
-{
-	uint8_t r = std::clamp(int(0xFF * multiplier * ((color >> 16) & 0xFF) / 255.f), 0, 0xFF);
-	uint8_t g = std::clamp(int(0xFF * multiplier * ((color >> 8) & 0xFF) / 255.f), 0, 0xFF);
-	uint8_t b = std::clamp(int(0xFF * multiplier * ((color >> 0) & 0xFF) / 255.f), 0, 0xFF);
-	return (r << 16) + (g << 8) + b;
-}
-
 FLinearColor FLinearColor::from_srgb(int32_t srgb)
 {
 	const float r = ((srgb >> 16) & 0xFF) / 255.f;
@@ -19,6 +11,24 @@ FLinearColor FLinearColor::from_srgb(int32_t srgb)
 		.b = pow(b, 2.2f),
 		.a = 1.f,
 	};
+}
+
+FLinearColor &operator*=(FLinearColor &color, const float multiplier)
+{
+	color.r *= multiplier;
+	color.g *= multiplier;
+	color.b *= multiplier;
+	return color;
+}
+
+FLinearColor operator*(FLinearColor color, float multiplier)
+{
+	return color *= multiplier;
+}
+
+FLinearColor operator*(float multiplier, FLinearColor color)
+{
+	return color *= multiplier;
 }
 
 DrawContext::DrawContext(UObject *hud) : hud(hud)
@@ -83,7 +93,7 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 	scaling_factor = height / ui_height;
 }
 
-void DrawContext::draw_rect(int32_t color, float x, float y, float width, float height) const
+void DrawContext::draw_rect(const FLinearColor &color, float x, float y, float width, float height) const
 {
 	struct DrawRectParams
 	{
@@ -93,7 +103,7 @@ void DrawContext::draw_rect(int32_t color, float x, float y, float width, float 
 		float w;
 		float h;
 	} params = {
-		.color = FLinearColor::from_srgb(color),
+		.color = color,
 		.x = x * scaling_factor,
 		.y = y * scaling_factor,
 		.w = width * scaling_factor,
@@ -106,7 +116,7 @@ void DrawContext::draw_rect(int32_t color, float x, float y, float width, float 
 	}
 }
 
-void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
+void DrawContext::draw_text(const FLinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
 {
 	UFont *font = fonts.at(typeface);
 	if (font == nullptr)
@@ -130,7 +140,7 @@ void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring 
 		bool scale_position;
 	} params = {
 		.text = FString::FString(text.c_str()),
-		.color = FLinearColor::from_srgb(color),
+		.color = color,
 		.x = x * scaling_factor,
 		.y = y * scaling_factor,
 		.font = font,
@@ -146,7 +156,7 @@ void DrawContext::draw_text(int32_t color, float x, float y, const std::wstring 
 	*size_prop = original_size;
 }
 
-void DrawContext::draw_outlined_text(int32_t color, int32_t outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
+void DrawContext::draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
 {
 	draw_text(outline_color, x - 1, y, text, typeface, size);
 	draw_text(outline_color, x + 1, y, text, typeface, size);
