@@ -36,29 +36,48 @@ static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 static bool meter_visible = true;
+static bool frame_by_frame = false;
 
 void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
-	using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
-	((UpdateBattle_sig)update_battle_original)(game_state, delta_time);
-	if (is_meter_allowed())
+	const bool play_frame = !is_training_mode() || !frame_by_frame || just_pressed(VK_F6);
+	const bool accept_input = is_meter_allowed() && !is_paused(game_state) && is_hud_visible(game_state);
+	const bool update_meter = is_meter_allowed() && !is_paused(game_state) && play_frame;
+
+	if (play_frame)
 	{
-		if (!is_paused(game_state))
+		using UpdateBattle_sig = void (*)(AREDGameState_Battle *, float);
+		((UpdateBattle_sig)update_battle_original)(game_state, delta_time);
+	}
+
+	if (accept_input)
+	{
+		if (just_pressed(VK_F4))
 		{
-			frame_meter.update(game_state->battle);
+			meter_visible = !meter_visible;
+		}
 #if UE_BUILD_TEST
-			print_battle_data(game_state);
+		if (is_training_mode())
+		{
+			if (just_pressed(VK_F5))
+			{
+				frame_by_frame = !frame_by_frame;
+			}
 			if (just_pressed(VK_F8))
 			{
 				DumpWriter::begin_dump();
 			}
-			DumpWriter::update(game_state->battle, frame_meter);
+		}
 #endif
-		}
-		if (is_hud_visible(game_state) && just_pressed(VK_F4))
-		{
-			meter_visible = !meter_visible;
-		}
+	}
+
+	if (update_meter)
+	{
+		frame_meter.update(game_state->battle);
+#if UE_BUILD_TEST
+		print_battle_data(game_state);
+		DumpWriter::update(game_state->battle, frame_meter);
+#endif
 	}
 }
 
@@ -66,12 +85,11 @@ void reset_battle(Battle *battle, int32_t *param)
 {
 	using ResetBattle_sig = void (*)(Battle *, int32_t *);
 	((ResetBattle_sig)reset_battle_original)(battle, param);
-	if (is_meter_allowed())
-	{
-		frame_meter.reset();
-		frame_meter.continuous = is_replay_mode();
-		frame_meter.advantage_enabled = is_training_mode();
-	}
+	frame_by_frame = false;
+	DumpWriter::reset();
+	frame_meter.reset();
+	frame_meter.continuous = is_replay_mode();
+	frame_meter.advantage_enabled = is_training_mode();
 }
 
 void post_render(AActor *hud)

@@ -13,6 +13,7 @@
 class DumpWriter
 {
 public:
+	static void reset();
 	static void begin_dump();
 	static void update(const Battle *battle, const FrameMeter &frame_meter);
 

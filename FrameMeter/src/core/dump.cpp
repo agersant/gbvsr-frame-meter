@@ -15,13 +15,18 @@ const size_t max_object_size = 0xFFFFF;
 
 static DumpWriter *dump_writer = nullptr;
 
-void DumpWriter::begin_dump()
+void DumpWriter::reset()
 {
 	if (dump_writer)
 	{
 		delete dump_writer;
 		dump_writer = nullptr;
 	}
+}
+
+void DumpWriter::begin_dump()
+{
+	reset();
 	dump_writer = new DumpWriter();
 }
 
