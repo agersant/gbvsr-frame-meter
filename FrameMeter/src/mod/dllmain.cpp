@@ -109,6 +109,33 @@ void post_render(AActor *hud)
 	}
 }
 
+void post_init_game_state(AGameModeBase *GameMode)
+{
+	if (hud_post_render_hook != nullptr)
+	{
+		return;
+	}
+
+	UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/RED.REDHUD_Battle"));
+	if (!hud_class)
+	{
+		return;
+	}
+
+	UObject *default_hud = hud_class->GetClassDefaultObject();
+	if (!default_hud)
+	{
+		return;
+	}
+
+	hud_post_render_hook = std::make_unique<PLH::VFuncSwapHook>(
+		(uintptr_t)default_hud,
+		PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&post_render}}),
+		&hud_original_functions);
+
+	hud_post_render_hook->hook();
+}
+
 std::unique_ptr<PLH::x64Detour> setup_detour(uint64_t callback, uint64_t *trampoline, const char *signature)
 {
 	std::unique_ptr<PLH::x64Detour> detour = nullptr;
@@ -134,37 +161,6 @@ std::unique_ptr<PLH::x64Detour> setup_detour(uint64_t callback, uint64_t *trampo
 	return detour;
 }
 
-void hook_ui_render()
-{
-	Hook::RegisterInitGameStatePostCallback(
-		[&](AGameModeBase *GameMode)
-		{
-			if (hud_post_render_hook != nullptr)
-			{
-				return;
-			}
-
-			UClass *hud_class = UObjectGlobals::StaticFindObject<UClass *>(nullptr, nullptr, STR("/Script/RED.REDHUD_Battle"));
-			if (!hud_class)
-			{
-				return;
-			}
-
-			UObject *default_hud = hud_class->GetClassDefaultObject();
-			if (!default_hud)
-			{
-				return;
-			}
-
-			hud_post_render_hook = std::make_unique<PLH::VFuncSwapHook>(
-				(uintptr_t)default_hud,
-				PLH::VFuncMap({{HUD_VTABLE_INDEX_POST_RENDER, (uintptr_t)&post_render}}),
-				&hud_original_functions);
-
-			hud_post_render_hook->hook();
-		});
-}
-
 class FrameMeterMod : public RC::CppUserModBase
 {
 public:
@@ -180,7 +176,7 @@ public:
 	{
 		update_battle_detour = setup_detour((uint64_t)&update_battle, &update_battle_original, "40 57 41 54 41 55 48 83 EC 70 80 B9 C0 0A 00 00 01 48 8B F9 44 0F 29 44 24");
 		reset_battle_detour = setup_detour((uint64_t)&reset_battle, &reset_battle_original, "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 5D 18 91 04 48 33 C4");
-		hook_ui_render();
+		Hook::RegisterInitGameStatePostCallback(&post_init_game_state);
 	}
 
 	~FrameMeterMod() override
