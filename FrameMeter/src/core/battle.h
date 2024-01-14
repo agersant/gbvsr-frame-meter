@@ -161,6 +161,7 @@ struct Entity
 	BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
+	FIELD(0x2F0, Entity *, attached);
 	FIELD(0x3B8, uint32_t, flags_1);
 	FIELD(0x3BC, uint32_t, flags_2);
 	FIELD(0x3C0, uint32_t, flags_3);

@@ -25,7 +25,7 @@ bool Character::is_counterable()
 
 bool Character::is_in_active_frames()
 {
-	return attacking && active_frames && num_hitboxes > 0;
+	return attacking && active_frames && (num_hitboxes > 0 || (attached && attached->num_hitboxes > 0));
 }
 
 bool Character::is_recovering()
