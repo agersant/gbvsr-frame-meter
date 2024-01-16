@@ -75,7 +75,7 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 	{
 		frame_meter.update(game_state->battle);
 #if UE_BUILD_TEST
-		print_battle_data(game_state);
+		Debug::on_battle_update(game_state);
 		DumpWriter::update(game_state->battle, frame_meter);
 #endif
 	}
@@ -87,6 +87,7 @@ void reset_battle(Battle *battle, int32_t *param)
 	((ResetBattle_sig)reset_battle_original)(battle, param);
 	frame_by_frame = false;
 #if UE_BUILD_TEST
+	Debug::on_battle_reset(battle);
 	DumpWriter::reset();
 #endif
 	frame_meter.reset();

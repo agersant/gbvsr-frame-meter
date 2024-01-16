@@ -29,7 +29,17 @@ static std::wstring bytes_to_string(void *bytes, size_t num_bytes)
 	return out;
 }
 
-void print_battle_data(AREDGameState_Battle *game_state)
+void Debug::on_battle_reset(Battle *battle)
+{
+	Output::send<LogLevel::Warning>(
+		STR("Battle Reset. Game Instance: {}, Battle: {}, P1: {}, P2: {}\n"),
+		(void *)get_game_instance(),
+		(void *)battle,
+		(void *)battle->teams[0].main_player_object,
+		(void *)battle->teams[1].main_player_object);
+}
+
+void Debug::on_battle_update(AREDGameState_Battle *game_state)
 {
 	Character *character_1 = game_state->battle->teams[0].main_player_object;
 	Character *character_2 = game_state->battle->teams[1].main_player_object;

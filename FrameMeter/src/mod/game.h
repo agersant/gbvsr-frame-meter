@@ -42,6 +42,7 @@ public:
 
 bool just_pressed(int32_t key);
 
+UREDGameCommon *get_game_instance();
 bool is_training_mode();
 bool is_replay_mode();
 bool is_meter_allowed();
