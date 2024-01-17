@@ -48,7 +48,8 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 ## Caveats
 
 - This mod is not compatible with the free version of the game.
-- ⚠ This mod is likely to stop working or even cause crashes after the game receives an update. If this happens, rename `enabled.txt` to `disabled.txt` to turn off the mod. Default location of this file is `C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod\enabled.txt`.
+- ⚠ This mod will stop working after every game update. Please come back to this page and download a new version after each game patch.
+- If you run into any issues, you can disable the mod entirely it by renaming `enabled.txt` to `disabled.txt`. The location of this file is `C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod\enabled.txt`.
 - There is currently no indication of parry/armor states like Charlotta's `5U` or Siegfried's `4S+U`.
 
 ## Credits
