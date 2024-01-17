@@ -1,6 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #include "Windows.h"
+#include "psapi.h"
 
 // Included here as workaround for conflict between UE4SS macro named S and polyhook source
 #include <polyhook2/Detour/x64Detour.hpp>
@@ -23,6 +24,8 @@
 
 using namespace RC;
 using namespace RC::Unreal;
+
+static const wchar_t supported_version[] = STR("Version:2024/01/11 Revision:39743");
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -162,6 +165,22 @@ std::unique_ptr<PLH::x64Detour> setup_detour(uint64_t callback, uint64_t *trampo
 	return detour;
 }
 
+bool check_game_version()
+{
+	MODULEINFO module_info;
+	K32GetModuleInformation(GetCurrentProcess(), GetModuleHandle(nullptr), &module_info, sizeof(MODULEINFO));
+	wchar_t game_version[512] = {0};
+	wcscpy_s(game_version, sizeof(game_version), (wchar_t *)((char *)module_info.lpBaseOfDll + 0x456DCB0));
+
+	const bool is_expected_version = wcscmp(game_version, supported_version) == 0;
+	if (!is_expected_version)
+	{
+		Output::send<LogLevel::Error>(STR("FrameMeterMod failed game version check. Expected '{}' but found '{}'.\n"), supported_version, game_version);
+	}
+
+	return is_expected_version;
+}
+
 class FrameMeterMod : public RC::CppUserModBase
 {
 public:
@@ -175,6 +194,10 @@ public:
 
 	void on_unreal_init() override
 	{
+		if (!check_game_version())
+		{
+			return;
+		}
 		update_battle_detour = setup_detour((uint64_t)&update_battle, &update_battle_original, "40 57 41 54 41 55 48 83 EC 70 80 B9 C8 0A 00 00 01 48 8B F9 44 0F 29 44 24");
 		reset_battle_detour = setup_detour((uint64_t)&reset_battle, &reset_battle_original, "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 BD 7F 98 04 48 33 C4 48 89 45 2F 45");
 		Hook::RegisterInitGameStatePostCallback(&post_init_game_state);
