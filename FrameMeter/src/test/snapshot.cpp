@@ -10,10 +10,11 @@ static const std::map<char32_t, CharacterState> emoji_to_state = {
 	{0x02B1C /*⬜*/, CharacterState::INVINCIBLE},
 	{0x1F537 /*🔷*/, CharacterState::MOVEMENT},
 	{0x1F7E5 /*🟥*/, CharacterState::ACTIVE_HITBOX},
-	{0x1F7E6 /*🟦*/, CharacterState::PUNISH_COUNTER},
+	{0x1F7E6 /*🟦*/, CharacterState::RECOVERY},
 	{0x1F7E7 /*🟧*/, CharacterState::PROJECTILE},
 	{0x1F7E8 /*🟨*/, CharacterState::STUN},
 	{0x1F7E9 /*🟩*/, CharacterState::COUNTER},
+	{0x1F7EA /*🟪*/, CharacterState::ARMOR},
 };
 
 static const std::map<CharacterState, std::string> state_to_string = {
@@ -21,10 +22,11 @@ static const std::map<CharacterState, std::string> state_to_string = {
 	{CharacterState::INVINCIBLE, "\x1B[38;5;252m■\x1B[0m "},
 	{CharacterState::MOVEMENT, "\x1B[38;5;44m■\x1B[0m "},
 	{CharacterState::ACTIVE_HITBOX, "\x1B[38;5;160m■\x1B[0m "},
-	{CharacterState::PUNISH_COUNTER, "\x1B[38;5;26m■\x1B[0m "},
+	{CharacterState::RECOVERY, "\x1B[38;5;26m■\x1B[0m "},
 	{CharacterState::PROJECTILE, "\x1B[38;5;172m■\x1B[0m "},
 	{CharacterState::STUN, "\x1B[38;5;220m■\x1B[0m "},
 	{CharacterState::COUNTER, "\x1B[38;5;35m■\x1B[0m "},
+	{CharacterState::ARMOR, "\x1B[38;5;54m■\x1B[0m "},
 };
 
 std::string Snapshot::string() const

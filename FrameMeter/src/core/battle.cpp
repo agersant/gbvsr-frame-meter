@@ -42,6 +42,11 @@ bool Character::is_invincible()
 	return full_invincible || strike_invincible || throw_invincible;
 }
 
+bool Character::has_armor()
+{
+	return has_hit_handler && !attack_parameters.is_grab_cinematic;
+}
+
 bool Character::is_in_blockstun()
 {
 	if (defense_guard_connecting)

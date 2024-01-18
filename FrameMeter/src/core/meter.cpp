@@ -122,7 +122,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 
 	if (character->is_recovering())
 	{
-		return CharacterState::PUNISH_COUNTER;
+		return CharacterState::RECOVERY;
 	}
 
 	if (character->is_in_active_frames())
@@ -133,6 +133,11 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 	if (character->is_invincible())
 	{
 		return CharacterState::INVINCIBLE;
+	}
+
+	if (character->has_armor())
+	{
+		return CharacterState::ARMOR;
 	}
 
 	if (character->is_counterable())

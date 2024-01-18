@@ -10,11 +10,12 @@ static const std::map<CharacterState, FLinearColor> palette = {
 	{CharacterState::IDLE, FLinearColor::from_srgb(0x202020)}, // Should be 0x1A1A1A, but UE doesn't render these 1:1. Perceptually adjusted.
 	{CharacterState::COUNTER, FLinearColor::from_srgb(0x00B796)},
 	{CharacterState::ACTIVE_HITBOX, FLinearColor::from_srgb(0xCC2B67)},
-	{CharacterState::PUNISH_COUNTER, FLinearColor::from_srgb(0x0170BE)},
+	{CharacterState::RECOVERY, FLinearColor::from_srgb(0x0170BE)},
 	{CharacterState::STUN, FLinearColor::from_srgb(0xFFF830)},
 	{CharacterState::MOVEMENT, FLinearColor::from_srgb(0x42F8FD)},
 	{CharacterState::INVINCIBLE, FLinearColor::from_srgb(0xF1F1F0)},
 	{CharacterState::PROJECTILE, FLinearColor::from_srgb(0xC98002)},
+	{CharacterState::ARMOR, FLinearColor::from_srgb(0x5C1E6E)},
 };
 
 static const float bottom_margin = 140.f;

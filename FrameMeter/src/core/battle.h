@@ -149,6 +149,29 @@ public:
 	float h;
 };
 
+enum class AttackType : int32_t
+{
+	Unknown,
+	Normal,
+	Special,
+	Super,
+};
+
+struct AttackParameters
+{
+	FIELD(0x0, AttackType, attack_type);
+	FIELD(0x0C, int32_t, damage);
+	FIELD(0x10, int32_t, flags_1); // APFLG
+	FIELD(0x14, int32_t, flags_2); // APFLG2
+	BIT_FIELD(0x14, 0x04, is_grab_cinematic);
+	BIT_FIELD(0x14, 0x80, is_grab);
+	FIELD(0x18, int32_t, flags_3); // APFLG3
+	FIELD(0x1C, int32_t, flags_4); // APFLG4
+	FIELD(0x20, int32_t, flags_5); // APFLG5
+	FIELD(0x38, int32_t, enemy_guard_hitstop);
+	FIELD(0x40, int32_t, enemy_blockstun);
+};
+
 struct Entity
 {
 	FIELD(0x20, bool, is_player);
@@ -177,6 +200,8 @@ struct Entity
 	FIELD(0x3D0, int32_t, position_x);
 	FIELD(0x3D4, int32_t, position_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
+	FIELD(0x790, AttackParameters, attack_parameters);
+	BIT_FIELD(0xE88, 0x02, has_hit_handler);
 	FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EC0, char[20], action_name);
 
@@ -200,6 +225,7 @@ struct Character : public Entity
 	bool is_in_active_frames();
 	bool is_recovering();
 	bool is_invincible();
+	bool has_armor();
 	bool is_in_blockstun();
 	bool is_in_hitstun();
 	bool is_maneuvering();
