@@ -40,7 +40,6 @@ bool FrameMeter::update(const Battle *battle)
 			advantage = compute_advantage();
 			pending_reset = true;
 		}
-		return false;
 	}
 
 	if (pending_reset)
@@ -97,6 +96,10 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 	{
 		Entity *entity = battle->entities[i];
 		if (!entity || entity == character || entity->parent_character != character)
+		{
+			continue;
+		}
+		if (entity->attack_parameters.flags_3 & 0x30)
 		{
 			continue;
 		}
