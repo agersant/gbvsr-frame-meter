@@ -1,5 +1,10 @@
 #include "core/battle.h"
 
+bool Entity::has_armor()
+{
+	return has_hit_handler && !attack_parameters.is_grab_cinematic;
+}
+
 bool Character::can_walk()
 {
 	return enable_flag & EnableFlag::ForwardWalk;
@@ -40,11 +45,6 @@ bool Character::is_recovering()
 bool Character::is_invincible()
 {
 	return full_invincible || strike_invincible || throw_invincible;
-}
-
-bool Character::has_armor()
-{
-	return has_hit_handler && !attack_parameters.is_grab_cinematic;
 }
 
 bool Character::is_in_blockstun()

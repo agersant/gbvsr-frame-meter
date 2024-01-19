@@ -135,7 +135,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::INVINCIBLE;
 	}
 
-	if (character->has_armor())
+	if (character->has_armor() || (character->puppet && character->puppet->has_armor()))
 	{
 		return CharacterState::ARMOR;
 	}

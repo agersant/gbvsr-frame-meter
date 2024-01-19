@@ -185,6 +185,7 @@ struct Entity
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
 	FIELD(0x2F0, Entity *, attached);
+	FIELD(0x308, Entity *, puppet);
 	FIELD(0x3B8, uint32_t, flags_1);
 	FIELD(0x3BC, uint32_t, flags_2);
 	FIELD(0x3C0, uint32_t, flags_3);
@@ -204,6 +205,8 @@ struct Entity
 	BIT_FIELD(0xE88, 0x02, has_hit_handler);
 	FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EC0, char[20], action_name);
+
+	bool has_armor();
 
 private:
 	char pad[0xD000];
@@ -225,7 +228,6 @@ struct Character : public Entity
 	bool is_in_active_frames();
 	bool is_recovering();
 	bool is_invincible();
-	bool has_armor();
 	bool is_in_blockstun();
 	bool is_in_hitstun();
 	bool is_maneuvering();
