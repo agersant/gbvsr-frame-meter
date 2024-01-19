@@ -36,9 +36,9 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 | <img src="https://placehold.co/21x36/42F8FD/42F8FD" /> | Non-Counter Action                     |
 | <img src="https://placehold.co/21x36/CC2B67/CC2B67" /> | Hitbox Appearance Period               |
 | <img src="https://placehold.co/21x36/C98002/C98002" /> | Projectile's Active Time               |
+| <img src="https://placehold.co/21x36/5C1E6E/5C1E6E" /> | Armor or Parry                         |
 | <img src="https://placehold.co/21x36/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
 | <img src="https://placehold.co/21x36/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
-| <img src="https://placehold.co/21x36/5C1E6E/5C1E6E" /> | Armor or Parry                         |
 
 ## Keyboard Shortcuts
 
