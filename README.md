@@ -38,6 +38,7 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 | <img src="https://placehold.co/21x36/C98002/C98002" /> | Projectile's Active Time               |
 | <img src="https://placehold.co/21x36/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
 | <img src="https://placehold.co/21x36/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
+| <img src="https://placehold.co/21x36/5C1E6E/5C1E6E" /> | Armor or Parry                         |
 
 ## Keyboard Shortcuts
 
@@ -50,7 +51,6 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 - This mod is not compatible with the free version of the game.
 - ⚠ This mod will stop working after every game update. Please come back to this page and download a new version after each game patch.
 - If you run into any issues, you can disable the mod entirely it by renaming `enabled.txt` to `disabled.txt`. The location of this file is `C:\Program Files (x86)\Steam\steamapps\common\Granblue Fantasy Versus Rising\RED\Binaries\Win64\Mods\FrameMeterMod\enabled.txt`.
-- There is currently no indication of parry/armor states like Charlotta's `5U` or Siegfried's `4S+U`.
 
 ## Credits
 
