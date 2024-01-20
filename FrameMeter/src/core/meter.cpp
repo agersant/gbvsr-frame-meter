@@ -40,6 +40,7 @@ bool FrameMeter::update(const Battle *battle)
 			advantage = compute_advantage();
 			pending_reset = true;
 		}
+		return false;
 	}
 
 	if (pending_reset)
