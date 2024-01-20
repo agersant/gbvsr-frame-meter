@@ -128,7 +128,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::RECOVERY;
 	}
 
-	if (character->is_in_active_frames())
+	if (character->attacking && character->is_in_active_frames())
 	{
 		return CharacterState::ACTIVE_HITBOX;
 	}

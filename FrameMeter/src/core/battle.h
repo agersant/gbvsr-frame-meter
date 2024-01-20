@@ -166,6 +166,8 @@ struct AttackParameters
 	BIT_FIELD(0x14, 0x04, is_grab_cinematic);
 	BIT_FIELD(0x14, 0x80, is_grab);
 	FIELD(0x18, int32_t, flags_3); // APFLG3
+	BIT_FIELD(0x18, 0x10, opponent_must_be_grounded);
+	BIT_FIELD(0x18, 0x20, opponent_must_be_airborne);
 	FIELD(0x1C, int32_t, flags_4); // APFLG4
 	FIELD(0x20, int32_t, flags_5); // APFLG5
 	FIELD(0x38, int32_t, enemy_guard_hitstop);
@@ -207,6 +209,7 @@ struct Entity
 	FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EC0, char[20], action_name);
 
+	bool is_in_active_frames();
 	bool has_armor();
 
 private:
@@ -226,7 +229,6 @@ struct Character : public Entity
 	bool is_air_blocking();
 	bool is_idle();
 	bool is_counterable();
-	bool is_in_active_frames();
 	bool is_recovering();
 	bool is_invincible();
 	bool is_in_blockstun();

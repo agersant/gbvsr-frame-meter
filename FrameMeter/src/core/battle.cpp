@@ -1,5 +1,14 @@
 #include "core/battle.h"
 
+bool Entity::is_in_active_frames()
+{
+	if (attack_parameters.opponent_must_be_airborne && attack_parameters.opponent_must_be_grounded)
+	{
+		return false;
+	}
+	return active_frames && !recovery && (num_hitboxes > 0 || (attached && attached->num_hitboxes > 0));
+}
+
 bool Entity::has_armor()
 {
 	return has_hit_handler && !attack_parameters.is_grab_cinematic;
@@ -30,11 +39,6 @@ bool Character::is_idle()
 bool Character::is_counterable()
 {
 	return attacking && !recovery;
-}
-
-bool Character::is_in_active_frames()
-{
-	return attacking && active_frames && (num_hitboxes > 0 || (attached && attached->num_hitboxes > 0));
 }
 
 bool Character::is_recovering()
