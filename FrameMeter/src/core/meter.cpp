@@ -40,7 +40,6 @@ bool FrameMeter::update(const Battle *battle)
 			advantage = compute_advantage();
 			pending_reset = true;
 		}
-		return false;
 	}
 
 	if (pending_reset)
@@ -100,6 +99,10 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		{
 			continue;
 		}
+		if (entity->attack_parameters.flags_3 & 0x30)
+		{
+			continue;
+		}
 		if (!entity->attack_hit_connecting)
 		{
 			if (entity->recovery || !entity->active_frames || entity->num_hitboxes <= 0)
@@ -125,7 +128,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::RECOVERY;
 	}
 
-	if (character->is_in_active_frames())
+	if (character->attacking && character->is_in_active_frames())
 	{
 		return CharacterState::ACTIVE_HITBOX;
 	}
