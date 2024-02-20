@@ -204,25 +204,25 @@ struct Entity
 	FIELD(0x3D0, int32_t, position_x);
 	FIELD(0x3D4, int32_t, position_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
-	FIELD(0x790, AttackParameters, attack_parameters);
-	BIT_FIELD(0xE88, 0x02, has_hit_handler);
-	FIELD(0xEE8, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
-	ARRAY_FIELD(0x3EC0, char[20], action_name);
+	FIELD(0x7A0, AttackParameters, attack_parameters);
+	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
+	FIELD(0xF08, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
+	ARRAY_FIELD(0x3EE0, char[20], action_name);
 
 	bool is_in_active_frames();
 	bool has_armor();
 
 private:
-	char pad[0xD000];
+	char pad[0xD110];
 };
 
 struct Character : public Entity
 {
-	FIELD(0xD020, EnableFlag, enable_flag);
-	FIELD(0xD038, uint32_t, blockstun_duration);
-	FIELD(0xD060, uint32_t, hitstun_duration);
-	FIELD(0xDA74, ActionID, action_id);
-	FIELD(0xE71C, int32_t, slowdown_remaining);
+	FIELD(0xD130, EnableFlag, enable_flag);
+	FIELD(0xD148, uint32_t, blockstun_duration);
+	FIELD(0xD170, uint32_t, hitstun_duration);
+	FIELD(0xDB84, ActionID, action_id);
+	FIELD(0xE82C, int32_t, slowdown_remaining);
 
 	bool can_walk();
 	bool can_attack();
@@ -236,5 +236,5 @@ struct Character : public Entity
 	bool is_maneuvering();
 
 private:
-	char pad[0xE71C + sizeof(int32_t) - sizeof(Entity)];
+	char pad[0xE82C + sizeof(int32_t) - sizeof(Entity)];
 };
