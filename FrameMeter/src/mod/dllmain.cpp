@@ -25,7 +25,7 @@
 using namespace RC;
 using namespace RC::Unreal;
 
-static const wchar_t supported_version[] = STR("Version:2024/02/15 Revision:41618");
+static const wchar_t supported_version[] = STR("Feb 23 2024");
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
@@ -170,7 +170,7 @@ bool check_game_version()
 	MODULEINFO module_info;
 	K32GetModuleInformation(GetCurrentProcess(), GetModuleHandle(nullptr), &module_info, sizeof(MODULEINFO));
 	wchar_t game_version[512] = {0};
-	wcscpy_s(game_version, sizeof(game_version), (wchar_t *)((char *)module_info.lpBaseOfDll + 0x045801F0));
+	wcscpy_s(game_version, sizeof(game_version), (wchar_t *)((char *)module_info.lpBaseOfDll + 0x04909740));
 
 	const bool is_expected_version = wcscmp(game_version, supported_version) == 0;
 	if (!is_expected_version)
