@@ -180,6 +180,7 @@ struct Entity
 	FIELD(0x60, FrameInfo *, frame_info);
 	FIELD(0x78, Box *, hurtboxes);
 	FIELD(0x80, Box *, hitboxes);
+	FIELD(0x10C, uint32_t, num_hurtboxes);
 	FIELD(0x110, uint32_t, num_hitboxes);
 	BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
 	BIT_FIELD(0x1AC, 0x00200000, slowdown_bonus_frame);

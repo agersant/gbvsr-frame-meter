@@ -11,7 +11,7 @@ bool Entity::is_in_active_frames()
 
 bool Entity::has_armor()
 {
-	return has_hit_handler && !attack_parameters.is_grab_cinematic;
+	return has_hit_handler && !attack_parameters.is_grab_cinematic && num_hurtboxes > 0;
 }
 
 bool Character::can_walk()
