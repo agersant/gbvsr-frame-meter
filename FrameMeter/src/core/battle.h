@@ -89,7 +89,8 @@ enum ActionID : uint32_t
 	Shirimochi = 0x67, // Guard crush
 	ShirimochiCrouch,
 
-	ExDamage = 0x76, // Super receive
+	ExDamage = 0x76,	 // Super receive
+	ExDamageLand = 0x77, // Beatrix 5U receive
 
 	Dodge = 0x85,
 	EvasiveMove,

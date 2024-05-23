@@ -120,6 +120,7 @@ bool Character::is_in_hitstun()
 	case ActionID::Shirimochi:
 	case ActionID::ShirimochiCrouch:
 	case ActionID::ExDamage:
+	case ActionID::ExDamageLand:
 		return true;
 	default:
 		return false;
