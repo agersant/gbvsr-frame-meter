@@ -17,7 +17,7 @@ class AGameState : public AActor
 class AREDGameState_Battle : public AGameState
 {
 public:
-	FIELD(0xA18, Battle *, battle);
+	FIELD(0xA48, Battle *, battle);
 };
 
 class UGameInstance : public RC::Unreal::UObject
