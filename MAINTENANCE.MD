@@ -22,7 +22,7 @@ Find the string containing what looks like the latest game version number and ta
 
 Close the game and cheat engine, run `.scripts\build.ps1` again and re-launch the game. Version check error message should be gone.
 
-# Updating battle hooks
+# Supporting the new game version
 
 After major game updates, various maintenance task may be required:
 
