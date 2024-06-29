@@ -24,26 +24,78 @@ Close the game and cheat engine, run `.scripts\build.ps1` again and re-launch th
 
 # Updating battle hooks
 
-After major game updates, some of the following problems are likely:
+After major game updates, various maintenance task may be required:
 
-- Game crashes when entering training
-- Meter stays blank
-- Meter does not clear itself when resetting training (most common)
+## Troubleshooting crashes
 
-If the game crashes, one possible cause is that the `battle` field offset in `AREDGameState_Battle` needs to be updated.
-Other issues may indicate that the `update_battle` or `reset_battle` function signatures need updating (in `on_unreal_init` within `dllmain.cpp`).
+### What this fixes
 
-## Finding offset of `battle` field
+- Game crashes when entering training or performing moves
 
-TODO
+### How to
 
-## Finding update_battle signature
+- Navigate to `%LocalAppData%\GBVSR\Saved\Crashes`.
+- Open the most recent directory.
+- Use `WinDbg` to open `UE4Minidump.dmp`.
+- Execute `!analyze -v`.
+- Scroll down to see `FAULTING_SOURCE_FILE` and `FAULTING_SOURCE_LINE_NUMBER`.
+- This will most likely point you to somewhere in the source of this mod.
+- Most likely the mod is trying to dereference a pointer, but the offset of the pointer field is incorrect.
+- Good luck from here!
 
-TODO
+### Common crash causes:
 
-## Finding reset_battle signature
+- The offset of the `->battle` field in `AREDGameState_Battle` needs to be updated.
 
-TODO
+## Updating `update_battle` signature
+
+### What this fixes
+
+- Meter stays blank during combat
+
+### How to
+
+- Attach cheat engine.
+- Click the `Memory View` button.
+- In the `Memory View` window, click on `View` -> `All Strings` in the top menu bar.
+- Enable case sensitive search and regex matching.
+- Type in the string `cmn_hit_s` and click `Generate String Map`, then `Show List`.
+- In the `Address List`, manually add the address of the string you find.
+- Select the newly added address in the address list and press Ctrl+B to inspect this memory location.
+- Right click on the first letter of the string and select `Data Breakpoint` -> `Break on Access`.
+- Hit the training dummy with a close light attack (make sure the dummy is setup not to block it)
+- Your breakpoint should hit.
+- Double click entries in the callstack one at a time.
+- For each entry, right click the instruction that was jumped to and click `Select Current Function`.
+- Compare the compiled assembly of this function with the signature in `update_battle_detour` within `dllmain.cpp`. Keeping going until you find a function that is _almost_ identical to the known signature.
+- Usually, the correct one entry is the 9th from top of the stack. Functions 1-9 have similar offsets (while #10 is somewhere completely different in the program).
+- Update the signature in `dllmain.cpp` to match the one you found.
+
+## Updating `reset_battle` signature
+
+### What this fixes
+
+- Frame meter does not reset when training is reset
+- Important debug output (starting with `Battle Reset. Game Instance:`) is missing from the console.
+
+### How to
+
+- Attach cheat engine
+- Enable speedhack 0.1 in the main Cheat Engine window
+- In the nearby memory scan options, set `Value` type to `String`
+- Type `Bluemoon` for value. In training, have Charlotta perform `Shining Onslaught` (any version). While the move is in progress, click `First Scan` in Cheat Engine.
+- Type `Hooligan` for value. In training, have Charlotta perform `Noble Strategy` (any version). While the move is in progress, click `First Scan` in Cheat Engine.
+- The left panel should show only one address, right click it and add it to the address list.
+- Select the newly added address in the address list and press Ctrl+B to inspect this memory location.
+- Press ctrl+enter to switch to relative address mode.
+- Scroll down to around +00009CA4 (that's pretty far down!).
+- Try to spot a value this is `54` while holding the guard button, `85` while spot dodging, `00` while idle.
+- Once you spot it, right click this byte and select `Data Breakpoint` -> `Break on Write`
+- Reset training using the in-game dedicated button - your breakpoint should hit.
+- Double click the top entry in the callstack
+- Right click the instruction that was jumped to and pick `Select Current Function`
+- Compare the compiled assembly of this function with the signature in `reset_battle_detour` within `dllmain.cpp`. They should be _almost_ identical.
+- Update the signature in `dllmain.cpp` to match the one you found.
 
 # Updating and running the test suite
 
