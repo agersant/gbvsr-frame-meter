@@ -42,8 +42,12 @@ public:
 
 struct Camera
 {
-	FVector position;
-	FRotator rotation;
+	float x;
+	float y;
+	float z;
+	float yaw;
+	float pitch;
+	float roll;
 	float horizontal_fov;
 };
 

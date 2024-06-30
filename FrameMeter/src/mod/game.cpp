@@ -138,9 +138,19 @@ Camera get_camera()
 		get_fov_angle_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetFOVAngle")));
 	}
 
-	camera_manager->ProcessEvent(get_camera_location_func, &camera.position);
-	camera_manager->ProcessEvent(get_camera_rotation_func, &camera.rotation);
 	camera_manager->ProcessEvent(get_fov_angle_func, &camera.horizontal_fov);
+
+	FVector position;
+	camera_manager->ProcessEvent(get_camera_location_func, &position);
+	camera.x = static_cast<float>(position.X());
+	camera.y = static_cast<float>(position.Y());
+	camera.z = static_cast<float>(position.Z());
+
+	FRotator rotation;
+	camera_manager->ProcessEvent(get_camera_rotation_func, &rotation);
+	camera.yaw = static_cast<float>(rotation.GetYaw());
+	camera.pitch = static_cast<float>(rotation.GetPitch());
+	camera.roll = static_cast<float>(rotation.GetRoll());
 
 	return camera;
 }
