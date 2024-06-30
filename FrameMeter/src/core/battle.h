@@ -148,6 +148,7 @@ public:
 	float y;
 	float w;
 	float h;
+	char pad[4];
 };
 
 enum class AttackType : int32_t
@@ -203,8 +204,11 @@ struct Entity
 	BIT_FIELD(0x3C0, 0x00000100, active_frames);
 	BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
 	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
+	FIELD(0x3CC, bool, facing_left);
 	FIELD(0x3D0, int32_t, position_x);
 	FIELD(0x3D4, int32_t, position_y);
+	FIELD(0x3F4, int32_t, scale_x);
+	FIELD(0x3F8, int32_t, scale_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
 	FIELD(0x7A0, AttackParameters, attack_parameters);
 	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
