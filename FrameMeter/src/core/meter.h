@@ -60,7 +60,7 @@ public:
 	bool is_at_rest() const;
 	bool update(const Battle *battle);
 
-protected:
+private:
 	bool pending_reset;
 
 	static CharacterState get_character_state(const Battle *battle, Character *character);
