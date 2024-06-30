@@ -142,15 +142,19 @@ Camera get_camera()
 
 	FVector position;
 	camera_manager->ProcessEvent(get_camera_location_func, &position);
-	camera.x = static_cast<float>(position.X());
-	camera.y = static_cast<float>(position.Y());
-	camera.z = static_cast<float>(position.Z());
+	camera.position.x = static_cast<float>(position.X());
+	camera.position.y = static_cast<float>(position.Y());
+	camera.position.z = static_cast<float>(position.Z());
 
 	FRotator rotation;
 	camera_manager->ProcessEvent(get_camera_rotation_func, &rotation);
 	camera.yaw = static_cast<float>(rotation.GetYaw());
 	camera.pitch = static_cast<float>(rotation.GetPitch());
 	camera.roll = static_cast<float>(rotation.GetRoll());
+
+	camera.aspect_ratio = 16.f / 9.f;
+	camera.near_plane = .1f;
+	camera.far_plane = 1000000.f;
 
 	return camera;
 }

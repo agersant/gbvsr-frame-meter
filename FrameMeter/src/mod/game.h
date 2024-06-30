@@ -3,6 +3,7 @@
 #include <Unreal/AActor.hpp>
 
 #include "core/battle.h"
+#include "core/math.h"
 
 using namespace RC::Unreal;
 
@@ -38,17 +39,6 @@ class UREDGameCommon : public UGameInstance
 {
 public:
 	FIELD(0x318, GameMode, game_mode);
-};
-
-struct Camera
-{
-	float x;
-	float y;
-	float z;
-	float yaw;
-	float pitch;
-	float roll;
-	float horizontal_fov;
 };
 
 bool just_pressed(int32_t key);
