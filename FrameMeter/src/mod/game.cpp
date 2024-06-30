@@ -8,9 +8,12 @@
 
 #include "mod/game.h"
 
-static class UREDGameCommon *game_instance = nullptr;
+static UREDGameCommon *game_instance = nullptr;
 static UFunction *get_world_settings_func = nullptr;
 static UFunction *get_scalar_parameter_value_func = nullptr;
+static UFunction *get_camera_location_func = nullptr;
+static UFunction *get_camera_rotation_func = nullptr;
+static UFunction *get_fov_angle_func = nullptr;
 static std::pair<UWorld *, UObject *> hud_material = {};
 static std::map<int32_t, bool> pressed_keys = {};
 
@@ -108,4 +111,36 @@ bool is_hud_visible(AActor *actor)
 	params.parameter_name = FName(STR("DrawFlag"));
 	hud_material->ProcessEvent(get_scalar_parameter_value_func, &params);
 	return params.value > 0.f;
+}
+
+Camera get_camera()
+{
+	Camera camera = {};
+
+	UObject *camera_manager = UObjectGlobals::FindFirstOf(L"REDCamera_Battle");
+	if (!camera_manager)
+	{
+		return camera;
+	}
+
+	if (!get_camera_location_func)
+	{
+		get_camera_location_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetCameraLocation")));
+	}
+
+	if (!get_camera_rotation_func)
+	{
+		get_camera_rotation_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetCameraRotation")));
+	}
+
+	if (!get_fov_angle_func)
+	{
+		get_fov_angle_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetFOVAngle")));
+	}
+
+	camera_manager->ProcessEvent(get_camera_location_func, &camera.position);
+	camera_manager->ProcessEvent(get_camera_rotation_func, &camera.rotation);
+	camera_manager->ProcessEvent(get_fov_angle_func, &camera.horizontal_fov);
+
+	return camera;
 }

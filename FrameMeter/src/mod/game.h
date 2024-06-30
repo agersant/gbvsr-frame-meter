@@ -40,6 +40,13 @@ public:
 	FIELD(0x318, GameMode, game_mode);
 };
 
+struct Camera
+{
+	FVector position;
+	FRotator rotation;
+	float horizontal_fov;
+};
+
 bool just_pressed(int32_t key);
 
 UREDGameCommon *get_game_instance();
@@ -49,3 +56,4 @@ bool is_meter_allowed();
 
 bool is_paused(AActor *actor);
 bool is_hud_visible(AActor *actor);
+Camera get_camera();
