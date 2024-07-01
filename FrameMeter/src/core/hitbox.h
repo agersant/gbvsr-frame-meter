@@ -15,7 +15,7 @@ TODO LIST
 ✅ 3D -> screen coordinate conversion
 ✅ Draw some boxes!
 ✅ Hurtboxes support w/ color distinction
-🔲 Disable during cinematic camera (RedCamera_Battle->ActiveAnims for super, but doesnt work for throws)
+🔲 Disable during cinematic camera (RedCamera_Battle->ActiveAnims for super, but doesnt work for throws, check camera yaw?)
 ✅ Add on/off keybind
 🔲 Hide hurtboxes while invuln
 🔲 Charlotta 5U box?
