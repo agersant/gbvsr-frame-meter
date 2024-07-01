@@ -22,6 +22,9 @@ TODO LIST
 🔲 Throw box support?
 🔲 Pushbox support?
 🔲 Investigate pitch -1 multiplier
+🔲 Test Cag traps
+🔲 Test Katalina ares moves
+🔲 Test Nier puppet
 🔲 Proof read logic when to collect/not-collect hitboxes
 */
 
