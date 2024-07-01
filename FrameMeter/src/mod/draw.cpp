@@ -203,6 +203,11 @@ TextSize DrawContext::get_text_size(const std::wstring &text, Typeface typeface,
 	return text_size;
 }
 
+bool DrawContext::is_2d_camera() const
+{
+	return abs(abs(camera.yaw) - 90.f) < 0.01f;
+}
+
 Vec2 DrawContext::project(Vec3 point) const
 {
 	Vec2 projection = camera.project(point);

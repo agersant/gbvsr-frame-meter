@@ -15,14 +15,15 @@ TODO LIST
 ✅ 3D -> screen coordinate conversion
 ✅ Draw some boxes!
 ✅ Hurtboxes support w/ color distinction
-🔲 Disable during cinematic camera (RedCamera_Battle->ActiveAnims for super, but doesnt work for throws, check camera yaw?)
+✅ Disable during cinematic camera
 ✅ Add on/off keybind
+🔲 Box merging
 🔲 Hide hurtboxes while invuln
 🔲 Charlotta 5U box?
 🔲 Throw box support?
 🔲 Pushbox support?
 🔲 Investigate pitch -1 multiplier
-🔲 Test Cag traps
+✅ Test Cag traps
 🔲 Test Katalina ares moves
 🔲 Test Nier puppet
 🔲 Proof read logic when to collect/not-collect hitboxes
