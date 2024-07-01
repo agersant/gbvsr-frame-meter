@@ -3,6 +3,8 @@
 #include <Unreal/UFunction.hpp>
 #include <Unreal/UObject.hpp>
 
+#include "core/math.h"
+
 using namespace RC::Unreal;
 
 int32_t multiply_color(int32_t color, float multiplier);
@@ -41,7 +43,7 @@ struct DrawContext
 {
 
 public:
-	DrawContext(UObject *hud);
+	DrawContext(UObject *hud, Camera camera);
 
 	static inline const float ui_width = 1920.f;
 	static inline const float ui_height = 1080.f;
@@ -51,7 +53,9 @@ public:
 	void draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
 	TextSize get_text_size(const std::wstring &text, Typeface typeface, float size) const;
 
-protected:
+	Vec2 project(Vec3 point) const;
+
+private:
 	static inline UFunction *draw_rect_internal = nullptr;
 	static inline UFunction *draw_text_internal = nullptr;
 	static inline UFunction *get_text_size_internal = nullptr;
@@ -62,8 +66,7 @@ protected:
 		{Typeface::SkipStd, nullptr},
 	};
 
+	Camera camera;
 	UObject *hud = nullptr;
-	uint32_t width = 0;
-	uint32_t height = 0;
 	float scaling_factor = 1.f;
 };

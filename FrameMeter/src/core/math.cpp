@@ -13,7 +13,7 @@ Vec2 Camera::project(Vec3 point) const
 	const float sy = sinf(pitch * deg_to_rad);
 	const float sz = sinf(roll * deg_to_rad);
 
-	// Convert from world space to camera space (x is towards scene, y is right, z is up)
+	// Convert from world space (x is right, y is towards viewer, z is up) to camera space (x is towards scene, y is right, z is up)
 	const Vec3 delta = point - position;
 	const Vec3 cs = {
 		.x = delta.x * (cy * cx) + delta.y * (cy * sx) + delta.z * (-sy),

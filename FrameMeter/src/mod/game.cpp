@@ -149,7 +149,7 @@ Camera get_camera()
 	FRotator rotation;
 	camera_manager->ProcessEvent(get_camera_rotation_func, &rotation);
 	camera.yaw = static_cast<float>(rotation.GetYaw());
-	camera.pitch = static_cast<float>(rotation.GetPitch());
+	camera.pitch = -static_cast<float>(rotation.GetPitch()); // Unclear why the minus sign is needed here
 	camera.roll = static_cast<float>(rotation.GetRoll());
 
 	camera.aspect_ratio = 16.f / 9.f;

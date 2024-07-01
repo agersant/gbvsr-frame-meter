@@ -16,6 +16,7 @@
 
 #include "core/battle.h"
 #include "core/dump.h"
+#include "core/hitbox.h"
 #include "core/meter.h"
 #include "mod/debug.h"
 #include "mod/draw.h"
@@ -38,6 +39,7 @@ static std::unique_ptr<PLH::VFuncSwapHook> hud_post_render_hook = nullptr;
 static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
+static HitboxViewer hitbox_viewer = {};
 static bool meter_visible = true;
 static bool frame_by_frame = false;
 
@@ -77,6 +79,7 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 	if (update_meter)
 	{
 		frame_meter.update(game_state->battle);
+		hitbox_viewer.update(game_state->battle);
 #if UE_BUILD_TEST
 		Debug::on_battle_update(game_state);
 		DumpWriter::update(game_state->battle, frame_meter);
@@ -108,8 +111,9 @@ void post_render(AActor *hud)
 
 	if (is_meter_allowed() && is_hud_visible(hud) && meter_visible)
 	{
-		DrawContext draw_context(hud);
-		draw_frame_meter(draw_context, frame_meter);
+		DrawContext draw_context(hud, get_camera());
+		UI::draw_frame_meter(draw_context, frame_meter);
+		UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
 	}
 }
 
