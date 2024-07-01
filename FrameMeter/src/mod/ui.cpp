@@ -18,6 +18,11 @@ static const std::map<CharacterState, FLinearColor> palette = {
 	{CharacterState::ARMOR, FLinearColor::from_srgb(0x5C1E6E)},
 };
 
+static const std::map<BoxType, FLinearColor> hitbox_palette = {
+	{BoxType::HITBOX, FLinearColor::from_srgb(0xFF0000)},
+	{BoxType::HURTBOX, FLinearColor::from_srgb(0x00FF00)},
+};
+
 static const float bottom_margin = 140.f;
 static const float border = 4.f;
 static const float frame_width = 14.f;
@@ -119,7 +124,7 @@ void draw_player(const DrawContext &context, float x, float y, const Player &pla
 	}
 }
 
-void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
+void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
 	const float meter_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
 	const float meter_height = 2 * (2 * border + frame_height) + player_spacing;
@@ -135,4 +140,17 @@ void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 	draw_player(context, x, y, frame_meter.players[0]);
 	y += 2 * border + frame_height + player_spacing;
 	draw_player(context, x, y, frame_meter.players[1]);
+}
+
+void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &viewer)
+{
+	for (const Hitbox &hitbox : viewer.hitboxes)
+	{
+		FLinearColor color = hitbox_palette.at(hitbox.type);
+		const Vec2 top_left = context.project(hitbox.top_left);
+		const Vec2 top_right = context.project(hitbox.top_right);
+		const Vec2 bottom_left = context.project(hitbox.bottom_left);
+		const Vec2 bottom_right = context.project(hitbox.bottom_right);
+		context.draw_rect(color, top_left.x, top_left.y, top_right.x - top_left.x, bottom_left.y - top_left.y);
+	}
 }
