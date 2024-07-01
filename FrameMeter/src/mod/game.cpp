@@ -58,7 +58,7 @@ bool is_replay_mode()
 	return game_instance && game_instance->game_mode == GameMode::REPLAY;
 }
 
-bool is_meter_allowed()
+bool is_mod_allowed()
 {
 	return is_training_mode() || is_replay_mode();
 }

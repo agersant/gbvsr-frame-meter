@@ -46,7 +46,7 @@ bool just_pressed(int32_t key);
 UREDGameCommon *get_game_instance();
 bool is_training_mode();
 bool is_replay_mode();
-bool is_meter_allowed();
+bool is_mod_allowed();
 
 bool is_paused(AActor *actor);
 bool is_hud_visible(AActor *actor);

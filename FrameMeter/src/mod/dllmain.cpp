@@ -39,15 +39,18 @@ static std::unique_ptr<PLH::VFuncSwapHook> hud_post_render_hook = nullptr;
 static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
-static HitboxViewer hitbox_viewer = {};
 static bool meter_visible = true;
+
+static HitboxViewer hitbox_viewer = {};
+static bool hitboxes_visible = false;
+
 static bool frame_by_frame = false;
 
 void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
 	const bool play_frame = !is_training_mode() || !frame_by_frame || just_pressed(VK_F6);
-	const bool accept_input = is_meter_allowed() && !is_paused(game_state) && is_hud_visible(game_state);
-	const bool update_meter = is_meter_allowed() && !is_paused(game_state) && play_frame;
+	const bool accept_input = is_mod_allowed() && !is_paused(game_state) && is_hud_visible(game_state);
+	const bool read_battle_data = is_mod_allowed() && !is_paused(game_state) && play_frame;
 
 	if (play_frame)
 	{
@@ -57,6 +60,10 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 
 	if (accept_input)
 	{
+		if (just_pressed(VK_F3))
+		{
+			hitboxes_visible = !hitboxes_visible;
+		}
 		if (just_pressed(VK_F4))
 		{
 			meter_visible = !meter_visible;
@@ -76,7 +83,7 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 #endif
 	}
 
-	if (update_meter)
+	if (read_battle_data)
 	{
 		frame_meter.update(game_state->battle);
 		hitbox_viewer.update(game_state->battle);
@@ -109,11 +116,17 @@ void post_render(AActor *hud)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud);
 	}
 
-	if (is_meter_allowed() && is_hud_visible(hud) && meter_visible)
+	if (is_mod_allowed() && is_hud_visible(hud))
 	{
 		DrawContext draw_context(hud, get_camera());
-		UI::draw_frame_meter(draw_context, frame_meter);
-		UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
+		if (hitboxes_visible)
+		{
+			UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
+		}
+		if (meter_visible)
+		{
+			UI::draw_frame_meter(draw_context, frame_meter);
+		}
 	}
 }
 

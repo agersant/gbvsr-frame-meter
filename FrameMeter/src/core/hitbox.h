@@ -13,10 +13,10 @@ TODO LIST
 ✅ Find hitbox positions in 2D
 ✅ 2D -> 3D coordinate conversion
 ✅ 3D -> screen coordinate conversion
-🔲 Draw some boxes!
+✅ Draw some boxes!
 ✅ Hurtboxes support w/ color distinction
 🔲 Disable during cinematic camera (RedCamera_Battle->ActiveAnims for super, but doesnt work for throws)
-🔲 Add on/off keybind
+✅ Add on/off keybind
 🔲 Hide hurtboxes while invuln
 🔲 Charlotta 5U box?
 🔲 Throw box support?
