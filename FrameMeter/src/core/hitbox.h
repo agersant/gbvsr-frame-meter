@@ -26,7 +26,7 @@ TODO LIST
 ✅ Test Cag traps
 ❌ Test Katalina ares moves. Hitboxes missing, too complicated for now.
 🔲 Test Nier puppet
-🔲 Proof read logic when to collect/not-collect hitboxes
+✅ Proof read logic when to collect/not-collect hitboxes (result: not great)
 */
 
 struct Hitbox
