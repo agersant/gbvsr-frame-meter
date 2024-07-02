@@ -16,18 +16,13 @@ bool FrameMeter::is_at_rest() const
 
 bool FrameMeter::update(const Battle *battle)
 {
-	Character *character_1 = battle->teams[0].main_player_object;
-	Character *character_2 = battle->teams[1].main_player_object;
-
-	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
-	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
-	const bool is_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
-	const bool skip_frame = is_cinematic_freeze || is_slowdown_bonus_frame || is_hitstop;
-	if (skip_frame)
+	if (battle->is_freeze_frame())
 	{
 		return false;
 	}
 
+	Character *character_1 = battle->teams[0].main_player_object;
+	Character *character_2 = battle->teams[1].main_player_object;
 	CharacterState state_1 = get_character_state(battle, character_1);
 	CharacterState state_2 = get_character_state(battle, character_2);
 
@@ -100,7 +95,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		{
 			continue;
 		}
-		if (!entity->attack_hit_connecting && !entity->is_in_active_frames())
+		if (!entity->is_active() || entity->num_hitboxes <= 0)
 		{
 			continue;
 		}
@@ -122,7 +117,9 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::RECOVERY;
 	}
 
-	if (character->attacking && character->is_in_active_frames())
+	const bool character_has_active_hitbox = character->is_active() && character->num_hitboxes > 0;
+	const bool attached_has_active_hitbox = character->attached && (character->is_active() || character->attached->is_active()) && character->attached->num_hitboxes > 0;
+	if (character->attacking && (character_has_active_hitbox || attached_has_active_hitbox))
 	{
 		return CharacterState::ACTIVE_HITBOX;
 	}

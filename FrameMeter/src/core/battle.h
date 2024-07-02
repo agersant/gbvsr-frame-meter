@@ -125,6 +125,8 @@ public:
 	ARRAY_FIELD(0x10, Team[2], teams);
 	FIELD(0x1018, int32_t, num_entities);
 	ARRAY_FIELD(0x14C0, struct Entity *[MAX_ENTITIES], entities);
+
+	bool is_freeze_frame() const;
 };
 
 struct FrameInfo
@@ -218,7 +220,7 @@ struct Entity
 
 	int32_t get_position_x() const;
 	int32_t get_position_y() const;
-	bool is_in_active_frames() const;
+	bool is_active() const;
 	bool has_armor() const;
 
 private:

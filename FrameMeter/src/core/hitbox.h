@@ -24,9 +24,10 @@ TODO LIST
 🔲 Pushbox support?
 ✅ Investigate pitch -1 multiplier
 ✅ Test Cag traps
-✅ Test Katalina ares moves. Hitboxes missing, too complicated for now.
 ✅ Test Nier puppet
-✅ Proof read logic when to collect/not-collect hitboxes (result: sus)
+🚧 Test Katalina ares moves.
+🚧 Proof read logic when to collect/not-collect hitboxes (result: sus)
+🔲 Setup tests, including Zeta 4S, Charlotta 5U and Katalina 2S+U
 */
 
 struct Hitbox

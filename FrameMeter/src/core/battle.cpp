@@ -1,5 +1,16 @@
 #include "core/battle.h"
 
+bool Battle::is_freeze_frame() const
+{
+	Character *character_1 = teams[0].main_player_object;
+	Character *character_2 = teams[1].main_player_object;
+
+	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
+	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
+	const bool is_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
+	return is_cinematic_freeze || is_slowdown_bonus_frame || is_hitstop;
+}
+
 int32_t Entity::get_position_x() const
 {
 	int32_t position = offfset_x;
@@ -20,13 +31,19 @@ int32_t Entity::get_position_y() const
 	return position;
 }
 
-bool Entity::is_in_active_frames() const
+bool Entity::is_active() const
 {
+	if (attack_hit_connecting)
+	{
+		return true;
+	}
+
 	if (attack_parameters.opponent_must_be_airborne && attack_parameters.opponent_must_be_grounded)
 	{
 		return false;
 	}
-	return active_frames && !recovery && (num_hitboxes > 0 || (attached && attached->num_hitboxes > 0));
+
+	return active_frames && !recovery;
 }
 
 bool Entity::has_armor() const
