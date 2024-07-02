@@ -189,6 +189,7 @@ struct Entity
 	BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
+	FIELD(0x2A8, Entity *, attach_parent);
 	FIELD(0x2F0, Entity *, attached);
 	FIELD(0x308, Entity *, puppet);
 	FIELD(0x3B8, uint32_t, flags_1);
@@ -205,8 +206,8 @@ struct Entity
 	BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
 	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
 	FIELD(0x3CC, bool, facing_left);
-	FIELD(0x3D0, int32_t, position_x);
-	FIELD(0x3D4, int32_t, position_y);
+	FIELD(0x3D0, int32_t, offfset_x);
+	FIELD(0x3D4, int32_t, offfset_y);
 	FIELD(0x3F4, int32_t, scale_x);
 	FIELD(0x3F8, int32_t, scale_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
@@ -215,8 +216,10 @@ struct Entity
 	FIELD(0xF08, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EE0, char[20], action_name);
 
-	bool is_in_active_frames();
-	bool has_armor();
+	int32_t get_position_x() const;
+	int32_t get_position_y() const;
+	bool is_in_active_frames() const;
+	bool has_armor() const;
 
 private:
 	char pad[0xD110];
@@ -230,16 +233,16 @@ struct Character : public Entity
 	FIELD(0xDB84, ActionID, action_id);
 	FIELD(0xE82C, int32_t, slowdown_remaining);
 
-	bool can_walk();
-	bool can_attack();
-	bool is_air_blocking();
-	bool is_idle();
-	bool is_counterable();
-	bool is_recovering();
-	bool is_invincible();
-	bool is_in_blockstun();
-	bool is_in_hitstun();
-	bool is_maneuvering();
+	bool can_walk() const;
+	bool can_attack() const;
+	bool is_air_blocking() const;
+	bool is_idle() const;
+	bool is_counterable() const;
+	bool is_recovering() const;
+	bool is_invincible() const;
+	bool is_in_blockstun() const;
+	bool is_in_hitstun() const;
+	bool is_maneuvering() const;
 
 private:
 	char pad[0xE82C + sizeof(int32_t) - sizeof(Entity)];

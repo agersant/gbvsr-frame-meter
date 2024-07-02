@@ -16,8 +16,8 @@ Hitbox::Hitbox(const Entity *entity, const Box *box)
 {
 	const int32_t sx = -entity->scale_x * (entity->facing_left ? -1 : 1);
 	const int32_t sy = -entity->scale_y;
-	const float x1 = entity->position_x + sx * box->x;
-	const float y1 = entity->position_y + sy * box->y;
+	const float x1 = entity->get_position_x() + sx * box->x;
+	const float y1 = entity->get_position_y() + sy * box->y;
 	const float x2 = x1 + sx * box->w;
 	const float y2 = y1 + sy * box->h;
 

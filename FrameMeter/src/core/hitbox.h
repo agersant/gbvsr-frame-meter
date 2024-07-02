@@ -19,12 +19,12 @@ TODO LIST
 ✅ Add on/off keybind
 🔲 Box merging
 🔲 Hide hurtboxes while invuln
-🔲 Charlotta 5U box?
+✅ Charlotta 5U box?
 🔲 Throw box support?
 🔲 Pushbox support?
 🔲 Investigate pitch -1 multiplier
 ✅ Test Cag traps
-🔲 Test Katalina ares moves
+❌ Test Katalina ares moves. Hitboxes missing, too complicated for now.
 🔲 Test Nier puppet
 🔲 Proof read logic when to collect/not-collect hitboxes
 */
