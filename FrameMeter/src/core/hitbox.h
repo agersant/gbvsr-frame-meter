@@ -22,11 +22,11 @@ TODO LIST
 ✅ Charlotta 5U box?
 🔲 Throw box support?
 🔲 Pushbox support?
-🔲 Investigate pitch -1 multiplier
+✅ Investigate pitch -1 multiplier
 ✅ Test Cag traps
-❌ Test Katalina ares moves. Hitboxes missing, too complicated for now.
-🔲 Test Nier puppet
-✅ Proof read logic when to collect/not-collect hitboxes (result: not great)
+✅ Test Katalina ares moves. Hitboxes missing, too complicated for now.
+✅ Test Nier puppet
+✅ Proof read logic when to collect/not-collect hitboxes (result: sus)
 */
 
 struct Hitbox

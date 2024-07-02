@@ -40,7 +40,9 @@ void HitboxViewer::update(const Battle *battle)
 	{
 		Entity *entity = battle->entities[entity_index];
 
-		if (entity->attack_hit_connecting || entity->is_in_active_frames())
+		const bool is_active = entity->attack_hit_connecting || entity->is_in_active_frames();
+		const bool is_parent_active = entity->attach_parent && entity->attach_parent->is_in_active_frames();
+		if (is_active || is_parent_active)
 		{
 			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
 			{
