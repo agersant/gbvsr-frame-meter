@@ -50,6 +50,7 @@ public:
 
 	void draw_rect(const FLinearColor &color, float x, float y, float width, float height) const;
 	void draw_text(const FLinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
+	void draw_line(const FLinearColor &color, float x1, float y1, float x2, float y2, float thickness) const;
 	void draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
 	TextSize get_text_size(const std::wstring &text, Typeface typeface, float size) const;
 
@@ -57,6 +58,7 @@ public:
 	Vec2 project(Vec3 point) const;
 
 private:
+	static inline UFunction *draw_line_internal = nullptr;
 	static inline UFunction *draw_rect_internal = nullptr;
 	static inline UFunction *draw_text_internal = nullptr;
 	static inline UFunction *get_text_size_internal = nullptr;

@@ -43,6 +43,11 @@ DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 		fonts.at(Typeface::SkipStd) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Game/Shared/Font/JPN/FOT-SkipStd-D_Font.FOT-SkipStd-D_Font"));
 	}
 
+	if (!draw_line_internal)
+	{
+		draw_line_internal = hud->GetFunctionByNameInChain(FName(STR("DrawLine")));
+	}
+
 	if (!draw_rect_internal)
 	{
 		draw_rect_internal = hud->GetFunctionByNameInChain(FName(STR("DrawRect")));
@@ -87,6 +92,31 @@ DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 			player_controller->ProcessEvent(get_viewport_size, &viewport_size);
 			scaling_factor = viewport_size.height / ui_height;
 		}
+	}
+}
+
+void DrawContext::draw_line(const FLinearColor &color, float x1, float y1, float x2, float y2, float thickness) const
+{
+	struct DrawLineParams
+	{
+		float x1;
+		float y1;
+		float x2;
+		float y2;
+		FLinearColor color;
+		float thickness;
+	} params = {
+		.x1 = x1 * scaling_factor,
+		.y1 = y1 * scaling_factor,
+		.x2 = x2 * scaling_factor,
+		.y2 = y2 * scaling_factor,
+		.color = color,
+		.thickness = thickness,
+	};
+
+	if (hud && draw_line_internal)
+	{
+		hud->ProcessEvent(draw_line_internal, &params);
 	}
 }
 

@@ -158,12 +158,10 @@ void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &view
 		const Vec2 top_right = context.project(hitbox.top_right);
 		const Vec2 bottom_left = context.project(hitbox.bottom_left);
 		const Vec2 bottom_right = context.project(hitbox.bottom_right);
-		const float w = top_right.x - top_left.x;
-		const float h = bottom_left.y - top_left.y;
 
-		context.draw_rect(color, top_left.x, top_left.y, w, thickness);				   // top
-		context.draw_rect(color, top_left.x, bottom_left.y - thickness, w, thickness); // bottom
-		context.draw_rect(color, top_left.x, top_left.y, thickness, h);				   // left
-		context.draw_rect(color, top_right.x - thickness, top_left.y, thickness, h);   // right
+		context.draw_line(color, top_left.x, top_left.y, top_right.x, top_right.y, thickness);
+		context.draw_line(color, top_right.x, top_right.y, bottom_right.x, bottom_right.y, thickness);
+		context.draw_line(color, bottom_right.x, bottom_right.y, bottom_left.x, bottom_left.y, thickness);
+		context.draw_line(color, bottom_left.x, bottom_left.y, top_left.x, top_left.y, thickness);
 	}
 }
