@@ -57,10 +57,29 @@ void DumpWriter::dump_frame(const Battle *battle)
 		{
 			continue;
 		}
-		const int32_t size = entity->is_player ? sizeof(Character) : sizeof(Entity);
-		dump.write((char *)(&entity), sizeof(char *));
-		dump.write((char *)(&size), sizeof(size));
-		dump.write((char *)entity, size);
+
+		{
+			const int32_t size = entity->is_player ? sizeof(Character) : sizeof(Entity);
+			dump.write((char *)(&entity), sizeof(char *));
+			dump.write((char *)(&size), sizeof(size));
+			dump.write((char *)entity, size);
+		}
+
+		if (entity->num_hitboxes > 0)
+		{
+			const int32_t size = sizeof(Box) * entity->num_hitboxes;
+			dump.write((char *)(&entity->hitboxes), sizeof(char *));
+			dump.write((char *)(&size), sizeof(size));
+			dump.write((char *)entity->hitboxes, size);
+		}
+
+		if (entity->num_hurtboxes > 0)
+		{
+			const int32_t size = sizeof(Box) * entity->num_hurtboxes;
+			dump.write((char *)(&entity->hurtboxes), sizeof(char *));
+			dump.write((char *)(&size), sizeof(size));
+			dump.write((char *)entity->hurtboxes, size);
+		}
 	}
 	dump.write(frame_marker, sizeof(frame_marker) - 1);
 	num_frames += 1;
