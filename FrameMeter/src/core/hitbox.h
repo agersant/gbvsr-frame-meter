@@ -21,15 +21,16 @@ TODO LIST
 ✅ Add on/off keybind
 ✅ Box merging
 🔲 Hide hurtboxes while invuln
-✅ Charlotta 5U box?
 🔲 Throw box support?
 🔲 Pushbox support?
 ✅ Investigate pitch -1 multiplier
-✅ Test Cag traps
-✅ Test Nier puppet
-🚧 Test Katalina ares moves.
-🚧 Proof read logic when to collect/not-collect hitboxes (result: sus)
-🔲 Setup tests, including Zeta 4S, Charlotta 5U and Katalina 2S+U
+✅ Test Charlotta 5U box
+✅ Support Cag traps
+✅ Support Nier puppet
+🚧 Support Katalina 2S+U
+🚧 Support Zeta S
+🚧 Fine-tune logic on which hitboxes get collected
+🔲 Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U (whiff)
 */
 
 struct Multibox
