@@ -30,21 +30,20 @@ void DumpWriter::begin_dump()
 	dump_writer = new DumpWriter();
 }
 
-void DumpWriter::update(const Battle *battle, const FrameMeter &frame_meter)
+void DumpWriter::update(const Battle *battle, bool is_in_combat)
 {
 	if (!dump_writer)
 	{
 		return;
 	}
-	if (!frame_meter.is_at_rest())
+	if (is_in_combat)
 	{
 		dump_writer->dump_frame(battle);
 	}
 	else if (dump_writer->num_frames > 0)
 	{
 		dump_writer->finalize();
-		delete dump_writer;
-		dump_writer = nullptr;
+		reset();
 	}
 }
 

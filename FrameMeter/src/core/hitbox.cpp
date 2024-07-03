@@ -1,3 +1,8 @@
+#if UE_BUILD_TEST
+#include <format>
+#include <fstream>
+#endif
+
 #include "core/battle.h"
 #include "core/hitbox.h"
 
@@ -122,7 +127,7 @@ void HitboxViewer::update(const Battle *battle)
 			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
 			{
 				Box *box = (entity->hitboxes + box_index);
-				box_data[entity][box->type].add_box(entity_box_to_aabb(entity, box));
+				box_data[entity][HitboxType::HIT].add_box(entity_box_to_aabb(entity, box));
 			}
 		}
 
@@ -131,7 +136,7 @@ void HitboxViewer::update(const Battle *battle)
 			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
 			{
 				Box *box = (entity->hurtboxes + box_index);
-				box_data[entity][box->type].add_box(entity_box_to_aabb(entity, box));
+				box_data[entity][HitboxType::HURT].add_box(entity_box_to_aabb(entity, box));
 			}
 		}
 	}
@@ -176,3 +181,84 @@ std::vector<Hitbox> HitboxViewer::get_hitboxes() const
 
 	return hitboxes;
 }
+
+#if UE_BUILD_TEST
+static HitboxCapture *capture = nullptr;
+
+void HitboxCapture::begin_capture()
+{
+	reset();
+	capture = new HitboxCapture();
+}
+
+void HitboxCapture::update(const HitboxViewer &viewer, bool is_in_combat)
+{
+	if (!capture)
+	{
+		return;
+	}
+	if (is_in_combat)
+	{
+		capture->record_frame(viewer);
+	}
+	else if (capture->history.size() > 0)
+	{
+		capture->finalize();
+		reset();
+	}
+}
+
+void HitboxCapture::reset()
+{
+	if (capture)
+	{
+		delete capture;
+		capture = nullptr;
+	}
+}
+
+void HitboxCapture::record_frame(const HitboxViewer &viewer)
+{
+	CaptureFrame &frame = history.emplace_back();
+	for (const Hitbox &hitbox : viewer.get_hitboxes())
+	{
+		for (auto &line : hitbox.lines)
+		{
+			frame.push_back({hitbox.type, {line[0], line[1]}});
+		}
+	}
+}
+
+const char *serialize_hitbox_type(HitboxType type)
+{
+	switch (type)
+	{
+	case HitboxType::HURT:
+		return "hurt";
+	case HitboxType::HIT:
+	default:
+		return "hit";
+	}
+}
+
+void HitboxCapture::finalize()
+{
+	std::ofstream output;
+	output.open("capture.hitboxes");
+
+	int32_t frame_index = 1;
+	for (const CaptureFrame &frame : history)
+	{
+		output << std::format("# Frame {}\n", frame_index);
+		for (const auto &[type, segment] : frame)
+		{
+			const char *box_type = serialize_hitbox_type(type);
+			const Vec3 &from = segment[0];
+			const Vec3 &to = segment[1];
+			output << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
+		}
+		output << "\n";
+		frame_index++;
+	}
+}
+#endif

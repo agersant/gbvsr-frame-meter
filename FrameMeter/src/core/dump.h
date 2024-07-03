@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "core/battle.h"
-#include "core/meter.h"
 
 #if UE_BUILD_TEST
 
@@ -15,7 +14,7 @@ class DumpWriter
 public:
 	static void reset();
 	static void begin_dump();
-	static void update(const Battle *battle, const FrameMeter &frame_meter);
+	static void update(const Battle *battle, bool is_in_combat);
 
 private:
 	void dump_frame(const Battle *battle);

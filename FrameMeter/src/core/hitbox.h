@@ -33,6 +33,12 @@ TODO LIST
 🔲 Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U (whiff)
 */
 
+enum class HitboxType : uint8_t
+{
+	HURT,
+	HIT,
+};
+
 struct Multibox
 {
 	typedef std::array<Vec2, 2> Line;
@@ -48,14 +54,33 @@ private:
 
 struct Hitbox
 {
-	BoxType type;
+	HitboxType type;
 	std::vector<std::array<Vec3, 2>> lines;
 };
 
 struct HitboxViewer
 {
-	std::map<Entity *, std::map<BoxType, Multibox>> box_data;
+	std::map<Entity *, std::map<HitboxType, Multibox>> box_data;
 
 	void update(const Battle *battle);
 	std::vector<Hitbox> get_hitboxes() const;
 };
+
+#if UE_BUILD_TEST
+class HitboxCapture
+{
+	typedef std::pair<HitboxType, std::array<Vec3, 2>> Line;
+	typedef std::vector<Line> CaptureFrame;
+
+public:
+	static void begin_capture();
+	static void update(const HitboxViewer &viewer, bool is_in_combat);
+	static void reset();
+
+private:
+	std::vector<CaptureFrame> history;
+
+	void record_frame(const HitboxViewer &viewer);
+	void finalize();
+};
+#endif

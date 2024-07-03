@@ -78,6 +78,7 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 			if (just_pressed(VK_F8))
 			{
 				DumpWriter::begin_dump();
+				HitboxCapture::begin_capture();
 			}
 		}
 #endif
@@ -89,7 +90,8 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 		hitbox_viewer.update(game_state->battle);
 #if UE_BUILD_TEST
 		Debug::on_battle_update(game_state);
-		DumpWriter::update(game_state->battle, frame_meter);
+		HitboxCapture::update(hitbox_viewer, !frame_meter.is_at_rest());
+		DumpWriter::update(game_state->battle, !frame_meter.is_at_rest());
 #endif
 	}
 }
@@ -102,6 +104,7 @@ void reset_battle(Battle *battle, int32_t *param)
 #if UE_BUILD_TEST
 	Debug::on_battle_reset(battle);
 	DumpWriter::reset();
+	HitboxCapture::reset();
 #endif
 	frame_meter.reset();
 	frame_meter.continuous = is_replay_mode();

@@ -18,9 +18,9 @@ static const std::map<CharacterState, FLinearColor> palette = {
 	{CharacterState::ARMOR, FLinearColor::from_srgb(0x5C1E6E)},
 };
 
-static const std::map<BoxType, FLinearColor> hitbox_palette = {
-	{BoxType::HITBOX, FLinearColor::from_srgb(0xFF0000)},
-	{BoxType::HURTBOX, FLinearColor::from_srgb(0x00FF00)},
+static const std::map<HitboxType, FLinearColor> hitbox_palette = {
+	{HitboxType::HIT, FLinearColor::from_srgb(0xFF0000)},
+	{HitboxType::HURT, FLinearColor::from_srgb(0x00FF00)},
 };
 
 static const float bottom_margin = 140.f;
