@@ -2,6 +2,7 @@
 #include <codecvt>
 
 #include <map>
+#include <regex>
 
 #include "test/snapshot.h"
 
@@ -29,15 +30,15 @@ static const std::map<CharacterState, std::string> state_to_string = {
 	{CharacterState::ARMOR, "\x1B[38;5;54m■\x1B[0m "},
 };
 
-std::string Snapshot::string() const
+std::string Snapshot::get_meter_string() const
 {
 	std::string out;
 	for (int i = 0; i < 2; i++)
 	{
-		for (auto &frame : frames)
+		for (const SnapshotMeterFrame &frame : meter)
 		{
-			out += state_to_string.at(frame[i].state);
-			if (frame[i].highlight)
+			out += state_to_string.at(frame.players[i].state);
+			if (frame.players[i].highlight)
 			{
 				out += "]";
 			}
@@ -47,14 +48,57 @@ std::string Snapshot::string() const
 	return out;
 }
 
-Snapshot *Snapshot::read_from_disk(const std::filesystem::path &path)
+std::string Snapshot::diff_hitboxes_against_expected(const Snapshot &other) const
 {
-	Snapshot *snapshot = new Snapshot();
+	std::string out;
+	const std::vector<std::set<HitboxViewer::Line>> &actual = hitboxes;
+	const std::vector<std::set<HitboxViewer::Line>> &expected = other.hitboxes;
 
+	if (actual.size() != expected.size())
+	{
+		out += std::format("Expected {} frames but found {}.\n", other.hitboxes.size(), hitboxes.size());
+		return out;
+	}
+
+	for (int32_t i = 0; i < expected.size(); i++)
+	{
+		if (expected[i] == actual[i])
+		{
+			continue;
+		}
+
+		out += std::format("Frame #{}:", i + 1);
+
+		{
+			std::vector<HitboxViewer::Line> missing_lines;
+			std::set_difference(expected[i].begin(), expected[i].end(), actual[i].begin(), actual[i].end(), std::back_inserter(missing_lines));
+			if (missing_lines.size() > 0)
+			{
+				out += std::format(" {} missing lines.", missing_lines.size());
+			}
+		}
+
+		{
+			std::vector<HitboxViewer::Line> unexpected_lines;
+			std::set_difference(actual[i].begin(), actual[i].end(), expected[i].begin(), expected[i].end(), std::back_inserter(unexpected_lines));
+			if (unexpected_lines.size() > 0)
+			{
+				out += std::format(" {} unexpected lines.", unexpected_lines.size());
+			}
+		}
+
+		out += "\n";
+	}
+
+	return out;
+}
+
+bool Snapshot::read_meter(const std::filesystem::path &path)
+{
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		return snapshot;
+		return false;
 	}
 
 	int32_t frame = 0;
@@ -64,7 +108,7 @@ Snapshot *Snapshot::read_from_disk(const std::filesystem::path &path)
 	{
 		if (codepoint == U']' && frame > 0)
 		{
-			snapshot->frames[frame - 1][player].highlight = true;
+			meter[frame - 1].players[player].highlight = true;
 		}
 		if (codepoint == U'\n')
 		{
@@ -73,16 +117,49 @@ Snapshot *Snapshot::read_from_disk(const std::filesystem::path &path)
 		}
 		if (emoji_to_state.contains(codepoint))
 		{
-			if (snapshot->frames.size() <= frame)
+			if (meter.size() <= frame)
 			{
-				snapshot->frames.emplace_back();
+				meter.emplace_back();
 			}
-			snapshot->frames[frame][player].state = emoji_to_state.at(codepoint);
+			meter[frame].players[player].state = emoji_to_state.at(codepoint);
 			frame += 1;
 		}
 	}
 
-	return snapshot;
+	return true;
+}
+
+bool Snapshot::read_hitboxes(const std::filesystem::path &path)
+{
+	std::ifstream file(path);
+	if (!file.is_open())
+	{
+		return false;
+	}
+
+	const std::regex frame_header("# Frame \\d+");
+	const std::regex hitbox_line("(\\w+) \\((.*), (.*), (.*)\\) -> \\((.*), (.*), (.*)\\)");
+
+	for (std::string line; std::getline(file, line);)
+	{
+		std::smatch match;
+		if (std::regex_search(line, match, frame_header))
+		{
+			hitboxes.emplace_back();
+		}
+		else if (std::regex_search(line, match, hitbox_line))
+		{
+			if (!hitboxes.empty())
+			{
+				const HitboxType type = deserialize_hitbox_type(match[1]);
+				const Vec3 from = Vec3{std::stof(match[2]), std::stof(match[3]), std::stof(match[4])};
+				const Vec3 to = Vec3{std::stof(match[5]), std::stof(match[6]), std::stof(match[7])};
+				hitboxes.back().emplace(HitboxViewer::Line{type, {from, to}});
+			}
+		}
+	}
+
+	return true;
 }
 
 char32_t Snapshot::read_utf8_codepoint(std::ifstream &input)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <compare>
+
 struct Vec2
 {
 	float x = 0.f;
@@ -79,6 +81,8 @@ struct Vec3
 		lhs /= rhs;
 		return lhs;
 	}
+
+	auto operator<=>(const Vec3 &) const = default;
 };
 
 struct Camera

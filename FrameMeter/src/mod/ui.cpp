@@ -149,15 +149,12 @@ void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &view
 		return;
 	}
 
-	for (const Hitbox &hitbox : viewer.get_hitboxes())
+	for (const auto &[type, segment] : viewer.get_lines())
 	{
 		const float thickness = 2.f;
-		FLinearColor color = hitbox_palette.at(hitbox.type);
-		for (auto &line : hitbox.lines)
-		{
-			const Vec2 start = context.project(line[0]);
-			const Vec2 end = context.project(line[1]);
-			context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
-		}
+		FLinearColor color = hitbox_palette.at(type);
+		const Vec2 start = context.project(segment[0]);
+		const Vec2 end = context.project(segment[1]);
+		context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
 	}
 }

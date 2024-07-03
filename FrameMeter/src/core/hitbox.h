@@ -39,6 +39,10 @@ enum class HitboxType : uint8_t
 	HIT,
 };
 
+#if FRAME_METER_AUTOMATED_TESTS
+HitboxType deserialize_hitbox_type(const std::string &type);
+#endif
+
 struct Multibox
 {
 	typedef std::array<Vec2, 2> Line;
@@ -52,35 +56,28 @@ private:
 	std::vector<std::pair<AABB, std::vector<Line>>> boxes;
 };
 
-struct Hitbox
-{
-	HitboxType type;
-	std::vector<std::array<Vec3, 2>> lines;
-};
-
 struct HitboxViewer
 {
+	typedef std::pair<HitboxType, std::array<Vec3, 2>> Line;
+
 	std::map<Entity *, std::map<HitboxType, Multibox>> box_data;
 
 	void update(const Battle *battle);
-	std::vector<Hitbox> get_hitboxes() const;
+	std::vector<Line> get_lines() const;
 };
 
 #if UE_BUILD_TEST
 class HitboxCapture
 {
-	typedef std::pair<HitboxType, std::array<Vec3, 2>> Line;
-	typedef std::vector<Line> CaptureFrame;
-
 public:
 	static void begin_capture();
 	static void update(const HitboxViewer &viewer, bool is_in_combat);
 	static void reset();
 
 private:
-	std::vector<CaptureFrame> history;
-
 	void record_frame(const HitboxViewer &viewer);
 	void finalize();
+
+	std::vector<std::vector<HitboxViewer::Line>> frames;
 };
 #endif

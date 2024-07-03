@@ -5,25 +5,36 @@
 #include <fstream>
 #include <optional>
 #include <vector>
+#include <set>
 
+#include "core/hitbox.h"
 #include "core/meter.h"
 
-struct SnapshotFrame
+struct SnapshotMeterPlayer
 {
 	CharacterState state;
 	bool highlight;
 
-	bool operator==(SnapshotFrame const &) const = default;
+	bool operator==(SnapshotMeterPlayer const &) const = default;
+};
+
+struct SnapshotMeterFrame
+{
+	std::array<SnapshotMeterPlayer, 2> players;
+
+	bool operator==(SnapshotMeterFrame const &) const = default;
 };
 
 struct Snapshot
 {
-	static Snapshot *read_from_disk(const std::filesystem::path &path);
+	bool read_meter(const std::filesystem::path &path);
+	bool read_hitboxes(const std::filesystem::path &path);
 
-	std::string string() const;
-	bool operator==(Snapshot const &) const = default;
+	std::string get_meter_string() const;
+	std::string diff_hitboxes_against_expected(const Snapshot &other) const;
 
-	std::vector<std::array<SnapshotFrame, 2>> frames;
+	std::vector<SnapshotMeterFrame> meter;
+	std::vector<std::set<HitboxViewer::Line>> hitboxes;
 
 private:
 	static std::optional<CharacterState> state_from_codepoint(char32_t codepoint);

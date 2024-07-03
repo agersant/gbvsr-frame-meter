@@ -6,6 +6,14 @@
 #include "core/battle.h"
 #include "core/hitbox.h"
 
+#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
+#include <string>
+static const std::map<HitboxType, std::string> hitbox_type_to_string = {
+	{HitboxType::HURT, std::string("hurt")},
+	{HitboxType::HIT, std::string("hit")},
+};
+#endif
+
 void Multibox::add_box(const AABB &new_box)
 {
 	const Vec2 a = new_box[0];
@@ -160,27 +168,37 @@ Vec3 battle_to_ue_coords(const Vec2 &p)
 	};
 }
 
-std::vector<Hitbox> HitboxViewer::get_hitboxes() const
+std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 {
-	std::vector<Hitbox> hitboxes = {};
+	std::vector<Line> lines = {};
 
 	for (auto &[entity, multiboxes] : box_data)
 	{
 		for (auto &[box_type, multibox] : multiboxes)
 		{
-			Hitbox &hitbox = hitboxes.emplace_back(Hitbox{
-				.type = box_type,
-				.lines = {},
-			});
 			for (auto &line : multibox.get_lines())
 			{
-				hitbox.lines.push_back({battle_to_ue_coords(line[0]), battle_to_ue_coords(line[1])});
+				lines.push_back(Line{box_type, {battle_to_ue_coords(line[0]), battle_to_ue_coords(line[1])}});
 			}
 		}
 	}
 
-	return hitboxes;
+	return lines;
 }
+
+#if FRAME_METER_AUTOMATED_TESTS
+HitboxType deserialize_hitbox_type(const std::string &type)
+{
+	for (const auto &[k, v] : hitbox_type_to_string)
+	{
+		if (v == type)
+		{
+			return k;
+		}
+	}
+	return HitboxType::HIT;
+}
+#endif
 
 #if UE_BUILD_TEST
 static HitboxCapture *capture = nullptr;
@@ -201,7 +219,7 @@ void HitboxCapture::update(const HitboxViewer &viewer, bool is_in_combat)
 	{
 		capture->record_frame(viewer);
 	}
-	else if (capture->history.size() > 0)
+	else if (capture->frames.size() > 0)
 	{
 		capture->finalize();
 		reset();
@@ -219,26 +237,12 @@ void HitboxCapture::reset()
 
 void HitboxCapture::record_frame(const HitboxViewer &viewer)
 {
-	CaptureFrame &frame = history.emplace_back();
-	for (const Hitbox &hitbox : viewer.get_hitboxes())
-	{
-		for (auto &line : hitbox.lines)
-		{
-			frame.push_back({hitbox.type, {line[0], line[1]}});
-		}
-	}
+	frames.push_back(viewer.get_lines());
 }
 
-const char *serialize_hitbox_type(HitboxType type)
+const std::string &serialize_hitbox_type(HitboxType type)
 {
-	switch (type)
-	{
-	case HitboxType::HURT:
-		return "hurt";
-	case HitboxType::HIT:
-	default:
-		return "hit";
-	}
+	return hitbox_type_to_string.at(type);
 }
 
 void HitboxCapture::finalize()
@@ -247,12 +251,12 @@ void HitboxCapture::finalize()
 	output.open("capture.hitboxes");
 
 	int32_t frame_index = 1;
-	for (const CaptureFrame &frame : history)
+	for (const auto &frame : frames)
 	{
 		output << std::format("# Frame {}\n", frame_index);
 		for (const auto &[type, segment] : frame)
 		{
-			const char *box_type = serialize_hitbox_type(type);
+			const std::string &box_type = serialize_hitbox_type(type);
 			const Vec3 &from = segment[0];
 			const Vec3 &to = segment[1];
 			output << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
