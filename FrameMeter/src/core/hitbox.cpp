@@ -126,18 +126,21 @@ void HitboxViewer::update(const Battle *battle)
 			}
 		}
 
-		for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
+		if (!entity->is_strike_invincible() && !entity->on_the_floor)
 		{
-			Box *box = (entity->hurtboxes + box_index);
-			box_data[entity][box->type].add_box(entity_box_to_aabb(entity, box));
-		}
-
-		if (box_data.contains(entity))
-		{
-			for (auto &[box_type, multibox] : box_data[entity])
+			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
 			{
-				multibox.clip();
+				Box *box = (entity->hurtboxes + box_index);
+				box_data[entity][box->type].add_box(entity_box_to_aabb(entity, box));
 			}
+		}
+	}
+
+	for (auto &[entity, multiboxes] : box_data)
+	{
+		for (auto &[box_type, multibox] : multiboxes)
+		{
+			multibox.clip();
 		}
 	}
 }

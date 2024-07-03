@@ -20,7 +20,7 @@ TODO LIST
 ✅ Disable during cinematic camera
 ✅ Add on/off keybind
 ✅ Box merging
-🔲 Hide hurtboxes while invuln
+✅ Hide hurtboxes while invulnerable
 🔲 Throw box support?
 🔲 Pushbox support?
 ✅ Investigate pitch -1 multiplier

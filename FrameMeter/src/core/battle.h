@@ -161,6 +161,12 @@ enum class AttackType : int32_t
 	Super,
 };
 
+enum class HitHandlerType : int32_t
+{
+	Ignore,
+	Parry,
+};
+
 struct AttackParameters
 {
 	FIELD(0x0, AttackType, attack_type);
@@ -205,6 +211,7 @@ struct Entity
 	BIT_FIELD(0x3BC, 0x00000040, full_invincible); // except crossups
 	BIT_FIELD(0x3C0, 0x00080000, attacking);
 	BIT_FIELD(0x3C0, 0x00000100, active_frames);
+	BIT_FIELD(0x3C0, 0x00000400, on_the_floor);
 	BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
 	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
 	FIELD(0x3CC, bool, facing_left);
@@ -215,6 +222,7 @@ struct Entity
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
 	FIELD(0x7A0, AttackParameters, attack_parameters);
 	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
+	FIELD(0xEAC, HitHandlerType, hit_handler_type);
 	FIELD(0xF08, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
 	ARRAY_FIELD(0x3EE0, char[20], action_name);
 
@@ -222,6 +230,8 @@ struct Entity
 	int32_t get_position_y() const;
 	bool is_active() const;
 	bool has_armor() const;
+	bool is_any_invincible() const;
+	bool is_strike_invincible() const;
 
 private:
 	char pad[0xD110];
@@ -241,7 +251,6 @@ struct Character : public Entity
 	bool is_idle() const;
 	bool is_counterable() const;
 	bool is_recovering() const;
-	bool is_invincible() const;
 	bool is_in_blockstun() const;
 	bool is_in_hitstun() const;
 	bool is_maneuvering() const;
