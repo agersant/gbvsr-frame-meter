@@ -1,5 +1,7 @@
 #pragma once
 
+#include <array>
+#include <map>
 #include <vector>
 
 #include "core/battle.h"
@@ -17,7 +19,7 @@ TODO LIST
 ✅ Hurtboxes support w/ color distinction
 ✅ Disable during cinematic camera
 ✅ Add on/off keybind
-🔲 Box merging
+✅ Box merging
 🔲 Hide hurtboxes while invuln
 ✅ Charlotta 5U box?
 🔲 Throw box support?
@@ -30,20 +32,29 @@ TODO LIST
 🔲 Setup tests, including Zeta 4S, Charlotta 5U and Katalina 2S+U
 */
 
+struct Multibox
+{
+	typedef std::array<Vec2, 2> Line;
+	typedef std::array<Vec2, 2> AABB;
+
+	void add_box(const AABB &new_box);
+	void clip();
+	std::vector<Line> get_lines() const;
+
+private:
+	std::vector<std::pair<AABB, std::vector<Line>>> boxes;
+};
+
 struct Hitbox
 {
 	BoxType type;
-	Vec3 top_left;
-	Vec3 top_right;
-	Vec3 bottom_left;
-	Vec3 bottom_right;
-
-	Hitbox(const Entity *entity, const Box *box);
+	std::vector<std::array<Vec3, 2>> lines;
 };
 
 struct HitboxViewer
 {
-	std::vector<Hitbox> hitboxes;
+	std::map<Entity *, std::map<BoxType, Multibox>> box_data;
 
 	void update(const Battle *battle);
+	std::vector<Hitbox> get_hitboxes() const;
 };

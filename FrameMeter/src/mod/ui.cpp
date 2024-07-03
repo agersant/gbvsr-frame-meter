@@ -149,19 +149,15 @@ void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &view
 		return;
 	}
 
-	for (const Hitbox &hitbox : viewer.hitboxes)
+	for (const Hitbox &hitbox : viewer.get_hitboxes())
 	{
 		const float thickness = 2.f;
 		FLinearColor color = hitbox_palette.at(hitbox.type);
-
-		const Vec2 top_left = context.project(hitbox.top_left);
-		const Vec2 top_right = context.project(hitbox.top_right);
-		const Vec2 bottom_left = context.project(hitbox.bottom_left);
-		const Vec2 bottom_right = context.project(hitbox.bottom_right);
-
-		context.draw_line(color, top_left.x, top_left.y, top_right.x, top_right.y, thickness);
-		context.draw_line(color, top_right.x, top_right.y, bottom_right.x, bottom_right.y, thickness);
-		context.draw_line(color, bottom_right.x, bottom_right.y, bottom_left.x, bottom_left.y, thickness);
-		context.draw_line(color, bottom_left.x, bottom_left.y, top_left.x, top_left.y, thickness);
+		for (auto &line : hitbox.lines)
+		{
+			const Vec2 start = context.project(line[0]);
+			const Vec2 end = context.project(line[1]);
+			context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
+		}
 	}
 }
