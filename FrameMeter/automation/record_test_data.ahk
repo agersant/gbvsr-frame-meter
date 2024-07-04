@@ -1,6 +1,8 @@
 #SingleInstance Force
 SetWorkingDir A_WorkingDir "\..\.."
 
+Esc:: ExitApp
+
 #include "capture.ahk"
 #include "dummy.ahk"
 #include "tests.ahk"
