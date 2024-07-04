@@ -1,13 +1,11 @@
-#if UE_BUILD_TEST
 #include <format>
 #include <fstream>
-#endif
+#include <string>
 
 #include "core/battle.h"
 #include "core/hitbox.h"
 
 #if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
-#include <string>
 static const std::map<HitboxType, std::string> hitbox_type_to_string = {
 	{HitboxType::HURT, std::string("hurt")},
 	{HitboxType::HIT, std::string("hit")},

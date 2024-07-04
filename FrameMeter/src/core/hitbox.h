@@ -3,6 +3,7 @@
 #include <array>
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 #include "core/battle.h"
@@ -68,7 +69,7 @@ struct HitboxViewer
 	std::vector<Line> get_lines() const;
 };
 
-#if UE_BUILD_TEST
+#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
 class HitboxCapture
 {
 public:
