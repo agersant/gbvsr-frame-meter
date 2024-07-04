@@ -26,7 +26,7 @@ input_previous_tab() {
     global current_menu_tab_index
     global current_menu_entry_index
 
-    sendevent "{O}"
+    SendEvent "{O}"
     current_menu_tab_index--
     current_menu_entry_index := 1
 }
@@ -35,7 +35,7 @@ input_next_tab() {
     global current_menu_tab_index
     global current_menu_entry_index
 
-    sendevent "{P}"
+    SendEvent "{P}"
     current_menu_tab_index++
     current_menu_entry_index := 1
 }
@@ -43,19 +43,19 @@ input_next_tab() {
 input_previous_entry() {
     global current_menu_entry_index
 
-    sendevent "{W}"
+    SendEvent "{W}"
     current_menu_entry_index--
 }
 
 input_next_entry() {
     global current_menu_entry_index
 
-    sendevent "{S}"
+    SendEvent "{S}"
     current_menu_entry_index++
 }
 
 browse_to_menu(tab_name, entry) {
-    sendevent "{Tab}"
+    SendEvent "{Tab}"
 
     sleep 200
 
@@ -83,5 +83,5 @@ browse_to_menu(tab_name, entry) {
 }
 
 close_menu() {
-    sendevent "{Tab}"
+    SendEvent "{Tab}"
 }

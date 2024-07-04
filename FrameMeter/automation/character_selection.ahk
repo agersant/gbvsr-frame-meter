@@ -27,37 +27,37 @@ select_character(character_name) {
     }
 
     browse_to_menu("quick_menu", "character_1p")
-    sendevent "{Enter}"
-    sleep 200
+    SendEvent "{Enter}"
+    Sleep 200
 
     from := character_to_grid_position(current_character)
     to := character_to_grid_position(character_name)
 
     while from[1] < to[1] {
         from[1]++
-        sendevent "{D}"
+        SendEvent "{D}"
     }
 
     while from[1] > to[1] {
         from[1]--
-        sendevent "{A}"
+        SendEvent "{A}"
     }
 
     while from[2] < to[2] {
         from[2]++
-        sendevent "{S}"
+        SendEvent "{S}"
     }
 
     while from[2] > to[2] {
         from[2]--
-        sendevent "{W}"
+        SendEvent "{W}"
     }
 
-    sendevent "{Enter}"
-    sleep 300
+    SendEvent "{Enter}"
+    Sleep 300
 
     close_menu()
-    sleep 5000
+    Sleep 5000
 
     current_character := character_name
 }
