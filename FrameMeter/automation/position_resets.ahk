@@ -1,14 +1,20 @@
 reset_to_midscreen() {
-    sendevent "{S down}{1}{S up}"
+    send "{S down}{1 down}"
+    sleep 40
+    send "{S up}{1 up}"
     sleep 1000
 }
 
 reset_to_left_corner() {
-    sendevent "{A down}{1}{A up}"
+    send "{A down}{1 down}"
+    sleep 40
+    send "{A up}{1 up}"
     sleep 1000
 }
 
 reset_to_right_corner() {
-    sendevent "{D down}{1}{D up}"
+    send "{D down}{1 down}"
+    sleep 40
+    send "{D up}{1 up}"
     sleep 1000
 }
