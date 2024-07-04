@@ -30,7 +30,8 @@ TODO LIST
 🚧 Support Katalina 2S+U
 🚧 Support Zeta S
 🚧 Fine-tune logic on which hitboxes get collected
-🔲 Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U (whiff)
+🚧 Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U (whiff)
+🔲 Automate test suite recording
 */
 
 enum class HitboxType : uint8_t
