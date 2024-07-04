@@ -1,4 +1,4 @@
-#include "menu_usage.ahk"
+#include "menu.ahk"
 #include "utils.ahk"
 
 dummy_blocking_options := ["does_not_block", "block_all", "after_initial_hit", "initial_hit_only", "hold_guard", "random"]

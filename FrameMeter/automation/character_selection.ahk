@@ -1,4 +1,4 @@
-#include "menu_usage.ahk"
+#include "menu.ahk"
 #include "utils.ahk"
 
 character_list := [
