@@ -4,8 +4,12 @@
 #include "character_selection.ahk"
 #include "moves.ahk"
 
-SetKeyDelay 20, 20
+SetKeyDelay 50, 50
+
 WinActivate "Granblue Fantasy Versus: Rising"
+if !WinActive("Granblue Fantasy Versus: Rising") {
+    Exit
+}
 
 begin_capture()
 {
