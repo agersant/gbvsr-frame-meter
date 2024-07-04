@@ -24,6 +24,8 @@ set_dummy_blocking(value) {
 		return
 	}
 
+	browse_to_menu("opponent", "blocking")
+
 	from := get_array_index(dummy_blocking_options, dummy_blocking_current)
 	if from == -1 {
 		throw Error("Unknown block option: " dummy_blocking_current)
@@ -43,6 +45,8 @@ set_dummy_blocking(value) {
 		from--
 		SendEvent "{A}"
 	}
+
+	close_menu()
 
 	dummy_blocking_current := value
 }
