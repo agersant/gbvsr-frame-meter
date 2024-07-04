@@ -2,9 +2,7 @@
 SetWorkingDir A_WorkingDir "\..\.."
 
 #include "capture.ahk"
-#include "character_selection.ahk"
-#include "moves.ahk"
-#include "position_resets.ahk"
+#include "dummy.ahk"
 #include "tests.ahk"
 
 SetKeyDelay 50, 50
@@ -16,4 +14,5 @@ if !WinActive("Granblue Fantasy Versus: Rising") {
 }
 
 clean_artifacts()
+reset_dummy_settings()
 charlotta_6u_guard()

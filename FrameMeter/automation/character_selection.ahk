@@ -1,22 +1,20 @@
 #include "menu_usage.ahk"
+#include "utils.ahk"
 
 character_list := [
-"gran", "djeeta", "katalina", "charlotta", "lancelot", "percival", "ladiva", "metera",
-"lowain", "ferry", "zeta", "vaseraga", "narmaya", "soriz", "zooey", "cagliostro",
-"yuel", "beelzebub", "belial", "avatar_belial", "lucilius", "2b", "vane", "beatrix"
+    "gran", "djeeta", "katalina", "charlotta", "lancelot", "percival", "ladiva", "metera",
+    "lowain", "ferry", "zeta", "vaseraga", "narmaya", "soriz", "zooey", "cagliostro",
+    "yuel", "beelzebub", "belial", "avatar_belial", "lucilius", "2b", "vane", "beatrix"
 ]
 
 current_character := "gran"
 
 character_to_grid_position(character_name) {
     row_width := 8
-    for index, name in character_list {
-        if name == character_name {
-            x := Mod(index - 1, row_width)
-            y := (index - 1) // row_width
-            return [x, y]
-        }
-    }
+    index := get_array_index(character_list, character_name)
+    x := Mod(index - 1, row_width)
+    y := (index - 1) // row_width
+    return [x, y]
 }
 
 select_character(character_name) {
