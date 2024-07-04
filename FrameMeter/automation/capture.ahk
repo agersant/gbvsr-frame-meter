@@ -28,13 +28,13 @@ wait_for_file(name) {
 }
 
 move_file_with_retries(from, to) {
-    Loop {
-        Try FileMove(from, to)
-        Catch Error {
+    loop {
+        try FileMove(from, to)
+        catch Error {
             Sleep 100
-            Continue
+            continue
         }
-        Break
+        break
     }
 }
 
