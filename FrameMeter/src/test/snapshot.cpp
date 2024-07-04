@@ -51,18 +51,18 @@ std::string Snapshot::get_meter_string() const
 std::string Snapshot::diff_hitboxes_against_expected(const Snapshot &other) const
 {
 	std::string out;
-	const std::vector<std::set<HitboxViewer::Line>> &actual = hitboxes;
-	const std::vector<std::set<HitboxViewer::Line>> &expected = other.hitboxes;
+	const HitboxCapture &actual = hitboxes;
+	const HitboxCapture &expected = other.hitboxes;
 
-	if (actual.size() != expected.size())
+	if (actual.frames.size() != expected.frames.size())
 	{
-		out += std::format("Expected {} frames but found {}.\n", other.hitboxes.size(), hitboxes.size());
+		out += std::format("Expected {} frames but found {}.\n", other.hitboxes.frames.size(), hitboxes.frames.size());
 		return out;
 	}
 
-	for (int32_t i = 0; i < expected.size(); i++)
+	for (int32_t i = 0; i < expected.frames.size(); i++)
 	{
-		if (expected[i] == actual[i])
+		if (expected.frames[i] == actual.frames[i])
 		{
 			continue;
 		}
@@ -71,7 +71,7 @@ std::string Snapshot::diff_hitboxes_against_expected(const Snapshot &other) cons
 
 		{
 			std::vector<HitboxViewer::Line> missing_lines;
-			std::set_difference(expected[i].begin(), expected[i].end(), actual[i].begin(), actual[i].end(), std::back_inserter(missing_lines));
+			std::set_difference(expected.frames[i].begin(), expected.frames[i].end(), actual.frames[i].begin(), actual.frames[i].end(), std::back_inserter(missing_lines));
 			if (missing_lines.size() > 0)
 			{
 				out += std::format(" {} missing lines.", missing_lines.size());
@@ -80,7 +80,7 @@ std::string Snapshot::diff_hitboxes_against_expected(const Snapshot &other) cons
 
 		{
 			std::vector<HitboxViewer::Line> unexpected_lines;
-			std::set_difference(actual[i].begin(), actual[i].end(), expected[i].begin(), expected[i].end(), std::back_inserter(unexpected_lines));
+			std::set_difference(actual.frames[i].begin(), actual.frames[i].end(), expected.frames[i].begin(), expected.frames[i].end(), std::back_inserter(unexpected_lines));
 			if (unexpected_lines.size() > 0)
 			{
 				out += std::format(" {} unexpected lines.", unexpected_lines.size());
@@ -145,16 +145,16 @@ bool Snapshot::read_hitboxes(const std::filesystem::path &path)
 		std::smatch match;
 		if (std::regex_search(line, match, frame_header))
 		{
-			hitboxes.emplace_back();
+			hitboxes.frames.emplace_back();
 		}
 		else if (std::regex_search(line, match, hitbox_line))
 		{
-			if (!hitboxes.empty())
+			if (!hitboxes.frames.empty())
 			{
 				const HitboxType type = deserialize_hitbox_type(match[1]);
 				const Vec3 from = Vec3{std::stof(match[2]), std::stof(match[3]), std::stof(match[4])};
 				const Vec3 to = Vec3{std::stof(match[5]), std::stof(match[6]), std::stof(match[7])};
-				hitboxes.back().emplace(HitboxViewer::Line{type, {from, to}});
+				hitboxes.frames.back().emplace(HitboxViewer::Line{type, {from, to}});
 			}
 		}
 	}

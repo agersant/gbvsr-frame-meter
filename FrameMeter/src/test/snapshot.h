@@ -34,7 +34,7 @@ struct Snapshot
 	std::string diff_hitboxes_against_expected(const Snapshot &other) const;
 
 	std::vector<SnapshotMeterFrame> meter;
-	std::vector<std::set<HitboxViewer::Line>> hitboxes;
+	HitboxCapture hitboxes;
 
 private:
 	static std::optional<CharacterState> state_from_codepoint(char32_t codepoint);

@@ -63,7 +63,7 @@ bool run_test(const fs::path &test_file)
 
 		hitbox_viewer.update(&dump->frames[i]);
 		const std::vector<HitboxViewer::Line> lines = hitbox_viewer.get_lines();
-		actual.hitboxes.emplace_back(lines.begin(), lines.end());
+		actual.hitboxes.frames.emplace_back(lines.begin(), lines.end());
 	}
 
 	if (actual.meter != expected.meter)

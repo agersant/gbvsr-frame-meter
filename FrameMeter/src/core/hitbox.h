@@ -2,6 +2,7 @@
 
 #include <array>
 #include <map>
+#include <set>
 #include <vector>
 
 #include "core/battle.h"
@@ -75,10 +76,12 @@ public:
 	static void update(const HitboxViewer &viewer, bool is_in_combat);
 	static void reset();
 
+	bool operator==(HitboxCapture const &) const = default;
+
+	std::vector<std::set<HitboxViewer::Line>> frames;
+
 private:
 	void record_frame(const HitboxViewer &viewer);
 	void finalize();
-
-	std::vector<std::vector<HitboxViewer::Line>> frames;
 };
 #endif

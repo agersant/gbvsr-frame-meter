@@ -237,7 +237,8 @@ void HitboxCapture::reset()
 
 void HitboxCapture::record_frame(const HitboxViewer &viewer)
 {
-	frames.push_back(viewer.get_lines());
+	const std::vector<HitboxViewer::Line> lines = viewer.get_lines();
+	frames.emplace_back(lines.begin(), lines.end());
 }
 
 const std::string &serialize_hitbox_type(HitboxType type)
