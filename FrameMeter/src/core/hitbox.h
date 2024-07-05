@@ -25,7 +25,7 @@ TODO LIST
 ✅ Box merging
 ✅ Hide hurtboxes while invulnerable
 🔲 Throw box support?
-🔲 Pushbox support?
+✅ Pushbox support?
 ✅ Investigate pitch -1 multiplier
 ✅ Test Charlotta 5U box
 ✅ Support Cag traps
