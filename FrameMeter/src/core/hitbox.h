@@ -30,11 +30,11 @@ TODO LIST
 ✅ Test Charlotta 5U box
 ✅ Support Cag traps
 ✅ Support Nier puppet
-🚧 Support Katalina 2S+U
-🚧 Support Zeta S
-🚧 Fine-tune logic on which hitboxes get collected
-🚧 Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U (whiff)
-🔲 Automate test suite recording
+✅ Support Katalina 2S+U
+✅ Support Zeta S
+✅ Fine-tune logic on which hitboxes get collected
+✅ Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U
+✅ Automate test suite recording
 */
 
 enum class HitboxType : uint8_t
@@ -68,6 +68,9 @@ struct HitboxViewer
 
 	bool update(const Battle *battle);
 	std::vector<Line> get_lines() const;
+
+private:
+	void add_entity(const Battle *battle, Entity *entity, bool is_active);
 };
 
 #if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS

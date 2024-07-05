@@ -6,6 +6,8 @@
 #include "core/battle.h"
 #include "core/hitbox.h"
 
+const float BATTLE_TO_UE_SCALE = 0.00043f;
+
 #if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
 static const std::map<HitboxType, std::string> hitbox_type_to_string = {
 	{HitboxType::HURT, std::string("hurt")},
@@ -126,26 +128,7 @@ bool HitboxViewer::update(const Battle *battle)
 	for (int32_t entity_index = 0; entity_index < battle->num_entities; entity_index++)
 	{
 		Entity *entity = battle->entities[entity_index];
-
-		const bool is_active = entity->is_active();
-		const bool is_parent_active = entity->attach_parent && entity->attach_parent->is_active();
-		if (is_active || is_parent_active)
-		{
-			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
-			{
-				Box *box = (entity->hitboxes + box_index);
-				box_data[entity][HitboxType::HIT].add_box(entity_box_to_aabb(entity, box));
-			}
-		}
-
-		if (!entity->is_strike_invincible() && !entity->on_the_floor)
-		{
-			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
-			{
-				Box *box = (entity->hurtboxes + box_index);
-				box_data[entity][HitboxType::HURT].add_box(entity_box_to_aabb(entity, box));
-			}
-		}
+		add_entity(battle, entity, entity->is_active());
 	}
 
 	for (auto &[entity, multiboxes] : box_data)
@@ -159,19 +142,49 @@ bool HitboxViewer::update(const Battle *battle)
 	return true;
 }
 
-Vec3 battle_to_ue_coords(const Vec2 &p)
+void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_active)
 {
-	const float BATTLE_TO_UE_SCALE = 0.00043f;
-	return {
-		.x = BATTLE_TO_UE_SCALE * p.x,
-		.y = 0.f,
-		.z = BATTLE_TO_UE_SCALE * p.y,
-	};
+	is_active |= entity->is_active();
+
+	if (is_active && !box_data[entity].contains(HitboxType::HIT))
+	{
+		for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
+		{
+			Box *box = (entity->hitboxes + box_index);
+			box_data[entity][HitboxType::HIT].add_box(entity_box_to_aabb(entity, box));
+		}
+	}
+
+	if (!box_data[entity].contains(HitboxType::HURT))
+	{
+		if (!entity->is_strike_invincible() && !entity->on_the_floor)
+		{
+			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
+			{
+				Box *box = (entity->hurtboxes + box_index);
+				box_data[entity][HitboxType::HURT].add_box(entity_box_to_aabb(entity, box));
+			}
+		}
+	}
+
+	if (entity->attached && battle->is_entity_valid(entity->attached))
+	{
+		add_entity(battle, entity->attached, is_active);
+	}
 }
 
 std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 {
 	std::vector<Line> lines = {};
+
+	auto battle_to_ue_coords = [](const Vec2 &p) -> Vec3
+	{
+		return {
+			.x = BATTLE_TO_UE_SCALE * p.x,
+			.y = 0.f,
+			.z = BATTLE_TO_UE_SCALE * p.y,
+		};
+	};
 
 	for (auto &[entity, multiboxes] : box_data)
 	{

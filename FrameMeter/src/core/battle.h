@@ -127,6 +127,7 @@ public:
 	ARRAY_FIELD(0x14C0, struct Entity *[MAX_ENTITIES], entities);
 
 	bool is_freeze_frame() const;
+	bool is_entity_valid(Entity *entity) const;
 };
 
 struct FrameInfo

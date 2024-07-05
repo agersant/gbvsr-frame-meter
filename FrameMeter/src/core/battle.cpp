@@ -25,6 +25,18 @@ bool Battle::is_freeze_frame() const
 	return is_cinematic_freeze || is_slowdown_bonus_frame || (is_p1_hitstop && is_p2_hitstop);
 }
 
+bool Battle::is_entity_valid(Entity *entity) const
+{
+	for (int32_t i = 0; i < num_entities; i++)
+	{
+		if (entities[i] == entity)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 int32_t Entity::get_position_x() const
 {
 	int32_t position = offfset_x;

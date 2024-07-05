@@ -124,9 +124,10 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::RECOVERY;
 	}
 
-	const bool character_has_active_hitbox = character->is_active() && character->num_hitboxes > 0;
-	const bool attached_has_active_hitbox = character->attached && (character->is_active() || character->attached->is_active()) && character->attached->num_hitboxes > 0;
-	if (character->attacking && (character_has_active_hitbox || attached_has_active_hitbox))
+	const bool is_active = character->is_active();
+	const bool has_hitbox = character->num_hitboxes > 0;
+	const bool attached_has_hitbox = character->attached && character->attached->num_hitboxes > 0;
+	if (character->attacking && is_active && (has_hitbox || attached_has_hitbox))
 	{
 		return CharacterState::ACTIVE_HITBOX;
 	}
