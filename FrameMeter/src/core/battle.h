@@ -175,7 +175,7 @@ struct AttackParameters
 	FIELD(0x10, int32_t, flags_1); // APFLG
 	FIELD(0x14, int32_t, flags_2); // APFLG2
 	BIT_FIELD(0x14, 0x04, is_grab_cinematic);
-	BIT_FIELD(0x14, 0x80, is_grab);
+	BIT_FIELD(0x14, 0x8000, is_grab);
 	FIELD(0x18, int32_t, flags_3); // APFLG3
 	BIT_FIELD(0x18, 0x10, opponent_must_be_grounded);
 	BIT_FIELD(0x18, 0x20, opponent_must_be_airborne);

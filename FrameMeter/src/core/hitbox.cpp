@@ -139,12 +139,15 @@ void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_acti
 {
 	is_active |= entity->is_active();
 
-	if (is_active && !box_data[entity].contains(HitboxType::HIT))
+	const bool collected_strike_boxes = box_data[entity].contains(HitboxType::STRIKE);
+	const bool collected_grab_boxes = box_data[entity].contains(HitboxType::GRAB);
+	if (is_active && !collected_strike_boxes && !collected_grab_boxes)
 	{
+		const HitboxType type = entity->attack_parameters.is_grab ? HitboxType::GRAB : HitboxType::STRIKE;
 		for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
 		{
 			Box *box = (entity->hitboxes + box_index);
-			box_data[entity][HitboxType::HIT].add_box(entity_box_to_aabb(entity, box));
+			box_data[entity][type].add_box(entity_box_to_aabb(entity, box));
 		}
 	}
 
@@ -207,9 +210,10 @@ std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 static const std::map<HitboxType, std::string> hitbox_type_to_string = {
 	{HitboxType::PUSH, std::string("push")},
 	{HitboxType::HURT, std::string("hurt")},
-	{HitboxType::HIT, std::string("hit")},
+	{HitboxType::STRIKE, std::string("strike")},
+	{HitboxType::GRAB, std::string("grab")},
 };
-static_assert((int32_t)HitboxType::COUNT == 3, "Update hitbox serialization");
+static_assert((int32_t)HitboxType::COUNT == 4, "Update hitbox serialization");
 
 static HitboxCapture *capture = nullptr;
 
@@ -265,7 +269,7 @@ HitboxType deserialize_hitbox_type(const std::string &type)
 			return k;
 		}
 	}
-	return HitboxType::HIT;
+	return HitboxType::STRIKE;
 }
 
 void HitboxCapture::serialize(std::ostream &stream) const

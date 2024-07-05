@@ -24,8 +24,10 @@ TODO LIST
 ✅ Add on/off keybind
 ✅ Box merging
 ✅ Hide hurtboxes while invulnerable
-🔲 Throw box support?
-✅ Pushbox support?
+🚧 Command grab support
+🚧 Throw support
+✅ Pushbox support
+🔲 Fix pushboxes lagging by one frame
 ✅ Investigate pitch -1 multiplier
 ✅ Test Charlotta 5U box
 ✅ Support Cag traps
@@ -41,7 +43,8 @@ enum class HitboxType : uint8_t
 {
 	PUSH,
 	HURT,
-	HIT,
+	STRIKE,
+	GRAB,
 	COUNT,
 };
 
