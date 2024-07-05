@@ -1,7 +1,9 @@
 #pragma once
 
 #include <array>
+#include <iostream>
 #include <optional>
+#include <vector>
 
 #include "core/battle.h"
 
@@ -66,3 +68,44 @@ private:
 	static CharacterState get_character_state(const Battle *battle, Character *character);
 	std::optional<int32_t> compute_advantage() const;
 };
+
+#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
+struct FrameMeterCapturePlayer
+{
+	CharacterState state;
+	bool highlight;
+
+	bool operator==(FrameMeterCapturePlayer const &) const = default;
+};
+
+struct FrameMeterCaptureFrame
+{
+	std::array<FrameMeterCapturePlayer, 2> players;
+
+	bool operator==(FrameMeterCaptureFrame const &) const = default;
+};
+
+struct FrameMeterCapture
+{
+
+public:
+	static void begin_capture();
+	static void update(const FrameMeter &viewer, bool is_in_combat);
+	static void reset();
+
+	void serialize(std::ostream &stream) const;
+	static FrameMeterCapture deserialize(std::istream &stream);
+
+	bool operator==(FrameMeterCapture const &) const = default;
+
+	std::vector<FrameMeterCaptureFrame> frames;
+
+private:
+	void record_frame(const FrameMeter &viewer);
+	void write_to_disk() const;
+};
+
+// For console printing
+std::ostream &operator<<(std::ostream &stream, const FrameMeterCapture &capture);
+
+#endif

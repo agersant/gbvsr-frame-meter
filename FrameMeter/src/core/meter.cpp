@@ -1,4 +1,11 @@
+#define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
+#include <codecvt>
+
 #include <cassert>
+#include <format>
+#include <fstream>
+#include <locale>
+#include <map>
 
 #include "core/meter.h"
 
@@ -228,3 +235,197 @@ void Page::commit_span()
 		frames[i].span_length = 1 + last - first;
 	}
 }
+
+#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
+
+static const std::map<char32_t, CharacterState> emoji_to_state = {
+	{0x02B1B /*⬛*/, CharacterState::IDLE},
+	{0x02B1C /*⬜*/, CharacterState::INVINCIBLE},
+	{0x1F537 /*🔷*/, CharacterState::MOVEMENT},
+	{0x1F7E5 /*🟥*/, CharacterState::ACTIVE_HITBOX},
+	{0x1F7E6 /*🟦*/, CharacterState::RECOVERY},
+	{0x1F7E7 /*🟧*/, CharacterState::PROJECTILE},
+	{0x1F7E8 /*🟨*/, CharacterState::STUN},
+	{0x1F7E9 /*🟩*/, CharacterState::COUNTER},
+	{0x1F7EA /*🟪*/, CharacterState::ARMOR},
+};
+
+static const std::map<CharacterState, std::string> state_to_console_string = {
+	{CharacterState::IDLE, "\x1B[38;5;234m■\x1B[0m "},
+	{CharacterState::INVINCIBLE, "\x1B[38;5;252m■\x1B[0m "},
+	{CharacterState::MOVEMENT, "\x1B[38;5;44m■\x1B[0m "},
+	{CharacterState::ACTIVE_HITBOX, "\x1B[38;5;160m■\x1B[0m "},
+	{CharacterState::RECOVERY, "\x1B[38;5;26m■\x1B[0m "},
+	{CharacterState::PROJECTILE, "\x1B[38;5;172m■\x1B[0m "},
+	{CharacterState::STUN, "\x1B[38;5;220m■\x1B[0m "},
+	{CharacterState::COUNTER, "\x1B[38;5;35m■\x1B[0m "},
+	{CharacterState::ARMOR, "\x1B[38;5;54m■\x1B[0m "},
+};
+
+static FrameMeterCapture *capture = nullptr;
+
+void FrameMeterCapture::begin_capture()
+{
+	reset();
+	capture = new FrameMeterCapture();
+}
+
+void FrameMeterCapture::update(const FrameMeter &meter, bool is_in_combat)
+{
+	if (!capture)
+	{
+		return;
+	}
+	if (is_in_combat)
+	{
+		capture->record_frame(meter);
+	}
+	else if (capture->frames.size() > 0)
+	{
+		capture->write_to_disk();
+		reset();
+	}
+}
+
+void FrameMeterCapture::reset()
+{
+	if (capture)
+	{
+		delete capture;
+		capture = nullptr;
+	}
+}
+
+void FrameMeterCapture::record_frame(const FrameMeter &meter)
+{
+	const auto capture_player = [](const Player &player) -> FrameMeterCapturePlayer
+	{
+		const Frame &frame = player.current_page.frames[player.current_page.num_frames - 1];
+		return FrameMeterCapturePlayer{
+			.state = frame.state,
+			.highlight = frame.highlight,
+		};
+	};
+	FrameMeterCapturePlayer p1 = capture_player(meter.players[0]);
+	FrameMeterCapturePlayer p2 = capture_player(meter.players[1]);
+	frames.emplace_back(FrameMeterCaptureFrame{p1, p2});
+}
+
+char32_t read_utf8_codepoint(std::istream &input)
+{
+	const char8_t c1 = input.get();
+	if (c1 < 0b10000000U)
+	{
+		return c1;
+	}
+	else if (c1 < 0b11100000U)
+	{
+		const char8_t c2 = input.get();
+		return (c1 & 0b00011111U) << 6U |
+			   (c2 & 0b00111111U);
+	}
+	else if (c1 < 0b11110000U)
+	{
+		const char8_t c2 = input.get();
+		const char8_t c3 = input.get();
+		return (c1 & 0b00001111U) << 12U |
+			   (c2 & 0b00111111U) << 6U |
+			   (c3 & 0b00111111U);
+	}
+	else if (c1 < 0b11111000U)
+	{
+		const char8_t c2 = input.get();
+		const char8_t c3 = input.get();
+		const char8_t c4 = input.get();
+		return (c1 & 0b00000111U) << 18UL |
+			   (c2 & 0b00111111U) << 12U |
+			   (c3 & 0b00111111U) << 6U |
+			   (c4 & 0b00111111U);
+	}
+	return 0;
+}
+
+std::ostream &operator<<(std::ostream &stream, const FrameMeterCapture &capture)
+{
+	for (int32_t player_index = 0; player_index < 2; player_index++)
+	{
+		for (const FrameMeterCaptureFrame &frame : capture.frames)
+		{
+			const FrameMeterCapturePlayer &player = frame.players[player_index];
+			stream << state_to_console_string.at(player.state);
+			if (player.highlight)
+			{
+				stream << "]";
+			}
+		}
+		stream << "\n";
+	}
+
+	return stream;
+}
+
+void FrameMeterCapture::serialize(std::ostream &stream) const
+{
+	for (int32_t player_index = 0; player_index < 2; player_index++)
+	{
+		for (const FrameMeterCaptureFrame &frame : frames)
+		{
+			const FrameMeterCapturePlayer &player = frame.players[player_index];
+			for (const auto &[emoji, state] : emoji_to_state)
+			{
+				if (state == player.state)
+				{
+					std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> convert;
+					stream << convert.to_bytes(&emoji, &emoji + 1);
+					break;
+				}
+			}
+			if (player.highlight)
+			{
+				stream << "]";
+			}
+		}
+		stream << "\n";
+	}
+}
+
+FrameMeterCapture FrameMeterCapture::deserialize(std::istream &stream)
+{
+	FrameMeterCapture capture;
+
+	int32_t frame = 0;
+	uint8_t player = 0;
+	char32_t codepoint;
+
+	while ((codepoint = read_utf8_codepoint(stream), !stream.eof()))
+	{
+		if (codepoint == U']' && frame > 0)
+		{
+			capture.frames[frame - 1].players[player].highlight = true;
+		}
+		if (codepoint == U'\n')
+		{
+			player = 1;
+			frame = 0;
+		}
+		if (emoji_to_state.contains(codepoint))
+		{
+			if (capture.frames.size() <= frame)
+			{
+				capture.frames.emplace_back();
+			}
+			capture.frames[frame].players[player].state = emoji_to_state.at(codepoint);
+			frame += 1;
+		}
+	}
+
+	return capture;
+}
+
+void FrameMeterCapture::write_to_disk() const
+{
+	std::ofstream output;
+	output.open("capture.meter");
+	serialize(output);
+}
+#endif

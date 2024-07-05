@@ -52,7 +52,7 @@ bool run_test(const fs::path &test_file)
 			continue;
 		}
 
-		SnapshotMeterFrame &meter_frame = actual.meter.emplace_back();
+		FrameMeterCaptureFrame &meter_frame = actual.meter.frames.emplace_back();
 		const uint8_t num_frames = meter.players[0].current_page.num_frames;
 		const Frame &p1 = meter.players[0].current_page.frames[num_frames - 1];
 		const Frame &p2 = meter.players[1].current_page.frames[num_frames - 1];
@@ -68,7 +68,11 @@ bool run_test(const fs::path &test_file)
 
 	if (actual.meter != expected.meter)
 	{
-		std::cout << std::format("Expected:\n{}\nActual:\n{}\n", expected.get_meter_string(), actual.get_meter_string());
+		std::cout << "Expected:\n"
+				  << expected.meter << "\n";
+		std::cout << "Actual:\n"
+				  << actual.meter << "\n";
+		std::cout << "\n";
 		return false;
 	}
 

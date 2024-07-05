@@ -1,5 +1,6 @@
 #include <format>
 #include <fstream>
+#include <regex>
 #include <string>
 
 #include "core/battle.h"
@@ -184,21 +185,8 @@ std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 	return lines;
 }
 
-#if FRAME_METER_AUTOMATED_TESTS
-HitboxType deserialize_hitbox_type(const std::string &type)
-{
-	for (const auto &[k, v] : hitbox_type_to_string)
-	{
-		if (v == type)
-		{
-			return k;
-		}
-	}
-	return HitboxType::HIT;
-}
-#endif
+#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
 
-#if UE_BUILD_TEST
 static HitboxCapture *capture = nullptr;
 
 void HitboxCapture::begin_capture()
@@ -219,7 +207,7 @@ void HitboxCapture::update(const HitboxViewer &viewer, bool is_in_combat)
 	}
 	else if (capture->frames.size() > 0)
 	{
-		capture->finalize();
+		capture->write_to_disk();
 		reset();
 	}
 }
@@ -244,24 +232,69 @@ const std::string &serialize_hitbox_type(HitboxType type)
 	return hitbox_type_to_string.at(type);
 }
 
-void HitboxCapture::finalize()
+HitboxType deserialize_hitbox_type(const std::string &type)
 {
-	std::ofstream output;
-	output.open("capture.hitboxes");
+	for (const auto &[k, v] : hitbox_type_to_string)
+	{
+		if (v == type)
+		{
+			return k;
+		}
+	}
+	return HitboxType::HIT;
+}
 
+void HitboxCapture::serialize(std::ostream &stream) const
+{
 	int32_t frame_index = 1;
 	for (const auto &frame : frames)
 	{
-		output << std::format("# Frame {}\n", frame_index);
+		stream << std::format("# Frame {}\n", frame_index);
 		for (const auto &[type, segment] : frame)
 		{
 			const std::string &box_type = serialize_hitbox_type(type);
 			const Vec3 &from = segment[0];
 			const Vec3 &to = segment[1];
-			output << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
+			stream << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
 		}
-		output << "\n";
+		stream << "\n";
 		frame_index++;
 	}
+}
+
+HitboxCapture HitboxCapture::deserialize(std::istream &stream)
+{
+	HitboxCapture capture;
+
+	const std::regex frame_header("# Frame \\d+");
+	const std::regex hitbox_line("(\\w+) \\((.*), (.*), (.*)\\) -> \\((.*), (.*), (.*)\\)");
+
+	for (std::string line; std::getline(stream, line);)
+	{
+		std::smatch match;
+		if (std::regex_search(line, match, frame_header))
+		{
+			capture.frames.emplace_back();
+		}
+		else if (std::regex_search(line, match, hitbox_line))
+		{
+			if (!capture.frames.empty())
+			{
+				const HitboxType type = deserialize_hitbox_type(match[1]);
+				const Vec3 from = Vec3{std::stof(match[2]), std::stof(match[3]), std::stof(match[4])};
+				const Vec3 to = Vec3{std::stof(match[5]), std::stof(match[6]), std::stof(match[7])};
+				capture.frames.back().emplace(HitboxViewer::Line{type, {from, to}});
+			}
+		}
+	}
+
+	return capture;
+}
+
+void HitboxCapture::write_to_disk() const
+{
+	std::ofstream output;
+	output.open("capture.hitboxes");
+	serialize(output);
 }
 #endif

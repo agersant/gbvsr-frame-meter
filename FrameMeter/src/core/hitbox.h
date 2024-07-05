@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <iostream>
 #include <map>
 #include <set>
 #include <string>
@@ -77,12 +78,15 @@ public:
 	static void update(const HitboxViewer &viewer, bool is_in_combat);
 	static void reset();
 
+	void serialize(std::ostream &stream) const;
+	static HitboxCapture deserialize(std::istream &stream);
+
 	bool operator==(HitboxCapture const &) const = default;
 
 	std::vector<std::set<HitboxViewer::Line>> frames;
 
 private:
 	void record_frame(const HitboxViewer &viewer);
-	void finalize();
+	void write_to_disk() const;
 };
 #endif
