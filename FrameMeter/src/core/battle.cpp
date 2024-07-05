@@ -4,11 +4,25 @@ bool Battle::is_freeze_frame() const
 {
 	Character *character_1 = teams[0].main_player_object;
 	Character *character_2 = teams[1].main_player_object;
+	Entity *puppet_1 = character_1->puppet;
+	Entity *puppet_2 = character_2->puppet;
 
 	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
 	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
-	const bool is_hitstop = character_1->hitstop > 0 && character_2->hitstop > 0;
-	return is_cinematic_freeze || is_slowdown_bonus_frame || is_hitstop;
+
+	bool is_p1_hitstop = character_1->hitstop > 0;
+	if (puppet_1)
+	{
+		is_p1_hitstop |= puppet_1->hitstop > 0;
+	}
+
+	bool is_p2_hitstop = character_2->hitstop > 0;
+	if (puppet_2)
+	{
+		is_p2_hitstop |= puppet_2->hitstop > 0;
+	}
+
+	return is_cinematic_freeze || is_slowdown_bonus_frame || (is_p1_hitstop && is_p2_hitstop);
 }
 
 int32_t Entity::get_position_x() const
