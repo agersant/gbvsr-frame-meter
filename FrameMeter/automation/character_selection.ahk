@@ -56,7 +56,7 @@ select_character(character_name) {
     Sleep 300
 
     close_menu()
-    Sleep 5000
+    Sleep 4500
 
     current_character := character_name
 }
