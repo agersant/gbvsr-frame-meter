@@ -8,13 +8,6 @@
 
 const float BATTLE_TO_UE_SCALE = 0.00043f;
 
-#if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
-static const std::map<HitboxType, std::string> hitbox_type_to_string = {
-	{HitboxType::HURT, std::string("hurt")},
-	{HitboxType::HIT, std::string("hit")},
-};
-#endif
-
 void Multibox::add_box(const AABB &new_box)
 {
 	const Vec2 a = new_box[0];
@@ -167,6 +160,15 @@ void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_acti
 		}
 	}
 
+	if (entity->pushbox_enabled && !box_data[entity].contains(HitboxType::PUSH))
+	{
+		Multibox::AABB box = {{
+			{static_cast<float>(entity->pushbox_left), static_cast<float>(entity->pushbox_top)},
+			{static_cast<float>(entity->pushbox_right), static_cast<float>(entity->pushbox_bottom)},
+		}};
+		box_data[entity][HitboxType::PUSH].add_box(box);
+	}
+
 	if (entity->attached && battle->is_entity_valid(entity->attached))
 	{
 		add_entity(battle, entity->attached, is_active);
@@ -201,6 +203,13 @@ std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 }
 
 #if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
+
+static const std::map<HitboxType, std::string> hitbox_type_to_string = {
+	{HitboxType::PUSH, std::string("push")},
+	{HitboxType::HURT, std::string("hurt")},
+	{HitboxType::HIT, std::string("hit")},
+};
+static_assert((int32_t)HitboxType::COUNT == 3, "Update hitbox serialization");
 
 static HitboxCapture *capture = nullptr;
 

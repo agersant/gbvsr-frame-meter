@@ -196,6 +196,7 @@ struct Entity
 	BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
 	BIT_FIELD(0x1AC, 0x00200000, slowdown_bonus_frame);
 	BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
+	BIT_FIELD(0x1BC, 0x40000, pushbox_enabled);
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
 	FIELD(0x2A8, Entity *, attach_parent);
@@ -225,6 +226,10 @@ struct Entity
 	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
 	FIELD(0xEAC, HitHandlerType, hit_handler_type);
 	FIELD(0xF08, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
+	FIELD(0x438c, int32_t, pushbox_left);
+	FIELD(0x4390, int32_t, pushbox_right);
+	FIELD(0x4394, int32_t, pushbox_top);
+	FIELD(0x4398, int32_t, pushbox_bottom);
 	ARRAY_FIELD(0x3EE0, char[20], action_name);
 
 	int32_t get_position_x() const;

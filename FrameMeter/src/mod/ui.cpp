@@ -19,9 +19,11 @@ static const std::map<CharacterState, FLinearColor> palette = {
 };
 
 static const std::map<HitboxType, FLinearColor> hitbox_palette = {
+	{HitboxType::PUSH, FLinearColor::from_srgb(0xAAAAAA)},
 	{HitboxType::HIT, FLinearColor::from_srgb(0xFF0000)},
 	{HitboxType::HURT, FLinearColor::from_srgb(0x00FF00)},
 };
+static_assert((int32_t)HitboxType::COUNT == 3, "Update hitbox palette");
 
 static const float bottom_margin = 140.f;
 static const float border = 4.f;

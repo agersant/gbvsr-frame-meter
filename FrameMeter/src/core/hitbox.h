@@ -39,13 +39,11 @@ TODO LIST
 
 enum class HitboxType : uint8_t
 {
+	PUSH,
 	HURT,
 	HIT,
+	COUNT,
 };
-
-#if FRAME_METER_AUTOMATED_TESTS
-HitboxType deserialize_hitbox_type(const std::string &type);
-#endif
 
 struct Multibox
 {
