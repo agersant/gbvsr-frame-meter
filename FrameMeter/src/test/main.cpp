@@ -47,7 +47,7 @@ bool run_test(const fs::path &test_file)
 
 	for (int i = 0; i < dump->frames.size(); i++)
 	{
-		if (!meter.update(&dump->frames[i]))
+		if (!meter.update(&dump->frames[i]) || !hitbox_viewer.update(&dump->frames[i]))
 		{
 			continue;
 		}
@@ -61,7 +61,6 @@ bool run_test(const fs::path &test_file)
 		meter_frame.players[1].state = p2.state;
 		meter_frame.players[1].highlight = p2.highlight;
 
-		hitbox_viewer.update(&dump->frames[i]);
 		const std::vector<HitboxViewer::Line> lines = hitbox_viewer.get_lines();
 		actual.hitboxes.frames.emplace_back(lines.begin(), lines.end());
 	}

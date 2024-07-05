@@ -66,7 +66,7 @@ struct HitboxViewer
 
 	std::map<Entity *, std::map<HitboxType, Multibox>> box_data;
 
-	void update(const Battle *battle);
+	bool update(const Battle *battle);
 	std::vector<Line> get_lines() const;
 };
 

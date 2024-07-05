@@ -114,11 +114,11 @@ Multibox::AABB entity_box_to_aabb(Entity *entity, Box *box)
 	return Multibox::AABB{{{x0, y0}, {x1, y1}}};
 }
 
-void HitboxViewer::update(const Battle *battle)
+bool HitboxViewer::update(const Battle *battle)
 {
 	if (battle->is_freeze_frame())
 	{
-		return;
+		return false;
 	}
 
 	box_data.clear();
@@ -155,6 +155,8 @@ void HitboxViewer::update(const Battle *battle)
 			multibox.clip();
 		}
 	}
+
+	return true;
 }
 
 Vec3 battle_to_ue_coords(const Vec2 &p)

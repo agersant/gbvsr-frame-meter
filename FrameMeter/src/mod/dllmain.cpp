@@ -89,11 +89,18 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 	{
 		frame_meter.update(game_state->battle);
 		hitbox_viewer.update(game_state->battle);
+
 #if UE_BUILD_TEST
 		Debug::on_battle_update(game_state);
-		DumpWriter::update(game_state->battle, !frame_meter.is_at_rest());
-		HitboxCapture::update(hitbox_viewer, !frame_meter.is_at_rest());
-		FrameMeterCapture::update(frame_meter, !frame_meter.is_at_rest());
+
+		const bool is_in_combat = !frame_meter.is_at_rest();
+		DumpWriter::update(game_state->battle, is_in_combat);
+
+		if (!game_state->battle->is_freeze_frame())
+		{
+			HitboxCapture::update(hitbox_viewer, is_in_combat);
+			FrameMeterCapture::update(frame_meter, is_in_combat);
+		}
 #endif
 	}
 }
