@@ -21,7 +21,8 @@ TODO LIST
 ✅ Draw some boxes!
 ✅ Hurtboxes support w/ color distinction
 ✅ Disable during cinematic camera
-🔲 Fix boxes showing during Belial SSBA flash
+✅ Fix boxes showing during Belial SSBA flash
+🔲 Fix boxes floating mid-stage during Belial throw
 ✅ Add on/off keybind
 ✅ Box merging
 ✅ Hide hurtboxes while invulnerable

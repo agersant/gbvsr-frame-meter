@@ -123,6 +123,24 @@ UObject *get_camera_manager(UWorld *world)
 	return camera_manager.second;
 }
 
+bool is_2d_view(UWorld *world)
+{
+	UObject *camera_manager = get_camera_manager(world);
+	if (!camera_manager)
+	{
+		return false;
+	}
+
+	TArray<TObjectPtr<UObject>> *active_anims = (TArray<TObjectPtr<UObject>> *)camera_manager->GetValuePtrByPropertyNameInChain(STR("ActiveAnims"));
+	if (active_anims && active_anims->Num() > 0)
+	{
+		return false;
+	}
+
+	Camera camera = get_camera(world);
+	return abs(abs(camera.yaw) - 90.f) < 0.01f;
+}
+
 Camera get_camera(UWorld *world)
 {
 	Camera camera = {};

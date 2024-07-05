@@ -50,4 +50,5 @@ bool is_mod_allowed();
 
 bool is_paused(AActor *actor);
 bool is_hud_visible(UWorld *world);
+bool is_2d_view(UWorld *world);
 Camera get_camera(UWorld *world);

@@ -147,11 +147,6 @@ void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_me
 
 void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &viewer)
 {
-	if (!context.is_2d_camera())
-	{
-		return;
-	}
-
 	for (const auto &[type, segment] : viewer.get_lines())
 	{
 		const float thickness = 2.f;

@@ -132,7 +132,7 @@ void post_render(AActor *hud)
 	if (is_mod_allowed() && is_hud_visible(hud->GetWorld()))
 	{
 		DrawContext draw_context(hud, get_camera(hud->GetWorld()));
-		if (hitboxes_visible)
+		if (hitboxes_visible && is_2d_view(hud->GetWorld()))
 		{
 			UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
 		}

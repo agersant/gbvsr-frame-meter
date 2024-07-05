@@ -54,7 +54,6 @@ public:
 	void draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
 	TextSize get_text_size(const std::wstring &text, Typeface typeface, float size) const;
 
-	bool is_2d_camera() const;
 	Vec2 project(Vec3 point) const;
 
 private:
