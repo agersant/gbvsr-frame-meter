@@ -15,6 +15,7 @@ static UFunction *get_camera_location_func = nullptr;
 static UFunction *get_camera_rotation_func = nullptr;
 static UFunction *get_fov_angle_func = nullptr;
 static std::pair<UWorld *, UObject *> hud_material = {};
+static std::pair<UWorld *, UObject *> camera_manager = {};
 static std::map<int32_t, bool> pressed_keys = {};
 
 UREDGameCommon *get_game_instance()
@@ -73,9 +74,8 @@ bool is_paused(AActor *actor)
 	return true;
 }
 
-UObject *get_hud_material(AActor *actor)
+UObject *get_hud_material(UWorld *world)
 {
-	UWorld *world = actor->GetWorld();
 	if (hud_material.first != world || hud_material.second == nullptr)
 	{
 		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(STR("BattleHudTop_C")))
@@ -90,9 +90,9 @@ UObject *get_hud_material(AActor *actor)
 	return hud_material.first == world ? hud_material.second : nullptr;
 }
 
-bool is_hud_visible(AActor *actor)
+bool is_hud_visible(UWorld *world)
 {
-	UObject *hud_material = get_hud_material(actor);
+	UObject *hud_material = get_hud_material(world);
 	if (!hud_material)
 	{
 		return false;
@@ -113,11 +113,21 @@ bool is_hud_visible(AActor *actor)
 	return params.value > 0.f;
 }
 
-Camera get_camera()
+UObject *get_camera_manager(UWorld *world)
+{
+	if (camera_manager.first != world || camera_manager.second == nullptr)
+	{
+		camera_manager.first = world;
+		camera_manager.second = UObjectGlobals::FindFirstOf(L"REDCamera_Battle");
+	}
+	return camera_manager.second;
+}
+
+Camera get_camera(UWorld *world)
 {
 	Camera camera = {};
 
-	UObject *camera_manager = UObjectGlobals::FindFirstOf(L"REDCamera_Battle");
+	UObject *camera_manager = get_camera_manager(world);
 	if (!camera_manager)
 	{
 		return camera;

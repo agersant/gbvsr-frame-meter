@@ -49,5 +49,5 @@ bool is_replay_mode();
 bool is_mod_allowed();
 
 bool is_paused(AActor *actor);
-bool is_hud_visible(AActor *actor);
-Camera get_camera();
+bool is_hud_visible(UWorld *world);
+Camera get_camera(UWorld *world);

@@ -49,7 +49,7 @@ static bool frame_by_frame = false;
 void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
 	const bool play_frame = !is_training_mode() || !frame_by_frame || just_pressed(VK_F6);
-	const bool accept_input = is_mod_allowed() && !is_paused(game_state) && is_hud_visible(game_state);
+	const bool accept_input = is_mod_allowed() && !is_paused(game_state) && is_hud_visible(game_state->GetWorld());
 	const bool read_battle_data = is_mod_allowed() && !is_paused(game_state) && play_frame;
 
 	if (play_frame)
@@ -122,9 +122,9 @@ void post_render(AActor *hud)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud);
 	}
 
-	if (is_mod_allowed() && is_hud_visible(hud))
+	if (is_mod_allowed() && is_hud_visible(hud->GetWorld()))
 	{
-		DrawContext draw_context(hud, get_camera());
+		DrawContext draw_context(hud, get_camera(hud->GetWorld()));
 		if (hitboxes_visible)
 		{
 			UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
