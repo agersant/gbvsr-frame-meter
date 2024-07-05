@@ -88,9 +88,10 @@ eustace_jU_whiff() {
 	select_character("eustace")
 	reset_to_midscreen()
 	begin_capture()
-	SendEvent "{" key_jump "}"
+	Send "{" key_jump " down}"
 	sleep_frames(1)
 	do_move("U")
+	Send "{" key_jump " up}"
 	save_test_result("eustace_jU_whiff")
 }
 
@@ -120,7 +121,6 @@ katalina_2SU_ranged_guard() {
 	do_move("2S+U")
 	save_test_result("katalina_2S+U_ranged_guard")
 }
-
 
 katalina_S_guard() {
 	select_character("katalina")
@@ -163,7 +163,7 @@ vane_2S_whiff_fL_whiff() {
 	begin_capture()
 	do_move("2S")
 	sleep_frames(35)
-	loop 5 {
+	loop 3 {
 		do_move("fL")
 		sleep_frames(5)
 	}
@@ -185,4 +185,13 @@ zeta_S_guard() {
 	begin_capture()
 	do_move("S")
 	save_test_result("zeta_S_guard")
+}
+
+zeta_S_ranged_guard() {
+	select_character("zeta")
+	set_dummy_blocking("block_all")
+	reset_to_midscreen()
+	begin_capture()
+	do_move("S")
+	save_test_result("zeta_S_ranged_guard")
 }
