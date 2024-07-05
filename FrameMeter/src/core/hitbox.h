@@ -22,14 +22,13 @@ TODO LIST
 ✅ Hurtboxes support w/ color distinction
 ✅ Disable during cinematic camera
 ✅ Fix boxes showing during Belial SSBA flash
-🔲 Fix boxes floating mid-stage during Belial throw
+✅ Fix boxes floating mid-stage during throws
 ✅ Add on/off keybind
 ✅ Box merging
 ✅ Hide hurtboxes while invulnerable
 🚧 Command grab support
 🚧 Throw support
 ✅ Pushbox support
-🔲 Fix pushboxes lagging by one frame
 ✅ Investigate pitch -1 multiplier
 ✅ Test Charlotta 5U box
 ✅ Support Cag traps

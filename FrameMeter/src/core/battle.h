@@ -194,9 +194,9 @@ struct Entity
 	FIELD(0x10C, uint32_t, num_hurtboxes);
 	FIELD(0x110, uint32_t, num_hitboxes);
 	BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
-	BIT_FIELD(0x1AC, 0x00200000, slowdown_bonus_frame);
+	BIT_FIELD(0x1AC, 0x200000, slowdown_bonus_frame);
 	BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
-	BIT_FIELD(0x1BC, 0x40000, pushbox_enabled);
+	BIT_FIELD(0x1BC, 0x040000, pushbox_enabled);
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
 	FIELD(0x2A8, Entity *, attach_parent);
@@ -208,13 +208,14 @@ struct Entity
 	FIELD(0x3C4, uint32_t, flags_4);  // ?
 	BIT_FIELD(0x3B8, 0x01, airborne); // ?
 	BIT_FIELD(0x3B8, 0x40000000, recovery);
-	BIT_FIELD(0x3BC, 0x00000010, strike_invincible); // except crossups
-	BIT_FIELD(0x3BC, 0x00000020, throw_invincible);
-	BIT_FIELD(0x3BC, 0x00000040, full_invincible); // except crossups
-	BIT_FIELD(0x3C0, 0x00080000, attacking);
-	BIT_FIELD(0x3C0, 0x00000100, active_frames);
-	BIT_FIELD(0x3C0, 0x00000400, on_the_floor);
-	BIT_FIELD(0x3C0, 0x00000002, defense_hit_connecting);
+	BIT_FIELD(0x3BC, 0x10, strike_invincible); // except crossups
+	BIT_FIELD(0x3BC, 0x20, throw_invincible);
+	BIT_FIELD(0x3BC, 0x40, full_invincible); // except crossups
+	BIT_FIELD(0x3C0, 0x02, defense_hit_connecting);
+	BIT_FIELD(0x3C0, 0x0100, active_frames);
+	BIT_FIELD(0x3C0, 0x0400, on_the_floor);
+	BIT_FIELD(0x3C0, 0x040800, temporarily_attached);
+	BIT_FIELD(0x3C0, 0x080000, attacking);
 	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
 	FIELD(0x3CC, bool, facing_left);
 	FIELD(0x3D0, int32_t, offfset_x);
@@ -222,6 +223,7 @@ struct Entity
 	FIELD(0x3F4, int32_t, scale_x);
 	FIELD(0x3F8, int32_t, scale_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
+	FIELD(0x788, Entity *, temporarily_attached_to);
 	FIELD(0x7A0, AttackParameters, attack_parameters);
 	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
 	FIELD(0xEAC, HitHandlerType, hit_handler_type);

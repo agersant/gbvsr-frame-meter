@@ -44,6 +44,10 @@ int32_t Entity::get_position_x() const
 	{
 		position += attach_parent->get_position_x();
 	}
+	else if (temporarily_attached)
+	{
+		position += temporarily_attached_to->get_position_x();
+	}
 	return position;
 }
 
@@ -53,6 +57,10 @@ int32_t Entity::get_position_y() const
 	if (attach_parent != nullptr)
 	{
 		position += attach_parent->get_position_y();
+	}
+	else if (temporarily_attached)
+	{
+		position += temporarily_attached_to->get_position_y();
 	}
 	return position;
 }
