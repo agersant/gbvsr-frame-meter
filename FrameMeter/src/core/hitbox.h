@@ -10,36 +10,6 @@
 #include "core/battle.h"
 #include "core/math.h"
 
-/*
-
-TODO LIST
-
-✅ Find entity positions in 2D
-✅ Find hitbox positions in 2D
-✅ 2D -> 3D coordinate conversion
-✅ 3D -> screen coordinate conversion
-✅ Draw some boxes!
-✅ Hurtboxes support w/ color distinction
-✅ Disable during cinematic camera
-✅ Fix boxes showing during Belial SSBA flash
-✅ Fix boxes floating mid-stage during throws
-✅ Add on/off keybind
-✅ Box merging
-✅ Hide hurtboxes while invulnerable
-🚧 Command grab support
-🚧 Throw support
-✅ Pushbox support
-✅ Investigate pitch -1 multiplier
-✅ Test Charlotta 5U box
-✅ Support Cag traps
-✅ Support Nier puppet
-✅ Support Katalina 2S+U
-✅ Support Zeta S
-✅ Fine-tune logic on which hitboxes get collected
-✅ Setup tests, including at least Zeta S (ranged and close), Charlotta 5U and Katalina 2S+U
-✅ Automate test suite recording
-*/
-
 enum class HitboxType : uint8_t
 {
 	PUSH,

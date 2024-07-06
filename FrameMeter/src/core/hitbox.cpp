@@ -109,6 +109,87 @@ Multibox::AABB entity_box_to_aabb(Entity *entity, Box *box)
 	return Multibox::AABB{{{x0, y0}, {x1, y1}}};
 }
 
+Multibox::AABB make_throw_box(Entity *entity)
+{
+	float x1, x2, y1, y2;
+
+	const float entity_x = static_cast<float>(entity->get_position_x());
+	const float entity_y = static_cast<float>(entity->get_position_y());
+
+	// What the game checks to tell if p1 can throw p2, on the X axis:
+	// - There is at most `throw_range` units between the 2 players' pushboxes
+	// - (p1.x + throw_box_offset_left) <= p2.x <= (p1.x + throw_box_offset_right)
+	//
+	// What we draw instead:
+	// - Box starts at p1.x since you can never throw behind you anyway
+	// - Box ends at the most restrictive position, either throw range or throw_box_offset_right.
+	//	 When picking throw range, we extend it so that the middle of p2 pushbox is what needs to be visually in the box.
+
+	x1 = entity_x;
+
+	const float direction_multiplier = entity->facing_left ? -1.f : 1.f;
+	const float x2_offset_based = entity_x + direction_multiplier * entity->attack_parameters.throw_box_right;
+
+	float x2_range_based;
+	{
+		float throw_range = static_cast<float>(entity->attack_parameters.throw_range);
+		if (entity->opponent && entity->opponent->pushbox_enabled)
+		{
+			throw_range += std::abs(entity->opponent->pushbox_left - entity->opponent->pushbox_right) / 2.f;
+		}
+
+		if (entity->facing_left)
+		{
+			x2_range_based = static_cast<float>(entity->pushbox_left - throw_range);
+		}
+		else
+		{
+			x2_range_based = static_cast<float>(entity->pushbox_right + throw_range);
+		}
+	}
+
+	if (std::abs(entity_x - x2_offset_based) < std::abs(entity_x - x2_range_based))
+	{
+		x2 = x2_offset_based;
+	}
+	else
+	{
+		x2 = x2_range_based;
+	}
+
+	// What the game checks to tell if p1 can throw p2, on the Y axis:
+	// - If throw_offset_* are configured sensically (ie. top > bottom): (p1.y + throw_box_offset_bottom) <= p2.y <= (p1.y + throw_box_offset_top)
+	// - Otherwise: no vertical check at all
+	//
+	// What we draw instead:
+	// - If throw_offset_* are configured sensically, we use those and add offset so that grabs connect when the drawn box overlaps the middle of p2 pushbox
+	// - Othwerwise: we use p1 pushbox heights, with an arbitrary offset to avoid likely overlaps
+
+	if (entity->attack_parameters.throw_box_bottom < entity->attack_parameters.throw_box_top)
+	{
+		y1 = entity_y + entity->attack_parameters.throw_box_top;
+		y2 = entity_y + entity->attack_parameters.throw_box_bottom;
+		if (entity->opponent && entity->opponent->pushbox_enabled)
+		{
+			const float pushbox_middle = std::abs(entity->opponent->pushbox_bottom + entity->opponent->pushbox_top) / 2.f;
+			const int32_t opponent_y = entity->opponent->get_position_y();
+			const float visual_aid = pushbox_middle - opponent_y;
+			y1 += visual_aid;
+			y2 += visual_aid;
+		}
+	}
+	else
+	{
+		const float arbitrary_offset = 20000;
+		y1 = static_cast<float>(entity->pushbox_top + arbitrary_offset);
+		y2 = static_cast<float>(entity->pushbox_bottom - arbitrary_offset);
+	}
+
+	const Vec2 top_left = {std::min(x1, x2), std::min(y1, y2)};
+	const Vec2 bottom_right = {std::max(x1, x2), std::max(y1, y2)};
+	return Multibox::AABB{top_left, bottom_right};
+}
+
 bool HitboxViewer::update(const Battle *battle)
 {
 	if (battle->is_freeze_frame())
@@ -143,11 +224,17 @@ void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_acti
 	const bool collected_grab_boxes = box_data[entity].contains(HitboxType::GRAB);
 	if (is_active && !collected_strike_boxes && !collected_grab_boxes)
 	{
-		const HitboxType type = entity->attack_parameters.is_grab ? HitboxType::GRAB : HitboxType::STRIKE;
-		for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
+		if (!entity->attack_parameters.is_grab)
 		{
-			Box *box = (entity->hitboxes + box_index);
-			box_data[entity][type].add_box(entity_box_to_aabb(entity, box));
+			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
+			{
+				Box *box = (entity->hitboxes + box_index);
+				box_data[entity][HitboxType::STRIKE].add_box(entity_box_to_aabb(entity, box));
+			}
+		}
+		else if (entity->attack_parameters.throw_range >= 0)
+		{
+			box_data[entity][HitboxType::GRAB].add_box(make_throw_box(entity));
 		}
 	}
 

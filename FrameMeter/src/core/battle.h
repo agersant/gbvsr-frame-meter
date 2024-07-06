@@ -183,6 +183,11 @@ struct AttackParameters
 	FIELD(0x20, int32_t, flags_5); // APFLG5
 	FIELD(0x38, int32_t, enemy_guard_hitstop);
 	FIELD(0x40, int32_t, enemy_blockstun);
+	FIELD(0x4C, int32_t, throw_box_right);
+	FIELD(0x50, int32_t, throw_box_top);
+	FIELD(0x54, int32_t, throw_box_left);
+	FIELD(0x58, int32_t, throw_box_bottom);
+	FIELD(0x5C, int32_t, throw_range);
 };
 
 struct Entity
@@ -199,6 +204,7 @@ struct Entity
 	BIT_FIELD(0x1BC, 0x040000, pushbox_enabled);
 	FIELD(0x25C, uint32_t, hitstop);
 	FIELD(0x280, Character *, parent_character);
+	FIELD(0x290, Entity *, opponent);
 	FIELD(0x2A8, Entity *, attach_parent);
 	FIELD(0x2F0, Entity *, attached);
 	FIELD(0x308, Entity *, puppet);
@@ -214,7 +220,7 @@ struct Entity
 	BIT_FIELD(0x3C0, 0x02, defense_hit_connecting);
 	BIT_FIELD(0x3C0, 0x0100, active_frames);
 	BIT_FIELD(0x3C0, 0x0400, on_the_floor);
-	BIT_FIELD(0x3C0, 0x040800, temporarily_attached);
+	BIT_FIELD(0x3C0, 0x040800, temporarily_attached); // These 2 get checked together by game code, unclear what distinction is
 	BIT_FIELD(0x3C0, 0x080000, attacking);
 	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
 	FIELD(0x3CC, bool, facing_left);
