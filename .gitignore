@@ -1,4 +1,5 @@
 *.pdb
 output
 release
+automation_output
 gbvsr-frame-meter.zip

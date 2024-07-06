@@ -10,6 +10,7 @@
 #include <string>
 
 #include "core/dump.h"
+#include "core/hitbox.h"
 #include "core/meter.h"
 #include "test/output_sink.h"
 #include "test/snapshot.h"
@@ -26,37 +27,58 @@ bool run_test(const fs::path &test_file)
 		return false;
 	}
 
-	const fs::path snapshot_path = fs::path(test_file).replace_extension(".meter");
-	std::shared_ptr<const Snapshot> expected = std::unique_ptr<const Snapshot>(Snapshot::read_from_disk(snapshot_path));
-	if (!expected)
+	Snapshot expected;
+
+	if (!expected.read_meter(fs::path(test_file).replace_extension(".meter")))
 	{
-		std::cout << "Failed to read snapshot file\n";
+		std::cout << "Failed to read .meter file\n";
+		return false;
+	}
+
+	if (!expected.read_hitboxes(fs::path(test_file).replace_extension(".hitboxes")))
+	{
+		std::cout << "Failed to read .hitboxes file\n";
 		return false;
 	}
 
 	FrameMeter meter = {};
+	HitboxViewer hitbox_viewer = {};
 	Snapshot actual;
 
 	for (int i = 0; i < dump->frames.size(); i++)
 	{
-		if (!meter.update(&dump->frames[i]))
+		if (!meter.update(&dump->frames[i]) || !hitbox_viewer.update(&dump->frames[i]))
 		{
 			continue;
 		}
-		std::array<SnapshotFrame, 2> &frame = actual.frames.emplace_back();
 
+		FrameMeterCaptureFrame &meter_frame = actual.meter.frames.emplace_back();
 		const uint8_t num_frames = meter.players[0].current_page.num_frames;
 		const Frame &p1 = meter.players[0].current_page.frames[num_frames - 1];
 		const Frame &p2 = meter.players[1].current_page.frames[num_frames - 1];
-		frame[0].state = p1.state;
-		frame[0].highlight = p1.highlight;
-		frame[1].state = p2.state;
-		frame[1].highlight = p2.highlight;
+		meter_frame.players[0].state = p1.state;
+		meter_frame.players[0].highlight = p1.highlight;
+		meter_frame.players[1].state = p2.state;
+		meter_frame.players[1].highlight = p2.highlight;
+
+		const std::vector<HitboxViewer::Line> lines = hitbox_viewer.get_lines();
+		actual.hitboxes.frames.emplace_back(lines.begin(), lines.end());
 	}
 
-	if (actual != *expected)
+	if (actual.meter != expected.meter)
 	{
-		std::cout << std::format("Expected:\n{}\nActual:\n{}\n", expected->string(), actual.string());
+		std::cout << "Expected:\n"
+				  << expected.meter << "\n";
+		std::cout << "Actual:\n"
+				  << actual.meter << "\n";
+		std::cout << "\n";
+		return false;
+	}
+
+	if (actual.hitboxes != expected.hitboxes)
+	{
+		std::cout << std::format("Hitboxes mismatch:\n");
+		std::cout << actual.diff_hitboxes_against_expected(expected);
 		return false;
 	}
 

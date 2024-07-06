@@ -31,7 +31,7 @@ FLinearColor operator*(float multiplier, FLinearColor color)
 	return color *= multiplier;
 }
 
-DrawContext::DrawContext(UObject *hud) : hud(hud)
+DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 {
 	if (fonts.at(Typeface::Roboto) == nullptr)
 	{
@@ -41,6 +41,11 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 	if (fonts.at(Typeface::SkipStd) == nullptr)
 	{
 		fonts.at(Typeface::SkipStd) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Game/Shared/Font/JPN/FOT-SkipStd-D_Font.FOT-SkipStd-D_Font"));
+	}
+
+	if (!draw_line_internal)
+	{
+		draw_line_internal = hud->GetFunctionByNameInChain(FName(STR("DrawLine")));
 	}
 
 	if (!draw_rect_internal)
@@ -85,12 +90,34 @@ DrawContext::DrawContext(UObject *hud) : hud(hud)
 				int32_t height;
 			} viewport_size;
 			player_controller->ProcessEvent(get_viewport_size, &viewport_size);
-			width = viewport_size.width;
-			height = viewport_size.height;
+			scaling_factor = viewport_size.height / ui_height;
 		}
 	}
+}
 
-	scaling_factor = height / ui_height;
+void DrawContext::draw_line(const FLinearColor &color, float x1, float y1, float x2, float y2, float thickness) const
+{
+	struct DrawLineParams
+	{
+		float x1;
+		float y1;
+		float x2;
+		float y2;
+		FLinearColor color;
+		float thickness;
+	} params = {
+		.x1 = x1 * scaling_factor,
+		.y1 = y1 * scaling_factor,
+		.x2 = x2 * scaling_factor,
+		.y2 = y2 * scaling_factor,
+		.color = color,
+		.thickness = thickness,
+	};
+
+	if (hud && draw_line_internal)
+	{
+		hud->ProcessEvent(draw_line_internal, &params);
+	}
 }
 
 void DrawContext::draw_rect(const FLinearColor &color, float x, float y, float width, float height) const
@@ -204,4 +231,12 @@ TextSize DrawContext::get_text_size(const std::wstring &text, Typeface typeface,
 	*size_prop = original_size;
 
 	return text_size;
+}
+
+Vec2 DrawContext::project(Vec3 point) const
+{
+	Vec2 projection = camera.project(point);
+	projection.x *= ui_width;
+	projection.y *= ui_height;
+	return projection;
 }

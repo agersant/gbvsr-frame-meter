@@ -3,6 +3,7 @@
 #include <Unreal/AActor.hpp>
 
 #include "core/battle.h"
+#include "core/math.h"
 
 using namespace RC::Unreal;
 
@@ -45,7 +46,9 @@ bool just_pressed(int32_t key);
 UREDGameCommon *get_game_instance();
 bool is_training_mode();
 bool is_replay_mode();
-bool is_meter_allowed();
+bool is_mod_allowed();
 
 bool is_paused(AActor *actor);
-bool is_hud_visible(AActor *actor);
+bool is_hud_visible(UWorld *world);
+bool is_2d_view(UWorld *world);
+Camera get_camera(UWorld *world);

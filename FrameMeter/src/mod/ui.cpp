@@ -18,6 +18,14 @@ static const std::map<CharacterState, FLinearColor> palette = {
 	{CharacterState::ARMOR, FLinearColor::from_srgb(0x5C1E6E)},
 };
 
+static const std::map<HitboxType, FLinearColor> hitbox_palette = {
+	{HitboxType::PUSH, FLinearColor::from_srgb(0xAAAAAA)},
+	{HitboxType::HURT, FLinearColor::from_srgb(0x00FF00)},
+	{HitboxType::STRIKE, FLinearColor::from_srgb(0xFF0000)},
+	{HitboxType::GRAB, FLinearColor::from_srgb(0xFF00FF)},
+};
+static_assert((int32_t)HitboxType::COUNT == 4, "Update hitbox palette");
+
 static const float bottom_margin = 140.f;
 static const float border = 4.f;
 static const float frame_width = 14.f;
@@ -119,7 +127,7 @@ void draw_player(const DrawContext &context, float x, float y, const Player &pla
 	}
 }
 
-void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
+void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
 	const float meter_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
 	const float meter_height = 2 * (2 * border + frame_height) + player_spacing;
@@ -135,4 +143,16 @@ void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 	draw_player(context, x, y, frame_meter.players[0]);
 	y += 2 * border + frame_height + player_spacing;
 	draw_player(context, x, y, frame_meter.players[1]);
+}
+
+void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &viewer)
+{
+	for (const auto &[type, segment] : viewer.get_lines())
+	{
+		const float thickness = 2.f;
+		FLinearColor color = hitbox_palette.at(type);
+		const Vec2 start = context.project(segment[0]);
+		const Vec2 end = context.project(segment[1]);
+		context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
+	}
 }

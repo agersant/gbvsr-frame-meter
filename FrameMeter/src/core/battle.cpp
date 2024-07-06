@@ -1,57 +1,133 @@
 #include "core/battle.h"
 
-bool Entity::is_in_active_frames()
+bool Battle::is_freeze_frame() const
 {
+	Character *character_1 = teams[0].main_player_object;
+	Character *character_2 = teams[1].main_player_object;
+	Entity *puppet_1 = character_1->puppet;
+	Entity *puppet_2 = character_2->puppet;
+
+	const bool is_cinematic_freeze = character_1->cinematic_freeze || character_2->cinematic_freeze;
+	const bool is_slowdown_bonus_frame = character_1->slowdown_bonus_frame || character_2->slowdown_bonus_frame;
+
+	bool is_p1_hitstop = character_1->hitstop > 0;
+	if (puppet_1)
+	{
+		is_p1_hitstop |= puppet_1->hitstop > 0;
+	}
+
+	bool is_p2_hitstop = character_2->hitstop > 0;
+	if (puppet_2)
+	{
+		is_p2_hitstop |= puppet_2->hitstop > 0;
+	}
+
+	return is_cinematic_freeze || is_slowdown_bonus_frame || (is_p1_hitstop && is_p2_hitstop);
+}
+
+bool Battle::is_entity_valid(Entity *entity) const
+{
+	for (int32_t i = 0; i < num_entities; i++)
+	{
+		if (entities[i] == entity)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+int32_t Entity::get_position_x() const
+{
+	int32_t position = offfset_x;
+	if (attach_parent != nullptr)
+	{
+		position += attach_parent->get_position_x();
+	}
+	else if (temporarily_attached)
+	{
+		position += temporarily_attached_to->get_position_x();
+	}
+	return position;
+}
+
+int32_t Entity::get_position_y() const
+{
+	int32_t position = offfset_y;
+	if (attach_parent != nullptr)
+	{
+		position += attach_parent->get_position_y();
+	}
+	else if (temporarily_attached)
+	{
+		position += temporarily_attached_to->get_position_y();
+	}
+	return position;
+}
+
+bool Entity::is_active() const
+{
+	if (attack_hit_connecting)
+	{
+		return true;
+	}
+
 	if (attack_parameters.opponent_must_be_airborne && attack_parameters.opponent_must_be_grounded)
 	{
 		return false;
 	}
-	return active_frames && !recovery && (num_hitboxes > 0 || (attached && attached->num_hitboxes > 0));
+
+	return active_frames && !recovery;
 }
 
-bool Entity::has_armor()
+bool Entity::has_armor() const
 {
 	return has_hit_handler && !attack_parameters.is_grab_cinematic && num_hurtboxes > 0;
 }
 
-bool Character::can_walk()
+bool Entity::is_any_invincible() const
+{
+	return is_strike_invincible() || throw_invincible;
+}
+
+bool Entity::is_strike_invincible() const
+{
+	return full_invincible || strike_invincible || (has_hit_handler && hit_handler_type == HitHandlerType::Ignore);
+}
+
+bool Character::can_walk() const
 {
 	return enable_flag & EnableFlag::ForwardWalk;
 }
 
-bool Character::can_attack()
+bool Character::can_attack() const
 {
 	return enable_flag & EnableFlag::NormalAttack;
 }
 
-bool Character::is_air_blocking()
+bool Character::is_air_blocking() const
 {
 	return action_id >= ActionID::AirGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
-bool Character::is_idle()
+bool Character::is_idle() const
 {
 	const bool is_mid_jump = action_id == ActionID::Jump;
 	const bool is_mid_dash = action_id == ActionID::FDash;
 	return (can_walk() || can_attack()) && !is_air_blocking() && !is_mid_jump && !is_mid_dash;
 }
 
-bool Character::is_counterable()
+bool Character::is_counterable() const
 {
 	return attacking && !recovery;
 }
 
-bool Character::is_recovering()
+bool Character::is_recovering() const
 {
 	return attacking && recovery;
 }
 
-bool Character::is_invincible()
-{
-	return full_invincible || strike_invincible || throw_invincible;
-}
-
-bool Character::is_in_blockstun()
+bool Character::is_in_blockstun() const
 {
 	if (defense_guard_connecting)
 	{
@@ -64,7 +140,7 @@ bool Character::is_in_blockstun()
 	return action_id >= ActionID::MidGuardPre && action_id <= ActionID::AirGuardEnd;
 }
 
-bool Character::is_maneuvering()
+bool Character::is_maneuvering() const
 {
 	switch (action_id)
 	{
@@ -87,7 +163,7 @@ bool Character::is_maneuvering()
 	}
 }
 
-bool Character::is_in_hitstun()
+bool Character::is_in_hitstun() const
 {
 	if (defense_hit_connecting)
 	{

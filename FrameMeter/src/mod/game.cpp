@@ -8,10 +8,14 @@
 
 #include "mod/game.h"
 
-static class UREDGameCommon *game_instance = nullptr;
+static UREDGameCommon *game_instance = nullptr;
 static UFunction *get_world_settings_func = nullptr;
 static UFunction *get_scalar_parameter_value_func = nullptr;
+static UFunction *get_camera_location_func = nullptr;
+static UFunction *get_camera_rotation_func = nullptr;
+static UFunction *get_fov_angle_func = nullptr;
 static std::pair<UWorld *, UObject *> hud_material = {};
+static std::pair<UWorld *, UObject *> camera_manager = {};
 static std::map<int32_t, bool> pressed_keys = {};
 
 UREDGameCommon *get_game_instance()
@@ -55,7 +59,7 @@ bool is_replay_mode()
 	return game_instance && game_instance->game_mode == GameMode::REPLAY;
 }
 
-bool is_meter_allowed()
+bool is_mod_allowed()
 {
 	return is_training_mode() || is_replay_mode();
 }
@@ -70,9 +74,8 @@ bool is_paused(AActor *actor)
 	return true;
 }
 
-UObject *get_hud_material(AActor *actor)
+UObject *get_hud_material(UWorld *world)
 {
-	UWorld *world = actor->GetWorld();
 	if (hud_material.first != world || hud_material.second == nullptr)
 	{
 		if (UObject *battle_hud_top_actor = UObjectGlobals::FindFirstOf(STR("BattleHudTop_C")))
@@ -87,9 +90,9 @@ UObject *get_hud_material(AActor *actor)
 	return hud_material.first == world ? hud_material.second : nullptr;
 }
 
-bool is_hud_visible(AActor *actor)
+bool is_hud_visible(UWorld *world)
 {
-	UObject *hud_material = get_hud_material(actor);
+	UObject *hud_material = get_hud_material(world);
 	if (!hud_material)
 	{
 		return false;
@@ -108,4 +111,78 @@ bool is_hud_visible(AActor *actor)
 	params.parameter_name = FName(STR("DrawFlag"));
 	hud_material->ProcessEvent(get_scalar_parameter_value_func, &params);
 	return params.value > 0.f;
+}
+
+UObject *get_camera_manager(UWorld *world)
+{
+	if (camera_manager.first != world || camera_manager.second == nullptr)
+	{
+		camera_manager.first = world;
+		camera_manager.second = UObjectGlobals::FindFirstOf(L"REDCamera_Battle");
+	}
+	return camera_manager.second;
+}
+
+bool is_2d_view(UWorld *world)
+{
+	UObject *camera_manager = get_camera_manager(world);
+	if (!camera_manager)
+	{
+		return false;
+	}
+
+	TArray<TObjectPtr<UObject>> *active_anims = (TArray<TObjectPtr<UObject>> *)camera_manager->GetValuePtrByPropertyNameInChain(STR("ActiveAnims"));
+	if (active_anims && active_anims->Num() > 0)
+	{
+		return false;
+	}
+
+	Camera camera = get_camera(world);
+	return abs(abs(camera.yaw) - 90.f) < 0.01f;
+}
+
+Camera get_camera(UWorld *world)
+{
+	Camera camera = {};
+
+	UObject *camera_manager = get_camera_manager(world);
+	if (!camera_manager)
+	{
+		return camera;
+	}
+
+	if (!get_camera_location_func)
+	{
+		get_camera_location_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetCameraLocation")));
+	}
+
+	if (!get_camera_rotation_func)
+	{
+		get_camera_rotation_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetCameraRotation")));
+	}
+
+	if (!get_fov_angle_func)
+	{
+		get_fov_angle_func = camera_manager->GetFunctionByNameInChain(FName(STR("GetFOVAngle")));
+	}
+
+	camera_manager->ProcessEvent(get_fov_angle_func, &camera.horizontal_fov);
+
+	FVector position;
+	camera_manager->ProcessEvent(get_camera_location_func, &position);
+	camera.position.x = static_cast<float>(position.X());
+	camera.position.y = static_cast<float>(position.Y());
+	camera.position.z = static_cast<float>(position.Z());
+
+	FRotator rotation;
+	camera_manager->ProcessEvent(get_camera_rotation_func, &rotation);
+	camera.yaw = static_cast<float>(rotation.GetYaw());
+	camera.pitch = -static_cast<float>(rotation.GetPitch()); // Unclear why the minus sign is needed here
+	camera.roll = static_cast<float>(rotation.GetRoll());
+
+	camera.aspect_ratio = 16.f / 9.f;
+	camera.near_plane = .1f;
+	camera.far_plane = 1000000.f;
+
+	return camera;
 }

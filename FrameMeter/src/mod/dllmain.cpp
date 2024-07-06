@@ -16,6 +16,7 @@
 
 #include "core/battle.h"
 #include "core/dump.h"
+#include "core/hitbox.h"
 #include "core/meter.h"
 #include "mod/debug.h"
 #include "mod/draw.h"
@@ -39,13 +40,17 @@ static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
 static bool meter_visible = true;
+
+static HitboxViewer hitbox_viewer = {};
+static bool hitboxes_visible = false;
+
 static bool frame_by_frame = false;
 
 void update_battle(AREDGameState_Battle *game_state, float delta_time)
 {
 	const bool play_frame = !is_training_mode() || !frame_by_frame || just_pressed(VK_F6);
-	const bool accept_input = is_meter_allowed() && !is_paused(game_state) && is_hud_visible(game_state);
-	const bool update_meter = is_meter_allowed() && !is_paused(game_state) && play_frame;
+	const bool accept_input = is_mod_allowed() && !is_paused(game_state) && is_hud_visible(game_state->GetWorld());
+	const bool read_battle_data = is_mod_allowed() && !is_paused(game_state) && play_frame;
 
 	if (play_frame)
 	{
@@ -55,6 +60,10 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 
 	if (accept_input)
 	{
+		if (just_pressed(VK_F3))
+		{
+			hitboxes_visible = !hitboxes_visible;
+		}
 		if (just_pressed(VK_F4))
 		{
 			meter_visible = !meter_visible;
@@ -69,17 +78,29 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 			if (just_pressed(VK_F8))
 			{
 				DumpWriter::begin_dump();
+				HitboxCapture::begin_capture();
+				FrameMeterCapture::begin_capture();
 			}
 		}
 #endif
 	}
 
-	if (update_meter)
+	if (read_battle_data)
 	{
 		frame_meter.update(game_state->battle);
+		hitbox_viewer.update(game_state->battle);
+
 #if UE_BUILD_TEST
 		Debug::on_battle_update(game_state);
-		DumpWriter::update(game_state->battle, frame_meter);
+
+		const bool is_in_combat = !frame_meter.is_at_rest();
+		DumpWriter::update(game_state->battle, is_in_combat);
+
+		if (!game_state->battle->is_freeze_frame())
+		{
+			HitboxCapture::update(hitbox_viewer, is_in_combat);
+			FrameMeterCapture::update(frame_meter, is_in_combat);
+		}
 #endif
 	}
 }
@@ -92,6 +113,8 @@ void reset_battle(Battle *battle, int32_t *param)
 #if UE_BUILD_TEST
 	Debug::on_battle_reset(battle);
 	DumpWriter::reset();
+	HitboxCapture::reset();
+	FrameMeterCapture::reset();
 #endif
 	frame_meter.reset();
 	frame_meter.continuous = is_replay_mode();
@@ -106,10 +129,17 @@ void post_render(AActor *hud)
 		((HUDPostRender_sig)hud_original_functions.at(HUD_VTABLE_INDEX_POST_RENDER))((uintptr_t)hud);
 	}
 
-	if (is_meter_allowed() && is_hud_visible(hud) && meter_visible)
+	if (is_mod_allowed() && is_hud_visible(hud->GetWorld()))
 	{
-		DrawContext draw_context(hud);
-		draw_frame_meter(draw_context, frame_meter);
+		DrawContext draw_context(hud, get_camera(hud->GetWorld()));
+		if (hitboxes_visible && is_2d_view(hud->GetWorld()))
+		{
+			UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
+		}
+		if (meter_visible)
+		{
+			UI::draw_frame_meter(draw_context, frame_meter);
+		}
 	}
 }
 

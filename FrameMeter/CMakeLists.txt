@@ -13,6 +13,8 @@ set(Dumping_Sources
 
 set(FrameMeterCore_Sources
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/battle.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/hitbox.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/math.cpp"
 	"${CMAKE_CURRENT_SOURCE_DIR}/src/core/meter.cpp"
 )
 
