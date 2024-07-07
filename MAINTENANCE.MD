@@ -99,18 +99,40 @@ After major game updates, various maintenance task may be required:
 
 # Updating and running the test suite
 
-Delete all the `.zip` files in `.\FrameMeter\test_data` - you are about to re-generate all of these.
+Delete all the `.zip` files in `.\FrameMeter\test_data` - you are about to re-generate all of these. Make sure to keep the `.meter` and `.hitboxes` files as-is.
 
-For each `.meter` file, you need to record a memory dump of a specific gameplay sequence. The name of the files list out what moves to perform, while their content shows expected meter results. To record a sequence, press `F8` and then perform the sequence. Recording starts automatically on the first non-blank frame meter frame, and ends when both characters have a blank frame. The resulting recording shows up as `dump.zip` in the game folder. For sequences that specify `guard`, perform those in the corner position. For the `whiff` or `ranged` sequences, use the training neutral position (except for Katalina `2S+U` which requires more runway).
+### Automated recording (preferred)
 
-Replace all the deleted `.zip` files with your new recordings and run `.scripts\test.ps1`.
+- Install [AutoHotkey](https://www.autohotkey.com/) and add it to your `PATH`
+- Launch the game and start training mode as Gran VS Djeeta. Do not open the options menu.
+- Ensure the button config in `.\FrameMeter\automation\config.ahk` matches your in-game settings.
+- Run `.scripts\record_test_data.ps1`,
+- This will automatically play out a number of moves and record memory dumps of the game state, as well as frame meter state and any hitboxes detected.
+- When the recordings are complete (as of this writing, the last test is Zeta laser from range), copy the generated `.zip` files from `.\automation_output` to `.\FrameMeter\test_data`.
 
-For failed tests, make sure the recording is correct and/or actually work on the mod logic to fix problems (😭).
+### Manual recording
+
+For each `.meter` file in `.\FrameMeter\test_data`, you need to record a memory dump of a specific gameplay sequence. The name of the files list out what moves to perform, while their content shows expected meter results. To record a sequence, press `F8` and then perform the move. Recording starts automatically on the first non-blank frame meter frame, and ends when both characters have a blank frame. The resulting recording shows up as `dump.zip` in the game folder.
+
+For sequences that specify `guard`, perform those in the corner position. For the `whiff` or `ranged` sequences, use the training default midscreen position. In doubt, you can also consult the test implementations in `.\FrameMeter\automation\tests.ahk`.
+
+Replace all the deleted `.zip` files from `.\FrameMeter\test_data` with your new recordings.
+
+### Running the test suite
+
+Run `.scripts\test.ps1`.
+
+For failed tests:
+
+- Make sure the recording was done correctly.
+- Update the affected `.meter` and/or `.hitboxes` files **if a game patch has adjusted relevant move properties**.
+- Adjust the mod logic to fix possible problems (😭).
 
 # Misc functionality to validate
 
-- Watch a replay and make sure the frame meter disappears during match intro/outro
-- Press F4 to toggle meter on/off
+- Watch a replay and make sure the frame meter disappears during match intro/outro.
+- Press F4 to toggle meter on/off.
+- Press F3 and make sure hurtboxes/hitboxes are drawing at all.
 
 # Publishing release
 
