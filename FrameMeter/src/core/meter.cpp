@@ -132,7 +132,7 @@ CharacterState FrameMeter::get_character_state(const Battle *battle, Character *
 		return CharacterState::ACTIVE_HITBOX;
 	}
 
-	if (character->is_any_invincible())
+	if (character->is_strike_invincible())
 	{
 		return CharacterState::INVINCIBLE;
 	}

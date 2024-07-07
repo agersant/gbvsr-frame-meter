@@ -85,11 +85,6 @@ bool Entity::has_armor() const
 	return has_hit_handler && !attack_parameters.is_grab_cinematic && num_hurtboxes > 0;
 }
 
-bool Entity::is_any_invincible() const
-{
-	return is_strike_invincible() || throw_invincible;
-}
-
 bool Entity::is_strike_invincible() const
 {
 	return full_invincible || strike_invincible || (has_hit_handler && hit_handler_type == HitHandlerType::Ignore);

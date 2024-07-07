@@ -18,10 +18,13 @@ if !WinActive("Granblue Fantasy Versus: Rising") {
 clean_artifacts()
 reset_dummy_settings()
 
+_2b_backdash()
+_2b_evade()
 cagliostro_S_guard_neutral_jump()
 cagliostro_S_whiff()
 charlotta_5U_whiff()
 charlotta_fL_whiff()
+charlotta_autocombo_overhead_guard()
 charlotta_neutral_jump()
 charlotta_neutral_jump_air_block()
 charlotta_throw_hit()

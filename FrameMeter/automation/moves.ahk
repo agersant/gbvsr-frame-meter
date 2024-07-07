@@ -2,11 +2,21 @@
 
 moves := Map()
 
+moves["evade"] := [key_block, key_move_left]
+
+moves["cL"] := [key_light]
 moves["fL"] := [key_light]
+moves["L"] := [key_light]
+moves["cM"] := [key_medium]
 moves["fM"] := [key_medium]
+moves["M"] := [key_medium]
+moves["cH"] := [key_heavy]
 moves["fH"] := [key_heavy]
+moves["H"] := [key_heavy]
 moves["U"] := [key_unique]
 moves["Throw"] := [key_throw]
+
+moves["6+H"] := [key_move_right, key_heavy]
 
 moves["S"] := [key_skill]
 moves["S+M"] := [key_skill, key_medium]

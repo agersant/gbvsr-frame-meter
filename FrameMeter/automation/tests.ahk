@@ -5,6 +5,33 @@
 #include "moves.ahk"
 #include "position_resets.ahk"
 
+
+_2b_backdash() {
+	select_character("2b")
+	reset_to_midscreen()
+	begin_capture()
+
+	Send "{" key_move_left " down}"
+	sleep_frames(2)
+	Send "{" key_move_left " up}"
+
+	sleep_frames(2)
+
+	Send "{" key_move_left " down}"
+	sleep_frames(2)
+	Send "{" key_move_left " up}"
+
+	save_test_result("2b_backdash")
+}
+
+_2b_evade() {
+	select_character("2b")
+	reset_to_midscreen()
+	begin_capture()
+	do_move("evade")
+	save_test_result("2b_evade")
+}
+
 cagliostro_S_guard_neutral_jump() {
 	select_character("cagliostro")
 	set_dummy_blocking("block_all")
@@ -31,6 +58,19 @@ charlotta_5U_whiff() {
 	begin_capture()
 	do_move("U")
 	save_test_result("charlotta_5U_whiff")
+}
+
+charlotta_autocombo_overhead_guard() {
+	select_character("charlotta")
+	reset_to_right_corner()
+	begin_capture()
+	do_move("M")
+	do_move("M")
+	loop 20 {
+		sleep_frames(1)
+		do_move("6+H")
+	}
+	save_test_result("charlotta_autocombo_overhead_guard")
 }
 
 charlotta_fL_whiff() {

@@ -244,7 +244,6 @@ struct Entity
 	int32_t get_position_y() const;
 	bool is_active() const;
 	bool has_armor() const;
-	bool is_any_invincible() const;
 	bool is_strike_invincible() const;
 
 private:
