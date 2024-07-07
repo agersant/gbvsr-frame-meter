@@ -8,7 +8,6 @@
 #include <polyhook2/Virtuals/VFuncSwapHook.hpp>
 
 #include <DynamicOutput/Output.hpp>
-#include <SigScanner/SinglePassSigScanner.hpp>
 #include <Mod/CppUserModBase.hpp>
 #include <Unreal/UClass.hpp>
 #include <Unreal/UFunction.hpp>
@@ -21,6 +20,7 @@
 #include "mod/debug.h"
 #include "mod/draw.h"
 #include "mod/game.h"
+#include "mod/sigscan.h"
 #include "mod/ui.h"
 
 using namespace RC;
@@ -173,25 +173,11 @@ void post_init_game_state(AGameModeBase *GameMode)
 std::unique_ptr<PLH::x64Detour> setup_detour(uint64_t callback, uint64_t *trampoline, const char *signature)
 {
 	std::unique_ptr<PLH::x64Detour> detour = nullptr;
-
-	SignatureContainer signature_container{
-		{{signature}},
-		[&](const SignatureContainer &self)
-		{
-			detour = std::make_unique<PLH::x64Detour>(
-				(uint64_t)self.get_match_address(),
-				callback,
-				trampoline);
-			detour->hook();
-			return true;
-		},
-		[](SignatureContainer &self) {},
-	};
-	SinglePassScanner::SignatureContainerMap signature_containers = {
-		{ScanTarget::MainExe, {signature_container}},
-	};
-	SinglePassScanner::start_scan(signature_containers);
-
+	if (uint64_t original = find_function(signature))
+	{
+		detour = std::make_unique<PLH::x64Detour>(original, callback, trampoline);
+		detour->hook();
+	}
 	return detour;
 }
 

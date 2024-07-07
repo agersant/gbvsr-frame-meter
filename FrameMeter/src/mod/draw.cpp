@@ -1,4 +1,5 @@
 #include "mod/draw.h"
+#include "mod/sigscan.h"
 
 FLinearColor FLinearColor::from_srgb(int32_t srgb)
 {
@@ -33,6 +34,16 @@ FLinearColor operator*(float multiplier, FLinearColor color)
 
 DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 {
+	if (!canvas_triangle_item_draw)
+	{
+		canvas_triangle_item_draw = find_function("48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D 6C 24 C9 48 81 EC 00 01 00 00 48 83 79 40 00 48 8B DA");
+	}
+
+	if (TObjectPtr<UCanvas> *canvas_ptr = (TObjectPtr<UCanvas> *)hud->GetValuePtrByPropertyNameInChain(STR("Canvas")))
+	{
+		canvas = (*canvas_ptr).UnderlyingObjectPointer;
+	}
+
 	if (fonts.at(Typeface::Roboto) == nullptr)
 	{
 		fonts.at(Typeface::Roboto) = UObjectGlobals::FindObject<UFont>(nullptr, STR("/Engine/EngineFonts/Roboto.Roboto"));
@@ -140,6 +151,73 @@ void DrawContext::draw_rect(const FLinearColor &color, float x, float y, float w
 	if (hud && draw_rect_internal)
 	{
 		hud->ProcessEvent(draw_rect_internal, &params);
+	}
+}
+
+void DrawContext::draw_triangles(const FLinearColor &color, const std::vector<std::array<Vec2, 3>> &triangles) const
+{
+	// TODO apply ui scale
+
+	struct FCanvasUVTri
+	{
+		FVector2D v0_pos;
+		FVector2D v0_uv;
+		FLinearColor v0_color;
+
+		FVector2D v1_pos;
+		FVector2D v1_uv;
+		FLinearColor v1_color;
+
+		FVector2D v2_pos;
+		FVector2D v2_uv;
+		FLinearColor v2_color;
+	};
+
+	struct FCanvasItem
+	{
+		void *vptr;
+		FVector2D position;
+		uint32_t stereo_depth;
+		ESimpleElementBlendmode blend_mode;
+		bool freeze_time;
+		void *batched_element_parameters;
+		FLinearColor color;
+	};
+
+	struct FCanvasTriangleItem : public FCanvasItem
+	{
+		void *texture;
+		void *material_render_proxy;
+		void *batched_element_parameters;
+		TArray<FCanvasUVTri> triangle_list;
+	};
+
+	FCanvasTriangleItem triangle_item = {};
+	triangle_item.blend_mode = ESimpleElementBlendmode::SE_BLEND_Opaque;
+
+	TObjectPtr<UObject> *texture_ptr = canvas->GetValuePtrByPropertyName<TObjectPtr<UObject>>(STR("DefaultTexture"));
+	if (texture_ptr)
+	{
+		triangle_item.texture = texture_ptr->UnderlyingObjectPointer;
+	}
+
+	for (const auto &triangle : triangles)
+	{
+		FCanvasUVTri &canvas_triangle = triangle_item.triangle_list.AddDefaulted_GetRef();
+		canvas_triangle.v0_pos = {triangle[0].x, triangle[0].y};
+		canvas_triangle.v1_pos = {triangle[1].x, triangle[1].y};
+		canvas_triangle.v2_pos = {triangle[2].x, triangle[2].y};
+		canvas_triangle.v0_color = color;
+		canvas_triangle.v1_color = color;
+		canvas_triangle.v2_color = color;
+	}
+
+	if (canvas_triangle_item_draw && canvas && canvas->inner_canvas)
+	{
+		using CanvasTriangleItemDraw_sig = void (*)(FCanvasTriangleItem *, FCanvas *);
+		// TODO This causes a crash while rendering the frame, seemingly in `SetTextureParameter` from ShaderParameterUtils
+		// Dissassembly doesn't seem to match stock UE :(
+		((CanvasTriangleItemDraw_sig)canvas_triangle_item_draw)(&triangle_item, canvas->inner_canvas);
 	}
 }
 

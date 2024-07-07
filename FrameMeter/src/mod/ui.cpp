@@ -147,12 +147,30 @@ void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_me
 
 void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &viewer)
 {
-	for (const auto &[type, segment] : viewer.get_lines())
+	for (const Hitbox &hitbox : viewer.get_hitboxes())
 	{
 		const float thickness = 2.f;
-		FLinearColor color = hitbox_palette.at(type);
-		const Vec2 start = context.project(segment[0]);
-		const Vec2 end = context.project(segment[1]);
-		context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
+		FLinearColor color = hitbox_palette.at(hitbox.type);
+		FLinearColor faded_color = color;
+		faded_color.a = .5f;
+
+		std::vector<std::array<Vec2, 3>> triangles;
+		for (const auto &fill : hitbox.fills)
+		{
+			const Vec2 a = context.project(fill[0]);
+			const Vec2 b = context.project(fill[1]);
+			const Vec2 c = context.project(fill[2]);
+			const Vec2 d = context.project(fill[3]);
+			triangles.push_back({a, b, c});
+			triangles.push_back({c, d, a});
+		}
+		context.draw_triangles(faded_color, triangles);
+
+		for (const auto &line : hitbox.lines)
+		{
+			const Vec2 start = context.project(line[0]);
+			const Vec2 end = context.project(line[1]);
+			context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
+		}
 	}
 }

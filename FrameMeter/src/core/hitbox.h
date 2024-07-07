@@ -24,22 +24,38 @@ struct Multibox
 	typedef std::array<Vec2, 2> Line;
 	typedef std::array<Vec2, 2> AABB;
 
+	struct Entry
+	{
+		AABB aabb;
+		std::vector<Line> lines;
+		std::vector<AABB> fills;
+	};
+
 	void add_box(const AABB &new_box);
 	void clip();
 	std::vector<Line> get_lines() const;
+	std::vector<AABB> get_fills() const;
 
 private:
-	std::vector<std::pair<AABB, std::vector<Line>>> boxes;
+	std::vector<Entry> boxes;
+};
+
+struct Hitbox
+{
+	HitboxType type;
+	std::vector<std::array<Vec3, 2>> lines;
+	std::vector<std::array<Vec3, 4>> fills;
+
+	bool operator==(Hitbox const &) const = default;
+	auto operator<=>(const Hitbox &) const = default;
 };
 
 struct HitboxViewer
 {
-	typedef std::pair<HitboxType, std::array<Vec3, 2>> Line;
-
 	std::map<Entity *, std::map<HitboxType, Multibox>> box_data;
 
 	bool update(const Battle *battle);
-	std::vector<Line> get_lines() const;
+	std::vector<Hitbox> get_hitboxes() const;
 
 private:
 	void add_entity(const Battle *battle, Entity *entity, bool is_active);
@@ -58,7 +74,7 @@ public:
 
 	bool operator==(HitboxCapture const &) const = default;
 
-	std::vector<std::set<HitboxViewer::Line>> frames;
+	std::vector<std::set<Hitbox>> frames;
 
 private:
 	void record_frame(const HitboxViewer &viewer);

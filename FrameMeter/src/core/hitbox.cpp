@@ -14,8 +14,9 @@ void Multibox::add_box(const AABB &new_box)
 	const Vec2 b = {new_box[1].x, new_box[0].y};
 	const Vec2 c = new_box[1];
 	const Vec2 d = {new_box[0].x, new_box[1].y};
-	std::vector<Line> box_lines = {{a, b}, {b, c}, {c, d}, {d, a}};
-	boxes.push_back({new_box, box_lines});
+	boxes.push_back({.aabb = new_box,
+					 .lines = {{a, b}, {b, c}, {c, d}, {d, a}},
+					 .fills = {new_box}});
 }
 
 void clip_line_against_box(const Multibox::Line &line, const Multibox::AABB &box, std::vector<Multibox::Line> &out_segments)
@@ -69,6 +70,44 @@ void clip_line_against_box(const Multibox::Line &line, const Multibox::AABB &box
 	}
 }
 
+void clip_box_against_box(const Multibox::AABB &clippee, const Multibox::AABB &clipper, std::vector<Multibox::AABB> &out_fills)
+{
+	const Vec2 clippee_min = {std::min(clippee[0].x, clippee[1].x), std::min(clippee[0].y, clippee[1].y)};
+	const Vec2 clippee_max = {std::max(clippee[0].x, clippee[1].x), std::max(clippee[0].y, clippee[1].y)};
+
+	const Vec2 clipper_min = {std::min(clipper[0].x, clipper[1].x), std::min(clipper[0].y, clipper[1].y)};
+	const Vec2 clipper_max = {std::max(clipper[0].x, clipper[1].x), std::max(clipper[0].y, clipper[1].y)};
+
+	Vec2 intersection_min = {std::max(clippee_min.x, clipper_min.x), std::max(clippee_min.y, clipper_min.y)};
+	Vec2 intersection_max = {std::min(clippee_max.x, clipper_max.x), std::min(clippee_max.y, clipper_max.y)};
+
+	if (intersection_min.x >= intersection_max.x || intersection_min.y >= intersection_max.y)
+	{
+		out_fills.push_back(clippee);
+		return;
+	}
+
+	if (intersection_min.x > clippee_min.x)
+	{
+		out_fills.push_back({clippee_min, Vec2{intersection_min.x, clippee_max.y}});
+	}
+
+	if (intersection_max.x < clippee_max.x)
+	{
+		out_fills.push_back({Vec2{intersection_max.x, clippee_min.y}, clippee_max});
+	}
+
+	if (intersection_min.y > clippee_min.y)
+	{
+		out_fills.push_back({Vec2{intersection_min.x, clippee_min.y}, Vec2{intersection_max.x, intersection_min.y}});
+	}
+
+	if (intersection_max.y < clippee_max.y)
+	{
+		out_fills.push_back({Vec2{intersection_min.x, intersection_max.y}, Vec2{intersection_max.x, clippee_max.y}});
+	}
+}
+
 void Multibox::clip()
 {
 	for (int i = 0; i < boxes.size(); i++)
@@ -77,11 +116,20 @@ void Multibox::clip()
 		{
 			if (i != j)
 			{
-				std::vector<Line> old_lines = boxes[i].second;
-				boxes[i].second.clear();
+				std::vector<Line> old_lines = boxes[i].lines;
+				boxes[i].lines.clear();
 				for (const Line &old_line : old_lines)
 				{
-					clip_line_against_box(old_line, boxes[j].first, boxes[i].second);
+					clip_line_against_box(old_line, boxes[j].aabb, boxes[i].lines);
+				}
+			}
+			if (j > i)
+			{
+				std::vector<AABB> old_fills = boxes[i].fills;
+				boxes[i].fills.clear();
+				for (const AABB &old_fill : old_fills)
+				{
+					clip_box_against_box(old_fill, boxes[j].aabb, boxes[i].fills);
 				}
 			}
 		}
@@ -91,11 +139,21 @@ void Multibox::clip()
 std::vector<Multibox::Line> Multibox::get_lines() const
 {
 	std::vector<Multibox::Line> all_lines;
-	for (auto &[aabb, lines] : boxes)
+	for (const Entry &entry : boxes)
 	{
-		all_lines.insert(all_lines.end(), lines.begin(), lines.end());
+		all_lines.insert(all_lines.end(), entry.lines.begin(), entry.lines.end());
 	}
 	return all_lines;
+}
+
+std::vector<Multibox::AABB> Multibox::get_fills() const
+{
+	std::vector<Multibox::AABB> all_fills;
+	for (const Entry &entry : boxes)
+	{
+		all_fills.insert(all_fills.end(), entry.fills.begin(), entry.fills.end());
+	}
+	return all_fills;
 }
 
 Multibox::AABB entity_box_to_aabb(Entity *entity, Box *box)
@@ -265,9 +323,9 @@ void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_acti
 	}
 }
 
-std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
+std::vector<Hitbox> HitboxViewer::get_hitboxes() const
 {
-	std::vector<Line> lines = {};
+	std::vector<Hitbox> hitboxes = {};
 
 	auto battle_to_ue_coords = [](const Vec2 &p) -> Vec3
 	{
@@ -282,14 +340,25 @@ std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 	{
 		for (auto &[box_type, multibox] : multiboxes)
 		{
+			Hitbox &hitbox = hitboxes.emplace_back();
+			hitbox.type = box_type;
 			for (auto &line : multibox.get_lines())
 			{
-				lines.push_back(Line{box_type, {battle_to_ue_coords(line[0]), battle_to_ue_coords(line[1])}});
+				hitbox.lines.push_back({battle_to_ue_coords(line[0]), battle_to_ue_coords(line[1])});
+			}
+			for (auto &fill : multibox.get_fills())
+			{
+				hitbox.fills.push_back({
+					battle_to_ue_coords(fill[0]),
+					battle_to_ue_coords({fill[1].x, fill[0].y}),
+					battle_to_ue_coords(fill[1]),
+					battle_to_ue_coords({fill[0].x, fill[1].y}),
+				});
 			}
 		}
 	}
 
-	return lines;
+	return hitboxes;
 }
 
 #if UE_BUILD_TEST || FRAME_METER_AUTOMATED_TESTS
@@ -338,8 +407,8 @@ void HitboxCapture::reset()
 
 void HitboxCapture::record_frame(const HitboxViewer &viewer)
 {
-	const std::vector<HitboxViewer::Line> lines = viewer.get_lines();
-	frames.emplace_back(lines.begin(), lines.end());
+	const std::vector<Hitbox> hitboxes = viewer.get_hitboxes();
+	frames.emplace_back(hitboxes.begin(), hitboxes.end());
 }
 
 const std::string &serialize_hitbox_type(HitboxType type)
@@ -365,12 +434,15 @@ void HitboxCapture::serialize(std::ostream &stream) const
 	for (const auto &frame : frames)
 	{
 		stream << std::format("# Frame {}\n", frame_index);
-		for (const auto &[type, segment] : frame)
+		for (const Hitbox &hitbox : frame)
 		{
-			const std::string &box_type = serialize_hitbox_type(type);
-			const Vec3 &from = segment[0];
-			const Vec3 &to = segment[1];
-			stream << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
+			const std::string &box_type = serialize_hitbox_type(hitbox.type);
+			for (const auto &line : hitbox.lines)
+			{
+				const Vec3 &from = line[0];
+				const Vec3 &to = line[1];
+				stream << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
+			}
 		}
 		stream << "\n";
 		frame_index++;
@@ -398,7 +470,8 @@ HitboxCapture HitboxCapture::deserialize(std::istream &stream)
 				const HitboxType type = deserialize_hitbox_type(match[1]);
 				const Vec3 from = Vec3{std::stof(match[2]), std::stof(match[3]), std::stof(match[4])};
 				const Vec3 to = Vec3{std::stof(match[5]), std::stof(match[6]), std::stof(match[7])};
-				capture.frames.back().emplace(HitboxViewer::Line{type, {from, to}});
+				// TODO
+				// capture.frames.back().emplace(HitboxViewer::Line{type, {from, to}});
 			}
 		}
 	}
