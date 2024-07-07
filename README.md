@@ -40,11 +40,21 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/4fa609c1-3383-4f92-a
 | <img src="https://placehold.co/21x36/FFF830/FFF830" /> | Post-Damage/Post-Block Recovery Period |
 | <img src="https://placehold.co/21x36/F1F1F0/F1F1F0" /> | Partial or Full Invincibility          |
 
+## Understanding Hitboxes
+
+|                         Color                          | Meaning                                                                                                                                                                                |
+| :----------------------------------------------------: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="https://placehold.co/32x32/AAAAAA/AAAAAA" /> | These are collision boxes that make characters push each other.                                                                                                                        |
+| <img src="https://placehold.co/32x32/00FF00/00FF00" /> | These boxes represent where characters can get hit by strikes.                                                                                                                         |
+| <img src="https://placehold.co/32x32/FF0000/FF0000" /> | Strike hitboxes.                                                                                                                                                                       |
+| <img src="https://placehold.co/32x32/FF00FF/FF00FF" /> | A simplified display of throw and command grab hitboxes. Grabs connect when this overlaps the center of the opponent pushbox (<img src="https://placehold.co/16x16/AAAAAA/AAAAAA" />). |
+
 ## Keyboard Shortcuts
 
-| Key  | Effect                    |
-| :--: | ------------------------- |
-| `F4` | Toggles meter visibility. |
+| Key  | Effect                                       |
+| :--: | -------------------------------------------- |
+| `F3` | Toggles hitboxes visibility (default `off`). |
+| `F4` | Toggles meter visibility (default `on`).     |
 
 ## Caveats
 
