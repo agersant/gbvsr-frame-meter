@@ -129,7 +129,7 @@ void draw_player(const DrawContext &context, float x, float y, const Player &pla
 
 void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
-	if (frame_meter.visible)
+	if (!frame_meter.visible)
 	{
 		return;
 	}
