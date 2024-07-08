@@ -7,5 +7,5 @@
 namespace UI
 {
 	void draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter);
-	void draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &hitboxes);
+	void draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &hitbox_viewer);
 }

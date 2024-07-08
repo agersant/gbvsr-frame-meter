@@ -1,9 +1,19 @@
 #include "core/battle.h"
 
+Character *Battle::get_player1() const
+{
+	return teams[0].main_player_object;
+}
+
+Character *Battle::get_player2() const
+{
+	return teams[1].main_player_object;
+}
+
 bool Battle::is_freeze_frame() const
 {
-	Character *character_1 = teams[0].main_player_object;
-	Character *character_2 = teams[1].main_player_object;
+	Character *character_1 = get_player1();
+	Character *character_2 = get_player2();
 	Entity *puppet_1 = character_1->puppet;
 	Entity *puppet_2 = character_2->puppet;
 

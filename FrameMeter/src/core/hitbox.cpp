@@ -190,6 +190,11 @@ Multibox::AABB make_throw_box(Entity *entity)
 	return Multibox::AABB{top_left, bottom_right};
 }
 
+void HitboxViewer::cycle_display_mode()
+{
+	display_mode = (HitboxDisplayMode)(((uint8_t)display_mode + 1) % (uint8_t)HitboxDisplayMode::Count);
+}
+
 bool HitboxViewer::update(const Battle *battle)
 {
 	if (battle->is_freeze_frame())
@@ -197,77 +202,22 @@ bool HitboxViewer::update(const Battle *battle)
 		return false;
 	}
 
-	box_data.clear();
+	lines.clear();
 
+	EntityHitboxes raw_data;
 	for (int32_t entity_index = 0; entity_index < battle->num_entities; entity_index++)
 	{
 		Entity *entity = battle->entities[entity_index];
-		add_entity(battle, entity, entity->is_active());
+		add_entity(battle, entity, entity->is_active(), raw_data);
 	}
 
-	for (auto &[entity, multiboxes] : box_data)
+	for (auto &[entity, multiboxes] : raw_data)
 	{
 		for (auto &[box_type, multibox] : multiboxes)
 		{
 			multibox.clip();
 		}
 	}
-
-	return true;
-}
-
-void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_active)
-{
-	is_active |= entity->is_active();
-
-	const bool collected_strike_boxes = box_data[entity].contains(HitboxType::STRIKE);
-	const bool collected_grab_boxes = box_data[entity].contains(HitboxType::GRAB);
-	if (is_active && !collected_strike_boxes && !collected_grab_boxes)
-	{
-		if (!entity->attack_parameters.is_grab)
-		{
-			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
-			{
-				Box *box = (entity->hitboxes + box_index);
-				box_data[entity][HitboxType::STRIKE].add_box(entity_box_to_aabb(entity, box));
-			}
-		}
-		else if (entity->attack_parameters.throw_range >= 0)
-		{
-			box_data[entity][HitboxType::GRAB].add_box(make_throw_box(entity));
-		}
-	}
-
-	if (!box_data[entity].contains(HitboxType::HURT))
-	{
-		if (!entity->is_strike_invincible() && !entity->on_the_floor)
-		{
-			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
-			{
-				Box *box = (entity->hurtboxes + box_index);
-				box_data[entity][HitboxType::HURT].add_box(entity_box_to_aabb(entity, box));
-			}
-		}
-	}
-
-	if (entity->pushbox_enabled && !box_data[entity].contains(HitboxType::PUSH))
-	{
-		Multibox::AABB box = {{
-			{static_cast<float>(entity->pushbox_left), static_cast<float>(entity->pushbox_top)},
-			{static_cast<float>(entity->pushbox_right), static_cast<float>(entity->pushbox_bottom)},
-		}};
-		box_data[entity][HitboxType::PUSH].add_box(box);
-	}
-
-	if (entity->attached && battle->is_entity_valid(entity->attached))
-	{
-		add_entity(battle, entity->attached, is_active);
-	}
-}
-
-std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
-{
-	std::vector<Line> lines = {};
 
 	auto battle_to_ue_coords = [](const Vec2 &p) -> Vec3
 	{
@@ -278,17 +228,81 @@ std::vector<HitboxViewer::Line> HitboxViewer::get_lines() const
 		};
 	};
 
-	for (auto &[entity, multiboxes] : box_data)
+	for (auto &[entity, multiboxes] : raw_data)
 	{
 		for (auto &[box_type, multibox] : multiboxes)
 		{
-			for (auto &line : multibox.get_lines())
+			for (auto &line_2d : multibox.get_lines())
 			{
-				lines.push_back(Line{box_type, {battle_to_ue_coords(line[0]), battle_to_ue_coords(line[1])}});
+				Line &line = lines.emplace_back();
+				line.type = box_type;
+				if (entity == battle->get_player1() || entity->parent_character == battle->get_player1())
+				{
+					line.owner = HitboxOwner::P1;
+				}
+				else
+				{
+					line.owner = HitboxOwner::P2;
+				}
+				line.vertices = {battle_to_ue_coords(line_2d[0]), battle_to_ue_coords(line_2d[1])};
 			}
 		}
 	}
 
+	return true;
+}
+
+void HitboxViewer::add_entity(const Battle *battle, Entity *entity, bool is_active, EntityHitboxes &out_hitboxes)
+{
+	is_active |= entity->is_active();
+
+	const bool collected_strike_boxes = out_hitboxes[entity].contains(HitboxType::STRIKE);
+	const bool collected_grab_boxes = out_hitboxes[entity].contains(HitboxType::GRAB);
+	if (is_active && !collected_strike_boxes && !collected_grab_boxes)
+	{
+		if (!entity->attack_parameters.is_grab)
+		{
+			for (uint32_t box_index = 0; box_index < entity->num_hitboxes; box_index++)
+			{
+				Box *box = (entity->hitboxes + box_index);
+				out_hitboxes[entity][HitboxType::STRIKE].add_box(entity_box_to_aabb(entity, box));
+			}
+		}
+		else if (entity->attack_parameters.throw_range >= 0)
+		{
+			out_hitboxes[entity][HitboxType::GRAB].add_box(make_throw_box(entity));
+		}
+	}
+
+	if (!out_hitboxes[entity].contains(HitboxType::HURT))
+	{
+		if (!entity->is_strike_invincible() && !entity->on_the_floor)
+		{
+			for (uint32_t box_index = 0; box_index < entity->num_hurtboxes; box_index++)
+			{
+				Box *box = (entity->hurtboxes + box_index);
+				out_hitboxes[entity][HitboxType::HURT].add_box(entity_box_to_aabb(entity, box));
+			}
+		}
+	}
+
+	if (entity->pushbox_enabled && !out_hitboxes[entity].contains(HitboxType::PUSH))
+	{
+		Multibox::AABB box = {{
+			{static_cast<float>(entity->pushbox_left), static_cast<float>(entity->pushbox_top)},
+			{static_cast<float>(entity->pushbox_right), static_cast<float>(entity->pushbox_bottom)},
+		}};
+		out_hitboxes[entity][HitboxType::PUSH].add_box(box);
+	}
+
+	if (entity->attached && battle->is_entity_valid(entity->attached))
+	{
+		add_entity(battle, entity->attached, is_active, out_hitboxes);
+	}
+}
+
+const std::vector<HitboxViewer::Line> &HitboxViewer::get_lines() const
+{
 	return lines;
 }
 
@@ -365,12 +379,12 @@ void HitboxCapture::serialize(std::ostream &stream) const
 	for (const auto &frame : frames)
 	{
 		stream << std::format("# Frame {}\n", frame_index);
-		for (const auto &[type, segment] : frame)
+		for (const HitboxViewer::Line &line : frame)
 		{
-			const std::string &box_type = serialize_hitbox_type(type);
-			const Vec3 &from = segment[0];
-			const Vec3 &to = segment[1];
-			stream << std::format("{} ({}, {}, {}) -> ({}, {}, {})\n", box_type, from.x, from.y, from.z, to.x, to.y, to.z);
+			const std::string &box_type = serialize_hitbox_type(line.type);
+			const Vec3 &from = line.vertices[0];
+			const Vec3 &to = line.vertices[1];
+			stream << std::format("p{} {} ({}, {}, {}) -> ({}, {}, {})\n", (uint8_t)line.owner, box_type, from.x, from.y, from.z, to.x, to.y, to.z);
 		}
 		stream << "\n";
 		frame_index++;
@@ -382,7 +396,7 @@ HitboxCapture HitboxCapture::deserialize(std::istream &stream)
 	HitboxCapture capture;
 
 	const std::regex frame_header("# Frame \\d+");
-	const std::regex hitbox_line("(\\w+) \\((.*), (.*), (.*)\\) -> \\((.*), (.*), (.*)\\)");
+	const std::regex hitbox_line("p(\\d) (\\w+) \\((.*), (.*), (.*)\\) -> \\((.*), (.*), (.*)\\)");
 
 	for (std::string line; std::getline(stream, line);)
 	{
@@ -395,10 +409,15 @@ HitboxCapture HitboxCapture::deserialize(std::istream &stream)
 		{
 			if (!capture.frames.empty())
 			{
-				const HitboxType type = deserialize_hitbox_type(match[1]);
-				const Vec3 from = Vec3{std::stof(match[2]), std::stof(match[3]), std::stof(match[4])};
-				const Vec3 to = Vec3{std::stof(match[5]), std::stof(match[6]), std::stof(match[7])};
-				capture.frames.back().emplace(HitboxViewer::Line{type, {from, to}});
+				const HitboxOwner owner = static_cast<HitboxOwner>(std::stoi(match[1]));
+				const HitboxType type = deserialize_hitbox_type(match[2]);
+				const Vec3 from = Vec3{std::stof(match[3]), std::stof(match[4]), std::stof(match[5])};
+				const Vec3 to = Vec3{std::stof(match[6]), std::stof(match[7]), std::stof(match[8])};
+				capture.frames.back().emplace(HitboxViewer::Line{
+					.owner = owner,
+					.type = type,
+					.vertices = {from, to},
+				});
 			}
 		}
 	}

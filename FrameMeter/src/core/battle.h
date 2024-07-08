@@ -126,6 +126,8 @@ public:
 	FIELD(0x1018, int32_t, num_entities);
 	ARRAY_FIELD(0x14C0, struct Entity *[MAX_ENTITIES], entities);
 
+	Character *get_player1() const;
+	Character *get_player2() const;
 	bool is_freeze_frame() const;
 	bool is_entity_valid(Entity *entity) const;
 };

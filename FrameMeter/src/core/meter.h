@@ -57,10 +57,12 @@ public:
 	std::optional<int32_t> advantage;
 	bool continuous;
 	bool advantage_enabled;
+	bool visible = true;
 
 	void reset();
-	bool is_at_rest() const;
 	bool update(const Battle *battle);
+
+	bool is_at_rest() const;
 
 private:
 	bool pending_reset;

@@ -39,10 +39,7 @@ static std::unique_ptr<PLH::VFuncSwapHook> hud_post_render_hook = nullptr;
 static PLH::VFuncMap hud_original_functions = {};
 
 static FrameMeter frame_meter = {};
-static bool meter_visible = true;
-
 static HitboxViewer hitbox_viewer = {};
-static bool hitboxes_visible = false;
 
 static bool frame_by_frame = false;
 
@@ -62,11 +59,11 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 	{
 		if (just_pressed(VK_F3))
 		{
-			hitboxes_visible = !hitboxes_visible;
+			hitbox_viewer.cycle_display_mode();
 		}
 		if (just_pressed(VK_F4))
 		{
-			meter_visible = !meter_visible;
+			frame_meter.visible = !frame_meter.visible;
 		}
 #if UE_BUILD_TEST
 		if (is_training_mode())
@@ -132,14 +129,11 @@ void post_render(AActor *hud)
 	if (is_mod_allowed() && is_hud_visible(hud->GetWorld()))
 	{
 		DrawContext draw_context(hud, get_camera(hud->GetWorld()));
-		if (hitboxes_visible && is_2d_view(hud->GetWorld()))
+		if (is_2d_view(hud->GetWorld()))
 		{
 			UI::draw_hitbox_viewer(draw_context, hitbox_viewer);
 		}
-		if (meter_visible)
-		{
-			UI::draw_frame_meter(draw_context, frame_meter);
-		}
+		UI::draw_frame_meter(draw_context, frame_meter);
 	}
 }
 

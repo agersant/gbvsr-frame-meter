@@ -129,6 +129,11 @@ void draw_player(const DrawContext &context, float x, float y, const Player &pla
 
 void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_meter)
 {
+	if (frame_meter.visible)
+	{
+		return;
+	}
+
 	const float meter_width = 2 * border + PAGE_SIZE * (frame_width + frame_spacing) - frame_spacing;
 	const float meter_height = 2 * (2 * border + frame_height) + player_spacing;
 	float x = round((context.ui_width - meter_width) / 2.f);
@@ -145,14 +150,27 @@ void UI::draw_frame_meter(const DrawContext &context, const FrameMeter &frame_me
 	draw_player(context, x, y, frame_meter.players[1]);
 }
 
-void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &viewer)
+void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &hitbox_viewer)
 {
-	for (const auto &[type, segment] : viewer.get_lines())
+	if (hitbox_viewer.display_mode == HitboxDisplayMode::None)
 	{
+		return;
+	}
+
+	for (const HitboxViewer::Line &line : hitbox_viewer.get_lines())
+	{
+		if (line.owner == HitboxOwner::P1 && hitbox_viewer.display_mode == HitboxDisplayMode::OnlyP2)
+		{
+			continue;
+		}
+		if (line.owner == HitboxOwner::P2 && hitbox_viewer.display_mode == HitboxDisplayMode::OnlyP1)
+		{
+			continue;
+		}
 		const float thickness = 2.f;
-		FLinearColor color = hitbox_palette.at(type);
-		const Vec2 start = context.project(segment[0]);
-		const Vec2 end = context.project(segment[1]);
+		FLinearColor color = hitbox_palette.at(line.type);
+		const Vec2 start = context.project(line.vertices[0]);
+		const Vec2 end = context.project(line.vertices[1]);
 		context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
 	}
 }
