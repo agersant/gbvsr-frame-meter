@@ -51,10 +51,10 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/01df62a7-afda-4ff5-9
 
 ## Keyboard Shortcuts
 
-| Key  | Effect                                       |
-| :--: | -------------------------------------------- |
-| `F3` | Toggles hitboxes visibility (default `off`). |
-| `F4` | Toggles meter visibility (default `on`).     |
+| Key  | Effect                                                                                                 |
+| :--: | ------------------------------------------------------------------------------------------------------ |
+| `F3` | Cycle hitboxes visibility between `None` / `All` / `Only Player 1` / `Only Player 2 `(default `None`). |
+| `F4` | Toggles frame meter visibility (default `On`).                                                         |
 
 ## Caveats
 
