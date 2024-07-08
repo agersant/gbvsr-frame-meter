@@ -90,7 +90,19 @@ DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 				int32_t height;
 			} viewport_size;
 			player_controller->ProcessEvent(get_viewport_size, &viewport_size);
-			scaling_factor = viewport_size.height / ui_height;
+
+			// 16:9 or theoretical widescreen
+			const float viewport_aspect_ratio = static_cast<float>(viewport_size.width) / viewport_size.height;
+			const float ui_aspect_ratio = ui_width / ui_height;
+			if (viewport_aspect_ratio >= ui_aspect_ratio)
+			{
+				scaling_factor = viewport_size.height / ui_height;
+			}
+			// Letterboxed tall-screen (eg. 4:3)
+			else
+			{
+				scaling_factor = viewport_size.width / ui_width;
+			}
 		}
 	}
 }
