@@ -24,6 +24,7 @@ New-Item -Type file -Force "$mod_path/enabled.txt" | Out-Null
 $settings = get-content "RE-UE4SS/assets/UE4SS-settings.ini"
 $settings = $settings -replace "ConsoleEnabled = 1", "ConsoleEnabled = 0"
 $settings = $settings -replace "GuiConsoleEnabled = 1", "GuiConsoleEnabled = 0"
+$settings = $settings -replace "bUseUObjectArrayCache = true", "bUseUObjectArrayCache = false"
 $settings > "$game_path/UE4SS-settings.ini"
 
 Compress-Archive -Path "$game_path/*" -DestinationPath "gbvsr-frame-meter.zip"
