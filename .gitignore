@@ -1,5 +1,6 @@
-*.pdb
-output
+.xmake
+Binaries
+Intermediates
 release
-automation_output
 gbvsr-frame-meter.zip
+automation_output

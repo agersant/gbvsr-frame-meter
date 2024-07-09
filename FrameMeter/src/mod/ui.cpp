@@ -1,28 +1,28 @@
 #include "mod/ui.h"
 
-static const FLinearColor black = FLinearColor::from_srgb(0x000000);
-static const FLinearColor white = FLinearColor::from_srgb(0xFFFFFF);
+static const LinearColor black = LinearColor::from_srgb(0x000000);
+static const LinearColor white = LinearColor::from_srgb(0xFFFFFF);
 
-static const FLinearColor advantage_plus_color = FLinearColor::from_srgb(0x7FD1FA);
-static const FLinearColor advantage_minus_color = FLinearColor::from_srgb(0xFC9594);
+static const LinearColor advantage_plus_color = LinearColor::from_srgb(0x7FD1FA);
+static const LinearColor advantage_minus_color = LinearColor::from_srgb(0xFC9594);
 
-static const std::map<CharacterState, FLinearColor> palette = {
-	{CharacterState::IDLE, FLinearColor::from_srgb(0x202020)}, // Should be 0x1A1A1A, but UE doesn't render these 1:1. Perceptually adjusted.
-	{CharacterState::COUNTER, FLinearColor::from_srgb(0x00B796)},
-	{CharacterState::ACTIVE_HITBOX, FLinearColor::from_srgb(0xCC2B67)},
-	{CharacterState::RECOVERY, FLinearColor::from_srgb(0x0170BE)},
-	{CharacterState::STUN, FLinearColor::from_srgb(0xFFF830)},
-	{CharacterState::MOVEMENT, FLinearColor::from_srgb(0x42F8FD)},
-	{CharacterState::INVINCIBLE, FLinearColor::from_srgb(0xF1F1F0)},
-	{CharacterState::PROJECTILE, FLinearColor::from_srgb(0xC98002)},
-	{CharacterState::ARMOR, FLinearColor::from_srgb(0x5C1E6E)},
+static const std::map<CharacterState, LinearColor> palette = {
+	{CharacterState::IDLE, LinearColor::from_srgb(0x202020)}, // Should be 0x1A1A1A, but UE doesn't render these 1:1. Perceptually adjusted.
+	{CharacterState::COUNTER, LinearColor::from_srgb(0x00B796)},
+	{CharacterState::ACTIVE_HITBOX, LinearColor::from_srgb(0xCC2B67)},
+	{CharacterState::RECOVERY, LinearColor::from_srgb(0x0170BE)},
+	{CharacterState::STUN, LinearColor::from_srgb(0xFFF830)},
+	{CharacterState::MOVEMENT, LinearColor::from_srgb(0x42F8FD)},
+	{CharacterState::INVINCIBLE, LinearColor::from_srgb(0xF1F1F0)},
+	{CharacterState::PROJECTILE, LinearColor::from_srgb(0xC98002)},
+	{CharacterState::ARMOR, LinearColor::from_srgb(0x5C1E6E)},
 };
 
-static const std::map<HitboxType, FLinearColor> hitbox_palette = {
-	{HitboxType::PUSH, FLinearColor::from_srgb(0xAAAAAA)},
-	{HitboxType::HURT, FLinearColor::from_srgb(0x00FF00)},
-	{HitboxType::STRIKE, FLinearColor::from_srgb(0xFF0000)},
-	{HitboxType::GRAB, FLinearColor::from_srgb(0xFF00FF)},
+static const std::map<HitboxType, LinearColor> hitbox_palette = {
+	{HitboxType::PUSH, LinearColor::from_srgb(0xAAAAAA)},
+	{HitboxType::HURT, LinearColor::from_srgb(0x00FF00)},
+	{HitboxType::STRIKE, LinearColor::from_srgb(0xFF0000)},
+	{HitboxType::GRAB, LinearColor::from_srgb(0xFF00FF)},
 };
 static_assert((int32_t)HitboxType::COUNT == 4, "Update hitbox palette");
 
@@ -46,7 +46,7 @@ float draw_advantage(const DrawContext &context, float x, float y, const FrameMe
 
 	const std::optional<int32_t> advantage = frame_meter.advantage;
 	std::wstring advantage_text = STR("--");
-	FLinearColor color = white;
+	LinearColor color = white;
 	if (advantage.has_value())
 	{
 		advantage_text = std::to_wstring(abs(*advantage)) + STR("F");
@@ -72,8 +72,8 @@ void draw_frame(const DrawContext &context, float x, float y, size_t index, cons
 	}
 
 	const CharacterState state = frame ? frame->state : CharacterState::IDLE;
-	FLinearColor text_color = white;
-	FLinearColor color = palette.at(state);
+	LinearColor text_color = white;
+	LinearColor color = palette.at(state);
 	if (previous_page && state != CharacterState::IDLE)
 	{
 		const float darkening = 0.2f;
@@ -168,7 +168,7 @@ void UI::draw_hitbox_viewer(const DrawContext &context, const HitboxViewer &hitb
 			continue;
 		}
 		const float thickness = 2.f;
-		FLinearColor color = hitbox_palette.at(line.type);
+		LinearColor color = hitbox_palette.at(line.type);
 		const Vec2 start = context.project(line.vertices[0]);
 		const Vec2 end = context.project(line.vertices[1]);
 		context.draw_line(color, start.x, start.y, end.x, end.y, thickness);
