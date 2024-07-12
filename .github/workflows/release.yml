@@ -35,8 +35,6 @@ jobs:
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: "2.9.3"
-      - name: Update xmake repository
-        run: xmake repo --update
       - name: Compile & Package
         run: .\scripts\release.ps1
       - name: Make Github release
