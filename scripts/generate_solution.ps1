@@ -1,1 +1,0 @@
-cmake -S . -B output

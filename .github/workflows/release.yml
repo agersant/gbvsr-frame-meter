@@ -19,7 +19,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
-          fetch-depth: 0
           token: ${{ secrets.PAT_TOKEN }}
       - name: Setup github SSH
         uses: shimataro/ssh-key-action@v2
@@ -28,6 +27,14 @@ jobs:
           known_hosts: unnecessary
       - name: Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: branch@dev
       - name: Compile & Package
         run: .\scripts\release.ps1
       - name: Make Github release

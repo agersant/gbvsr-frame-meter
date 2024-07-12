@@ -4,7 +4,8 @@
       "name": "Win32",
       "includePath": [
         "${workspaceFolder}/**",
-        "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/include"
+        "${workspaceFolder}/RE-UE4SS/deps/first/Unreal/include",
+        "${default}"
       ],
       "defines": [
         "_DEBUG",

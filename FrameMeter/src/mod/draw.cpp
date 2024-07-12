@@ -1,11 +1,11 @@
 #include "mod/draw.h"
 
-FLinearColor FLinearColor::from_srgb(int32_t srgb)
+LinearColor LinearColor::from_srgb(int32_t srgb)
 {
 	const float r = ((srgb >> 16) & 0xFF) / 255.f;
 	const float g = ((srgb >> 8) & 0xFF) / 255.f;
 	const float b = ((srgb >> 0) & 0xFF) / 255.f;
-	return FLinearColor{
+	return LinearColor{
 		.r = pow(r, 2.2f),
 		.g = pow(g, 2.2f),
 		.b = pow(b, 2.2f),
@@ -13,7 +13,7 @@ FLinearColor FLinearColor::from_srgb(int32_t srgb)
 	};
 }
 
-FLinearColor &operator*=(FLinearColor &color, const float multiplier)
+LinearColor &operator*=(LinearColor &color, const float multiplier)
 {
 	color.r *= multiplier;
 	color.g *= multiplier;
@@ -21,12 +21,12 @@ FLinearColor &operator*=(FLinearColor &color, const float multiplier)
 	return color;
 }
 
-FLinearColor operator*(FLinearColor color, float multiplier)
+LinearColor operator*(LinearColor color, float multiplier)
 {
 	return color *= multiplier;
 }
 
-FLinearColor operator*(float multiplier, FLinearColor color)
+LinearColor operator*(float multiplier, LinearColor color)
 {
 	return color *= multiplier;
 }
@@ -107,7 +107,7 @@ DrawContext::DrawContext(UObject *hud, Camera camera) : hud(hud), camera(camera)
 	}
 }
 
-void DrawContext::draw_line(const FLinearColor &color, float x1, float y1, float x2, float y2, float thickness) const
+void DrawContext::draw_line(const LinearColor &color, float x1, float y1, float x2, float y2, float thickness) const
 {
 	struct DrawLineParams
 	{
@@ -115,7 +115,7 @@ void DrawContext::draw_line(const FLinearColor &color, float x1, float y1, float
 		float y1;
 		float x2;
 		float y2;
-		FLinearColor color;
+		LinearColor color;
 		float thickness;
 	} params = {
 		.x1 = x1 * scaling_factor,
@@ -132,11 +132,11 @@ void DrawContext::draw_line(const FLinearColor &color, float x1, float y1, float
 	}
 }
 
-void DrawContext::draw_rect(const FLinearColor &color, float x, float y, float width, float height) const
+void DrawContext::draw_rect(const LinearColor &color, float x, float y, float width, float height) const
 {
 	struct DrawRectParams
 	{
-		FLinearColor color;
+		LinearColor color;
 		float x;
 		float y;
 		float w;
@@ -155,7 +155,7 @@ void DrawContext::draw_rect(const FLinearColor &color, float x, float y, float w
 	}
 }
 
-void DrawContext::draw_text(const FLinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
+void DrawContext::draw_text(const LinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
 {
 	UFont *font = fonts.at(typeface);
 	if (font == nullptr)
@@ -171,7 +171,7 @@ void DrawContext::draw_text(const FLinearColor &color, float x, float y, const s
 	struct DrawTextParams
 	{
 		FString text;
-		FLinearColor color;
+		LinearColor color;
 		float x;
 		float y;
 		UFont *font;
@@ -195,7 +195,7 @@ void DrawContext::draw_text(const FLinearColor &color, float x, float y, const s
 	*size_prop = original_size;
 }
 
-void DrawContext::draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
+void DrawContext::draw_outlined_text(const LinearColor &color, const LinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const
 {
 	draw_text(outline_color, x - 1, y, text, typeface, size);
 	draw_text(outline_color, x + 1, y, text, typeface, size);

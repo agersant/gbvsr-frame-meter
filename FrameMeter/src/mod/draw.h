@@ -19,19 +19,19 @@ enum class Typeface : uint8_t
 	SkipStd,
 };
 
-struct FLinearColor
+struct LinearColor
 {
 	float r;
 	float g;
 	float b;
 	float a;
 
-	static FLinearColor from_srgb(int32_t srgb);
+	static LinearColor from_srgb(int32_t srgb);
 };
 
-FLinearColor &operator*=(FLinearColor &color, const float multiplier);
-FLinearColor operator*(const FLinearColor &color, float multiplier);
-FLinearColor operator*(float multiplier, const FLinearColor &color);
+LinearColor &operator*=(LinearColor &color, const float multiplier);
+LinearColor operator*(const LinearColor &color, float multiplier);
+LinearColor operator*(float multiplier, const LinearColor &color);
 
 struct TextSize
 {
@@ -48,10 +48,10 @@ public:
 	static inline const float ui_width = 1920.f;
 	static inline const float ui_height = 1080.f;
 
-	void draw_rect(const FLinearColor &color, float x, float y, float width, float height) const;
-	void draw_text(const FLinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
-	void draw_line(const FLinearColor &color, float x1, float y1, float x2, float y2, float thickness) const;
-	void draw_outlined_text(const FLinearColor &color, const FLinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
+	void draw_rect(const LinearColor &color, float x, float y, float width, float height) const;
+	void draw_text(const LinearColor &color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
+	void draw_line(const LinearColor &color, float x1, float y1, float x2, float y2, float thickness) const;
+	void draw_outlined_text(const LinearColor &color, const LinearColor &outline_color, float x, float y, const std::wstring &text, Typeface typeface, float size) const;
 	TextSize get_text_size(const std::wstring &text, Typeface typeface, float size) const;
 
 	Vec2 project(Vec3 point) const;
