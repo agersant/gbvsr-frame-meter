@@ -1,3 +1,5 @@
+#include <numbers>
+
 #include "core/battle.h"
 
 Character *Battle::get_player1() const
@@ -73,6 +75,12 @@ int32_t Entity::get_position_y() const
 		position += temporarily_attached_to->get_position_y();
 	}
 	return position;
+}
+
+float Entity::get_rotation() const
+{
+	const float pi = std::numbers::pi_v<float>;
+	return rotation * pi / (180.f * 1000.f);
 }
 
 bool Entity::is_active() const

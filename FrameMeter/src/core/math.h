@@ -32,6 +32,17 @@ struct Vec2
 		lhs -= rhs;
 		return lhs;
 	}
+
+	Vec2 rotate(float angle_radians) const
+	{
+		const float c = cosf(angle_radians);
+		const float s = sinf(angle_radians);
+
+		return Vec2 {
+			.x = x * c - y * s,
+			.y = x * s + y * c,
+		};
+	}
 };
 
 struct Vec3

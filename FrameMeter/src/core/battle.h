@@ -228,6 +228,7 @@ struct Entity
 	FIELD(0x3CC, bool, facing_left);
 	FIELD(0x3D0, int32_t, offfset_x);
 	FIELD(0x3D4, int32_t, offfset_y);
+	FIELD(0x3DC, int32_t, rotation);
 	FIELD(0x3F4, int32_t, scale_x);
 	FIELD(0x3F8, int32_t, scale_y);
 	BIT_FIELD(0x45C, 0x04, cinematic_attack);
@@ -244,6 +245,7 @@ struct Entity
 
 	int32_t get_position_x() const;
 	int32_t get_position_y() const;
+	float get_rotation() const; // in radians
 	bool is_active() const;
 	bool has_armor() const;
 	bool is_strike_invincible() const;

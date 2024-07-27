@@ -100,12 +100,22 @@ std::vector<Multibox::Line> Multibox::get_lines() const
 
 Multibox::AABB entity_box_to_aabb(Entity *entity, Box *box)
 {
+	const float w = box->w;
+	const float h = box->h;
 	const int32_t sx = -entity->scale_x * (entity->facing_left ? -1 : 1);
 	const int32_t sy = -entity->scale_y;
-	const float x0 = entity->get_position_x() + sx * box->x;
-	const float y0 = entity->get_position_y() + sy * box->y;
-	const float x1 = x0 + sx * box->w;
-	const float y1 = y0 + sy * box->h;
+
+	// TODO Unclear if we should rotate each corner of the box or just the center.
+	// Rotating each corner would require supporting hitboxes that are not axis-aligned :(.
+	const Vec2 center = Vec2 {
+		sx * (box->x + w / 2.f),
+		sy * (box->y + h / 2.f)
+	}.rotate(entity->get_rotation());
+
+	const float x0 = entity->get_position_x() + center.x - sx * w / 2.f;
+	const float y0 = entity->get_position_y() + center.y - sy * h / 2.f;
+	const float x1 = x0 + sx * w;
+	const float y1 = y0 + sy * h;
 	return Multibox::AABB{{{x0, y0}, {x1, y1}}};
 }
 
