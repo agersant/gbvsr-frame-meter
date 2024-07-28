@@ -20,6 +20,7 @@ reset_dummy_settings()
 
 _2b_backdash()
 _2b_evade()
+avatar_belial_2S_U_ranged_whiff()
 cagliostro_S_guard_neutral_jump()
 cagliostro_S_whiff()
 charlotta_5U_whiff()

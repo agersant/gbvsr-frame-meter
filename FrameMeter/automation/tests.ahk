@@ -32,6 +32,20 @@ _2b_evade() {
 	save_test_result("2b_evade")
 }
 
+avatar_belial_2S_U_ranged_whiff() {
+	select_character("avatar_belial")
+	reset_to_midscreen()
+	begin_capture()
+	do_move("2S")
+	loop 10 {
+		sleep_frames(1)
+		Send "{" key_unique " down}"
+		sleep_frames(2)
+		Send "{" key_unique " up}"
+	}
+	save_test_result("avatar_belial_2S_U_ranged_whiff")
+}
+
 cagliostro_S_guard_neutral_jump() {
 	select_character("cagliostro")
 	set_dummy_blocking("block_all")
