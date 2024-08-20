@@ -166,5 +166,6 @@ int main(int32_t argc, char *argv[])
 	const std::string result_text = num_failure == 0 ? "\x1B[32mok\x1B[0m" : "\x1B[31mFAILED\x1B[0m";
 	std::cout << std::format("\ntest result: {}. {} passed; {} failed\n", result_text, num_success, num_failure);
 
-	return 0;
+	const int32_t exit_code = num_failure == 0 ? 0 : 1;
+	return exit_code;
 }
