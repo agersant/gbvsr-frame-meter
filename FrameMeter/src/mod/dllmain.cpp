@@ -65,21 +65,21 @@ void update_battle(AREDGameState_Battle *game_state, float delta_time)
 		{
 			frame_meter.visible = !frame_meter.visible;
 		}
-#if UE_BUILD_TEST
 		if (is_training_mode())
 		{
 			if (just_pressed(VK_F5))
 			{
 				frame_by_frame = !frame_by_frame;
 			}
+#if UE_BUILD_TEST
 			if (just_pressed(VK_F8))
 			{
 				DumpWriter::begin_dump();
 				HitboxCapture::begin_capture();
 				FrameMeterCapture::begin_capture();
 			}
-		}
 #endif
+		}
 	}
 
 	if (read_battle_data)
