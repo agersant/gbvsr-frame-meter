@@ -259,8 +259,8 @@ struct Character : public Entity
 	FIELD(0xD130, EnableFlag, enable_flag);
 	FIELD(0xD148, uint32_t, blockstun_duration);
 	FIELD(0xD170, uint32_t, hitstun_duration);
-	FIELD(0xDB84, ActionID, action_id);
-	FIELD(0xE82C, int32_t, slowdown_remaining);
+	FIELD(0xDBA4, ActionID, action_id);
+	FIELD(0xE87C, int32_t, slowdown_remaining);
 
 	bool can_walk() const;
 	bool can_attack() const;
@@ -273,5 +273,5 @@ struct Character : public Entity
 	bool is_maneuvering() const;
 
 private:
-	char pad[0xE82C + sizeof(int32_t) - sizeof(Entity)];
+	char pad[0xE87C + sizeof(int32_t) - sizeof(Entity)];
 };

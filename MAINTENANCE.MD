@@ -1,5 +1,7 @@
 # Setup
 
+Install Cheat Engine and Autohotkey. In Cheat Engine settings, go to `Debugger Options` and select `Use VEH Debugger`.
+
 In the game folder, update the following settings in UE4SS-settings.ini:
 
 ```
