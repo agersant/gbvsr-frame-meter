@@ -192,7 +192,14 @@ void Player::add_frame(CharacterState state, bool can_highlight)
 	const bool is_new_span = !previous_frame || previous_frame->state != state || highlight_previous;
 	if (is_new_span)
 	{
-		current_page.commit_span();
+		if (current_page.num_frames > 0)
+		{
+			current_page.commit_span();
+		}
+		else if (previous_page.has_value())
+		{
+			previous_page->commit_span();
+		}
 	}
 
 	int32_t span_start;
