@@ -194,7 +194,7 @@ bool check_game_version()
 	MODULEINFO module_info;
 	K32GetModuleInformation(GetCurrentProcess(), GetModuleHandle(nullptr), &module_info, sizeof(MODULEINFO));
 	wchar_t game_version[512] = {0};
-	wcscpy_s(game_version, sizeof(game_version), (wchar_t *)((char *)module_info.lpBaseOfDll + 0x0459FEC0));
+	wcscpy_s(game_version, sizeof(game_version), (wchar_t *)((char *)module_info.lpBaseOfDll + 0x045d40d0));
 
 	const bool is_expected_version = wcscmp(game_version, supported_version) == 0;
 	if (!is_expected_version)
