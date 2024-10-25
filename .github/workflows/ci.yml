@@ -23,8 +23,6 @@ jobs:
         run: choco install -y visualstudio2022buildtools --version=117.9.7.0 --params "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64 --installChannelUri https://aka.ms/vs/17/release/180911598_-255012421/channel"
       - name: Setup Visual Studio Developer Command Prompt
         uses: ilammy/msvc-dev-cmd@v1
-        with:
-          vsversion: "17.9"
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
