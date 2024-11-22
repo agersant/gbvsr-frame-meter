@@ -26,7 +26,7 @@
 using namespace RC;
 using namespace RC::Unreal;
 
-static const wchar_t supported_version[] = STR("Version:2024/10/11 Revision:54298");
+static const wchar_t supported_version[] = STR("Version:2024/11/05 Revision:55426");
 
 static std::unique_ptr<PLH::x64Detour> update_battle_detour = nullptr;
 static uint64_t update_battle_original;
