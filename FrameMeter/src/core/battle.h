@@ -216,9 +216,9 @@ struct Entity
 	FIELD(0x3CC, uint32_t, flags_4);  // ?
 	BIT_FIELD(0x3C0, 0x01, airborne); // ?
 	BIT_FIELD(0x3C0, 0x40000000, recovery);
-	BIT_FIELD(0x3C0, 0x10, strike_invincible); // except crossups
-	BIT_FIELD(0x3C0, 0x20, throw_invincible);
-	BIT_FIELD(0x3C0, 0x40, full_invincible); // except crossups
+	BIT_FIELD(0x3C4, 0x10, strike_invincible); // except crossups
+	BIT_FIELD(0x3C4, 0x20, throw_invincible);
+	BIT_FIELD(0x3C4, 0x40, full_invincible); // except crossups
 	BIT_FIELD(0x3C8, 0x02, defense_hit_connecting);
 	BIT_FIELD(0x3C8, 0x0100, active_frames);
 	BIT_FIELD(0x3C8, 0x0400, on_the_floor);
