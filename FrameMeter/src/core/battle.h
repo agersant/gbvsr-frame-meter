@@ -273,5 +273,5 @@ struct Character : public Entity
 	bool is_maneuvering() const;
 
 private:
-	char pad[0xE89C + sizeof(int32_t) - sizeof(Entity)];
+	char pad[0xE9C4 + sizeof(int32_t) - sizeof(Entity)];
 };
