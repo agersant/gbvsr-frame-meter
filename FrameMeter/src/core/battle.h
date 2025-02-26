@@ -195,53 +195,53 @@ struct AttackParameters
 struct Entity
 {
 	FIELD(0x20, bool, is_player);
-	FIELD(0x60, FrameInfo *, frame_info);
-	FIELD(0x78, Box *, hurtboxes);
-	FIELD(0x80, Box *, hitboxes);
-	FIELD(0x10C, uint32_t, num_hurtboxes);
-	FIELD(0x110, uint32_t, num_hitboxes);
-	BIT_FIELD(0x1AB, 0x04, cinematic_freeze);
-	BIT_FIELD(0x1AC, 0x200000, slowdown_bonus_frame);
-	BIT_FIELD(0x1BC, 0x01, attack_hit_connecting);
-	BIT_FIELD(0x1BC, 0x040000, pushbox_enabled);
-	FIELD(0x25C, uint32_t, hitstop);
-	FIELD(0x280, Character *, parent_character);
-	FIELD(0x290, Entity *, opponent);
-	FIELD(0x2A8, Entity *, attach_parent);
-	FIELD(0x2F0, Entity *, attached);
-	FIELD(0x308, Entity *, puppet);
-	FIELD(0x3B8, uint32_t, flags_1);
-	FIELD(0x3BC, uint32_t, flags_2);
-	FIELD(0x3C0, uint32_t, flags_3);
-	FIELD(0x3C4, uint32_t, flags_4);  // ?
-	BIT_FIELD(0x3B8, 0x01, airborne); // ?
-	BIT_FIELD(0x3B8, 0x40000000, recovery);
-	BIT_FIELD(0x3BC, 0x10, strike_invincible); // except crossups
-	BIT_FIELD(0x3BC, 0x20, throw_invincible);
-	BIT_FIELD(0x3BC, 0x40, full_invincible); // except crossups
-	BIT_FIELD(0x3C0, 0x02, defense_hit_connecting);
-	BIT_FIELD(0x3C0, 0x0100, active_frames);
-	BIT_FIELD(0x3C0, 0x0400, on_the_floor);
-	BIT_FIELD(0x3C0, 0x040800, temporarily_attached); // These 2 get checked together by game code, unclear what distinction is
-	BIT_FIELD(0x3C0, 0x080000, attacking);
-	BIT_FIELD(0x3C0, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
-	FIELD(0x3CC, bool, facing_left);
-	FIELD(0x3D0, int32_t, offfset_x);
-	FIELD(0x3D4, int32_t, offfset_y);
-	FIELD(0x3DC, int32_t, rotation);
-	FIELD(0x3F4, int32_t, scale_x);
-	FIELD(0x3F8, int32_t, scale_y);
-	BIT_FIELD(0x45C, 0x04, cinematic_attack);
-	FIELD(0x788, Entity *, temporarily_attached_to);
-	FIELD(0x7A0, AttackParameters, attack_parameters);
-	BIT_FIELD(0xEA8, 0x02, has_hit_handler);
-	FIELD(0xEAC, HitHandlerType, hit_handler_type);
-	FIELD(0xF08, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
-	FIELD(0x438c, int32_t, pushbox_left);
-	FIELD(0x4390, int32_t, pushbox_right);
-	FIELD(0x4394, int32_t, pushbox_top);
-	FIELD(0x4398, int32_t, pushbox_bottom);
-	ARRAY_FIELD(0x3EE0, char[20], action_name);
+	FIELD(0x68, FrameInfo *, frame_info);
+	FIELD(0x80, Box *, hurtboxes);
+	FIELD(0x88, Box *, hitboxes);
+	FIELD(0x114, uint32_t, num_hurtboxes);
+	FIELD(0x118, uint32_t, num_hitboxes);
+	BIT_FIELD(0x1B3, 0x04, cinematic_freeze);
+	BIT_FIELD(0x1B4, 0x200000, slowdown_bonus_frame);
+	BIT_FIELD(0x1C4, 0x01, attack_hit_connecting);
+	BIT_FIELD(0x1C4, 0x040000, pushbox_enabled);
+	FIELD(0x264, uint32_t, hitstop);
+	FIELD(0x288, Character *, parent_character);
+	FIELD(0x298, Entity *, opponent);
+	FIELD(0x2B0, Entity *, attach_parent);
+	FIELD(0x2F8, Entity *, attached);
+	FIELD(0x310, Entity *, puppet);
+	FIELD(0x3C0, uint32_t, flags_1);
+	FIELD(0x3C4, uint32_t, flags_2);
+	FIELD(0x3C8, uint32_t, flags_3);
+	FIELD(0x3CC, uint32_t, flags_4);  // ?
+	BIT_FIELD(0x3C0, 0x01, airborne); // ?
+	BIT_FIELD(0x3C0, 0x40000000, recovery);
+	BIT_FIELD(0x3C0, 0x10, strike_invincible); // except crossups
+	BIT_FIELD(0x3C0, 0x20, throw_invincible);
+	BIT_FIELD(0x3C0, 0x40, full_invincible); // except crossups
+	BIT_FIELD(0x3C8, 0x02, defense_hit_connecting);
+	BIT_FIELD(0x3C8, 0x0100, active_frames);
+	BIT_FIELD(0x3C8, 0x0400, on_the_floor);
+	BIT_FIELD(0x3C8, 0x040800, temporarily_attached); // These 2 get checked together by game code, unclear what distinction is
+	BIT_FIELD(0x3C8, 0x080000, attacking);
+	BIT_FIELD(0x3C8, 0x10000000, defense_guard_connecting); // Other bits in same byte also good candidates
+	FIELD(0x3D4, bool, facing_left);
+	FIELD(0x3D8, int32_t, offfset_x);
+	FIELD(0x3DC, int32_t, offfset_y);
+	FIELD(0x3E4, int32_t, rotation);
+	FIELD(0x3FC, int32_t, scale_x);
+	FIELD(0x400, int32_t, scale_y);
+	BIT_FIELD(0x464, 0x04, cinematic_attack);
+	FIELD(0x790, Entity *, temporarily_attached_to);
+	FIELD(0x7A8, AttackParameters, attack_parameters);
+	BIT_FIELD(0xEB0, 0x02, has_hit_handler);
+	FIELD(0xEB4, HitHandlerType, hit_handler_type);
+	FIELD(0xF10, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
+	FIELD(0x449C, int32_t, pushbox_left);
+	FIELD(0x44A0, int32_t, pushbox_right);
+	FIELD(0x44A4, int32_t, pushbox_top);
+	FIELD(0x44A8, int32_t, pushbox_bottom);
+	ARRAY_FIELD(0x3FF0, char[20], action_name);
 
 	int32_t get_position_x() const;
 	int32_t get_position_y() const;
@@ -251,16 +251,16 @@ struct Entity
 	bool is_strike_invincible() const;
 
 private:
-	char pad[0xD110];
+	char pad[0xD220];
 };
 
 struct Character : public Entity
 {
-	FIELD(0xD130, EnableFlag, enable_flag);
-	FIELD(0xD148, uint32_t, blockstun_duration);
-	FIELD(0xD170, uint32_t, hitstun_duration);
-	FIELD(0xDBC4, ActionID, action_id);
-	FIELD(0xE89C, int32_t, slowdown_remaining);
+	FIELD(0xD240, EnableFlag, enable_flag);
+	FIELD(0xD258, uint32_t, blockstun_duration);
+	FIELD(0xD280, uint32_t, hitstun_duration);
+	FIELD(0xDCE0, ActionID, action_id);
+	FIELD(0xE9C4, int32_t, slowdown_remaining);
 
 	bool can_walk() const;
 	bool can_attack() const;
