@@ -222,7 +222,7 @@ public:
 		{
 			return;
 		}
-		update_battle_detour = setup_detour((uint64_t)&update_battle, &update_battle_original, "40 57 41 54 41 55 48 83 EC 70 80 B9 ?? ?? 00 00 01 48 8B F9 44 0F 29 44 24");
+		update_battle_detour = setup_detour((uint64_t)&update_battle, &update_battle_original, "40 56 57 41 54 41 55 48 83 EC 68 80 B9 ?? ?? 00 00 01 48 8B F9 44 0F 29 44 24");
 		reset_battle_detour = setup_detour((uint64_t)&reset_battle, &reset_battle_original, "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8D 6C 24 C9 48 81 EC C0 00 00 00 48 8B 05 ?? ?? ?? 04 48 33 C4 48 89 45 2F 45");
 		Hook::RegisterInitGameStatePostCallback(&post_init_game_state);
 	}
