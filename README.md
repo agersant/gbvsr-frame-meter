@@ -25,6 +25,8 @@ https://github.com/agersant/gbvsr-frame-meter/assets/817256/01df62a7-afda-4ff5-9
                 📄 main.dll
 ```
 
+If you are playing the game on Linux / Proton, you may also need to adjust the game launch command. In Steam, right click on the game in your library and click `Properties...`. At the bottom of the general tab, change `Launch Options` to: `WINEDLLOVERRIDES="dwmapi=n,b" %command%`. Close the Properties window and launch the game as usual.
+
 5. Launch the game via Steam as usual.
 
 ## Understanding the Meter
