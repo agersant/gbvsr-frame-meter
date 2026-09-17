@@ -234,14 +234,14 @@ struct Entity
 	BIT_FIELD(0x464, 0x04, cinematic_attack);
 	FIELD(0x790, Entity *, temporarily_attached_to);
 	FIELD(0x7A8, AttackParameters, attack_parameters);
-	BIT_FIELD(0xEB0, 0x02, has_hit_handler);
-	FIELD(0xEB4, HitHandlerType, hit_handler_type);
-	FIELD(0xF10, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
-	FIELD(0x44F4, int32_t, pushbox_left);
-	FIELD(0x44F8, int32_t, pushbox_right);
-	FIELD(0x44FC, int32_t, pushbox_top);
-	FIELD(0x4500, int32_t, pushbox_bottom);
-	ARRAY_FIELD(0x4048, char[20], action_name);
+	BIT_FIELD(0xEB4, 0x02, has_hit_handler);
+	FIELD(0xEB8, HitHandlerType, hit_handler_type);
+	FIELD(0xF14, Bitmask<BBScriptInterrupt::MAX>, bbscript_interrupts);
+	ARRAY_FIELD(0x4050, char[20], action_name);
+	FIELD(0x44FC, int32_t, pushbox_left);
+	FIELD(0x4500, int32_t, pushbox_right);
+	FIELD(0x4504, int32_t, pushbox_top);
+	FIELD(0x4508, int32_t, pushbox_bottom);
 
 	int32_t get_position_x() const;
 	int32_t get_position_y() const;
@@ -251,16 +251,16 @@ struct Entity
 	bool is_strike_invincible() const;
 
 private:
-	char pad[0xD280];
+	char pad[0xD430];
 };
 
 struct Character : public Entity
 {
-	FIELD(0xD2A0, EnableFlag, enable_flag);
-	FIELD(0xD2B8, uint32_t, blockstun_duration);
-	FIELD(0xD2E0, uint32_t, hitstun_duration);
-	FIELD(0xDD50, ActionID, action_id);
-	FIELD(0xEA34, int32_t, slowdown_remaining);
+	FIELD(0xD450, EnableFlag, enable_flag);
+	FIELD(0xD468, uint32_t, blockstun_duration);
+	FIELD(0xD490, uint32_t, hitstun_duration);
+	FIELD(0xDF04, ActionID, action_id);
+	FIELD(0xEBE8, int32_t, slowdown_remaining);
 
 	bool can_walk() const;
 	bool can_attack() const;
@@ -273,5 +273,5 @@ struct Character : public Entity
 	bool is_maneuvering() const;
 
 private:
-	char pad[0xEA34 + sizeof(int32_t) - sizeof(Entity)];
+	char pad[0xEBE8 + sizeof(int32_t) - sizeof(Entity)];
 };
